@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>Machina</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>Machina</title>
     <authors>SyndicatedLife</authors>
     <owners>SyndicatedLife</owners>
     <licenseUrl>https://github.com/Icehunter/machina/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/Icehunter/machina</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/Icehunter/machina/master/Sharlayan/Logo.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/Icehunter/machina/master/Machina/Logo.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Final Fantasy XIV Network Packet Decryption</description>
     <releaseNotes></releaseNotes>
