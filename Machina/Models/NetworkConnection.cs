@@ -1,4 +1,4 @@
-﻿// Machina ~ SocketObject.cs
+﻿// Machina ~ NetworkConnection.cs
 // 
 // Copyright © 2007 - 2017 Ryan Wilson - All Rights Reserved
 // 
@@ -15,18 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 
-namespace Machina
+namespace Machina.Models
 {
-    public class SocketObject
+    public class NetworkConnection : ServerConnection
     {
-        public byte[] Buffer = new byte[0x20000];
-        public List<NetworkConnection> Connections = new List<NetworkConnection>();
-        public object SocketLock = new object();
-        public WinPcapWrapper.Device Device { get; set; }
-        public string IPAddress { get; set; }
-        public Socket Socket { get; set; }
+        private const int NetworkBufferMax = 0x19000;
+        public DateTime LastGoodNetworkPacketTime = DateTime.MinValue;
+        public DateTime LastNetworkBufferUpdate = DateTime.Now;
+        public byte[] NetworkBuffer = new byte[0x19000];
+        public object NetworkBufferLock = new object();
+        public Dictionary<uint, NetworkPacket> StalePackets = new Dictionary<uint, NetworkPacket>();
+        public object StalePacketsLock = new object();
+        public int NetworkBufferPosition { get; set; }
+        public uint? NextTCPSequence { get; set; }
     }
 }

@@ -22,7 +22,7 @@ using System.IO;
 using System.Net;
 using NLog;
 
-namespace Machina
+namespace Machina.Models
 {
     public class TCPHeader
     {

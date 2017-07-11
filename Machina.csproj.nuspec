@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Sharlayan</id>
+    <version>3.0.0</version>
+    <title>Sharlayan</title>
+    <authors>SyndicatedLife</authors>
+    <owners>SyndicatedLife</owners>
+    <licenseUrl>https://github.com/Icehunter/sharlayan/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/Icehunter/sharlayan</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/Icehunter/sharlayan/master/Sharlayan/Logo.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Final Fantasy XIV Memory Reading</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright © 2007 - 2017 Ryan Wilson</copyright>
+    <tags>ffxiv memory tracking</tags>
+  </metadata>
+  <files>
+    <file src=".\distribution\Sharlayan.dll" target="lib\NET461" />
+    <file src=".\distribution\Sharlayan.pdb" target="lib\NET461" />
+    <file src=".\distribution\Sharlayan.xml" target="lib\NET461" />
+  </files>
+</package>

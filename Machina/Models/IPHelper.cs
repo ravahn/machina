@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace Machina
+namespace Machina.Models
 {
     public static class IPHelper
     {

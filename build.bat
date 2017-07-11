@@ -1,0 +1,1 @@
+nuget pack .\Machina\Machina.csproj.nuspec -OutputDirectory .\packages\

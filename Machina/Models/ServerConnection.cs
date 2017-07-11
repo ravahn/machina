@@ -18,7 +18,7 @@
 using System;
 using System.Net;
 
-namespace Machina
+namespace Machina.Models
 {
     public class ServerConnection
     {

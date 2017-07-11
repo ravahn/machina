@@ -1,4 +1,4 @@
-﻿// Machina ~ NewPacketEvent.cs
+﻿// Machina ~ SocketObject.cs
 // 
 // Copyright © 2007 - 2017 Ryan Wilson - All Rights Reserved
 // 
@@ -15,23 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using Machina.Models;
-using NLog;
+using System.Collections.Generic;
+using System.Net.Sockets;
 
-namespace Machina.Events
+namespace Machina.Models
 {
-    public class NewNetworkPacketEvent : EventArgs
+    public class SocketObject
     {
-        public NewNetworkPacketEvent(object sender, Logger logger, NetworkPacket networkPacket)
-        {
-            Sender = sender;
-            Logger = logger;
-            NetworkPacket = networkPacket;
-        }
-
-        public object Sender { get; set; }
-        public Logger Logger { get; set; }
-        public NetworkPacket NetworkPacket { get; set; }
+        public byte[] Buffer = new byte[0x20000];
+        public List<NetworkConnection> Connections = new List<NetworkConnection>();
+        public object SocketLock = new object();
+        public WinPcapWrapper.Device Device { get; set; }
+        public string IPAddress { get; set; }
+        public Socket Socket { get; set; }
     }
 }

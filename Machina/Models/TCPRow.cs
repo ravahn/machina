@@ -18,7 +18,7 @@
 using System.Net;
 using System.Net.NetworkInformation;
 
-namespace Machina
+namespace Machina.Models
 {
     public class TCPRow
     {

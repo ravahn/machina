@@ -1,4 +1,4 @@
-﻿// Machina ~ NetworkPacket.cs
+﻿// Machina ~ NetworkConfig.cs
 // 
 // Copyright © 2007 - 2017 Ryan Wilson - All Rights Reserved
 // 
@@ -15,18 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-
-namespace Machina
+namespace Machina.Models
 {
-    public class NetworkPacket
+    public class NetworkConfig
     {
-        public byte[] Buffer { get; set; }
-        public bool Push { get; set; }
-        public uint TCPSequence { get; set; }
-        public uint Key { get; set; }
-        public int CurrentPosition { get; set; }
-        public int MessageSize { get; set; }
-        public DateTime PacketDate { get; set; }
+        public string ApplicationName { get; set; }
+        public string ExecutablePath { get; set; }
+        public bool UseWinPCap { get; set; }
+        public int CurrentProcessID { get; set; }
+        public string UserSelectedInterface { get; set; }
     }
 }

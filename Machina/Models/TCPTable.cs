@@ -18,7 +18,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Machina
+namespace Machina.Models
 {
     public class TCPTable : IEnumerable
     {

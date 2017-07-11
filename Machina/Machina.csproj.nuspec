@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Machina</id>
+    <version>1.0.0</version>
+    <title>Machina</title>
+    <authors>SyndicatedLife</authors>
+    <owners>SyndicatedLife</owners>
+    <licenseUrl>https://github.com/Icehunter/machina/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/Icehunter/machina</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/Icehunter/machina/master/Sharlayan/Logo.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Final Fantasy XIV Network Packet Decryption</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright © 2007 - 2017 Ryan Wilson</copyright>
+    <tags>ffxiv network packet decryption</tags>
+  </metadata>
+  <files>
+    <file src="..\distribution\Machina.dll" target="lib\NET461" />
+    <file src="..\distribution\Machina.pdb" target="lib\NET461" />
+    <file src="..\distribution\Machina.xml" target="lib\NET461" />
+  </files>
+</package>
