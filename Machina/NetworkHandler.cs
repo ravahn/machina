@@ -25,7 +25,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Machina.Events;
 using Machina.Models;
 using NLog;
@@ -398,7 +397,7 @@ namespace Machina
                                 Key = BitConverter.ToUInt32(bytes, position + 0x10),
                                 Buffer = bytes,
                                 CurrentPosition = position,
-                                MessageSize = (int)messageSize,
+                                MessageSize = (int) messageSize,
                                 PacketDate = time
                             });
                         }
