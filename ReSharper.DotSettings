@@ -90,9 +90,6 @@
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/VBFormat/WRAP_MULTIPLE_DECLARATION_STYLE/@EntryValue">WRAP_IF_LONG</s:String>
 	
 	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">$PROJECT$ ~ $FILENAME$&#xD;
-FFXIVAPP &amp; Related Plugins/Modules&#xD;
-&#xD;
-Updated: $CURRENT_DAY$-$CURRENT_MONTH$-$CURRENT_YEAR$, $CURRENT_TIME$&#xD;
 &#xD;
 Copyright © 2007 - $CURRENT_YEAR$ Ryan Wilson - All Rights Reserved&#xD;
 &#xD;

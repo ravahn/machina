@@ -11,9 +11,6 @@
     <iconUrl>https://raw.githubusercontent.com/Icehunter/machina/master/Machina/Logo.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>
-      1.0.2 remove logo from output
-    </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>ffxiv network packet decryption</tags>
   </metadata>
