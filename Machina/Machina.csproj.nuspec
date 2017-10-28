@@ -1,17 +1,20 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
-    <licenseUrl>https://github.com/Icehunter/machina/blob/master/LICENSE.md</licenseUrl>
-    <projectUrl>https://github.com/Icehunter/machina</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/Icehunter/machina/master/Machina/Logo.png</iconUrl>
+    <id>Machina</id>
+    <version>2.0.0</version>
+    <title>Machina</title>
+    <authors>Ravahn</authors>
+    <owners>Ravahn</owners>
+    <licenseUrl>https://github.com/Ravahn/machina/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/Ravahn/machina</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>$description$</description>
-    <copyright>$copyright$</copyright>
-    <tags>ffxiv network packet decryption</tags>
+    <description>Network reading and decoding library</description>
+    <copyright>Copyright © 2017 Ravahn</copyright>
+    <tags>raw socket winpcap tcpip c# packet sniffer</tags>
   </metadata>
+  <files>
+    <file src="..\README.md" target="" />
+    <file src="..\LICENSE.md" target="" />
+  </files>
 </package>

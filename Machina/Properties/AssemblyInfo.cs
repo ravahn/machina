@@ -23,11 +23,11 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("Machina")]
-[assembly: AssemblyDescription("Final Fantasy XIV Network Packet Decryption")]
+[assembly: AssemblyDescription("General-purpose library for raw network packet reading and reassembly")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("SyndicatedLife")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Machina")]
-[assembly: AssemblyCopyright("Copyright © 2007 - 2017 Ryan Wilson")]
+[assembly: AssemblyCopyright("Copyright © 2017 Ravahn")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +51,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0")]
-[assembly: AssemblyInformationalVersion("1.0.3")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyInformationalVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]
+
