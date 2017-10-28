@@ -43,7 +43,7 @@ Machina.FFXIV is an extension to the Machina library that decodes Final Fantasy 
     public static void Main(string[] args)
     {
         FFXIVNetworkMonitor monitor = new FFXIVNetworkMonitor();
-        monitor.MessageReceived = (long epoch, byte[] message) => MessageReceived(connection, message);
+        monitor.MessageReceived = (long epoch, byte[] message) => MessageReceived(epoch, message);
         monitor.Start();
         // Run for 10 seconds
         System.Threading.Thread.Sleep(10000);
