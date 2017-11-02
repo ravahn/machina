@@ -43,6 +43,13 @@ namespace Machina
         /// </summary>
         public uint ProcessID
         { get; set; } = 0;
+
+        /// <summary>
+        /// Specifies the local IP address of the network interface to monitor
+        /// </summary>
+        public string LocalIP
+        { get; set; } = "";
+        
         /// <summary>
         /// Specifies the Window Name of the application that is generating or receiving the traffic.  Either ProcessID or WindowName must be specified.
         /// </summary>
@@ -216,11 +223,19 @@ namespace Machina
 
         private void CheckForIPChange()
         {
-            uint newLocalAddress = _connections.FirstOrDefault()?.LocalIP ?? 0;
+            uint newLocalAddress = 0;
+            if (string.IsNullOrWhiteSpace(LocalIP))
+            {
+                newLocalAddress = _connections.FirstOrDefault()?.LocalIP ?? 0;
+                if (newLocalAddress == 0x100007F && _connections.Distinct().Count() == 1) // 127.0.0.1 localhost
+                    newLocalAddress = _connections.FirstOrDefault(x => x.LocalIP != 0x100007F)?.LocalIP ?? 0;
+            }
+            else
+                newLocalAddress = (uint)IPAddress.Parse(LocalIP).Address;
 
             if (_localAddress != newLocalAddress)
             {
-                Trace.WriteLine("TCPNetworkMonitor: listening on IP: " + new IPAddress(newLocalAddress).ToString());
+                Trace.WriteLine("TCPNetworkMonitor: " + ((MonitorType == NetworkMonitorType.WinPCap) ? "WinPCap " : "") + "listening on IP: " + new IPAddress(newLocalAddress).ToString());
                 _localAddress = newLocalAddress;
 
                 if (MonitorType == NetworkMonitorType.WinPCap)

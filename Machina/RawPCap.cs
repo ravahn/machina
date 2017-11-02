@@ -210,6 +210,8 @@ namespace Machina
 
             if (!string.IsNullOrWhiteSpace(device.Name))
                 StartCapture(device);
+            else
+                Trace.WriteLine("IP [" + new System.Net.IPAddress(address).ToString() + " selected but unable to find corresponding WinPCap device.");
         }
 
         public void Destroy()

@@ -43,6 +43,12 @@ namespace Machina.FFXIV
         public uint ProcessID
         { get; set; } = 0;
 
+        /// <summary>
+        /// Specifies the local IP address to override the detected IP
+        /// </summary>
+        public string LocalIP
+        { get; set; } = "";
+
         #region Message Delegates section
         public delegate void MessageReceivedDelegate(long epoch, byte[] message);
 
@@ -89,6 +95,8 @@ namespace Machina.FFXIV
             _monitor.ProcessID = ProcessID;
             if (_monitor.ProcessID == 0)
                 _monitor.WindowName = "FINAL FANTASY XIV";
+            _monitor.MonitorType = MonitorType;
+            _monitor.LocalIP = LocalIP;
 
             _monitor.DataSent = (string connection, byte[] data) => ProcessSentMessage(connection, data);
             _monitor.DataReceived = (string connection, byte[] data) => ProcessReceivedMessage(connection, data);

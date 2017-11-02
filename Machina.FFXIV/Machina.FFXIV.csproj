@@ -38,9 +38,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FFXIMessageHeader.cs" />
+    <Compile Include="Headers\FFXIMessageHeader.cs" />
     <Compile Include="FFXIVBundleDecoder.cs" />
-    <Compile Include="FFXIVBundleHeader.cs" />
+    <Compile Include="Headers\FFXIVBundleHeader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FFXIVNetworkMonitor.cs" />
   </ItemGroup>
