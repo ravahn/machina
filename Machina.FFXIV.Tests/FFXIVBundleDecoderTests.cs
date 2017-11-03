@@ -120,8 +120,7 @@ namespace Machina.FFXIV.Tests
             sut.StoreData(data2);
 
             Assert.AreEqual(1, sut.Messages.Count);
-            Assert.AreEqual(1, TestInfrastructure.Listener.Messages.Count);
-            Assert.IsTrue(TestInfrastructure.Listener.Messages[0].Contains("magic #"));
+            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
         }
 
         [TestMethod]
