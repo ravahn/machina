@@ -74,7 +74,8 @@ namespace Machina.FFXIV
                         if (header.magic0 != 0 && header.magic1 != 0 &&
                             header.magic2 != 0 && header.magic3 != 0)
                         {
-                            Trace.WriteLine("FFXIVBundleDecoder: Invalid magic # in header:" + Utility.ByteArrayToHexString(_bundleBuffer, offset, 36));
+                            if (LastMessageTimestamp != DateTime.MinValue)
+                                Trace.WriteLine("FFXIVBundleDecoder: Invalid magic # in header:" + Utility.ByteArrayToHexString(_bundleBuffer, offset, 36));
 
                             offset = GetNextMagicNumberPos(_bundleBuffer, offset);
                             if (offset == -1)

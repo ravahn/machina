@@ -91,7 +91,7 @@ namespace Machina
         public uint GetProcessIDByWindowName(string windowName)
         {
             uint processID;
-            IntPtr hWindow = FindWindow(null, windowName); //"FINAL FANTASY XIV"
+            IntPtr hWindow = FindWindow(null, windowName);
             GetWindowThreadProcessId(hWindow, out processID);
 
             return processID;
@@ -106,7 +106,7 @@ namespace Machina
         {
             if (ProcessID == 0)
             {
-                if (ProcessWindowName == "")
+                if (string.IsNullOrWhiteSpace(ProcessWindowName))
                     return;
                 else
                     ProcessID = GetProcessIDByWindowName(ProcessWindowName);
@@ -167,10 +167,6 @@ namespace Machina
                                     break;
                                 }
                             }
-
-                            // failsafe for port 443 connections, which the game uses sometimes.
-                            if ((ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwRemotePort) == 443)
-                                bFound = true;
 
                             if (!bFound)
                             {

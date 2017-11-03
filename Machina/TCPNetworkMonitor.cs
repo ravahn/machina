@@ -227,7 +227,7 @@ namespace Machina
             if (string.IsNullOrWhiteSpace(LocalIP))
             {
                 newLocalAddress = _connections.FirstOrDefault()?.LocalIP ?? 0;
-                if (newLocalAddress == 0x100007F && _connections.Distinct().Count() == 1) // 127.0.0.1 localhost
+                if (newLocalAddress == 0x100007F && _connections.Select(x => x.LocalIP).Distinct().Count() > 1) // 127.0.0.1 localhost
                     newLocalAddress = _connections.FirstOrDefault(x => x.LocalIP != 0x100007F)?.LocalIP ?? 0;
             }
             else
@@ -263,11 +263,19 @@ namespace Machina
             byte[] buffer;
 
             if (MonitorType == NetworkMonitorType.WinPCap)
+            {
+                if (_winpcap == null)
+                    return;
                 while ((size = _winpcap.Receive(out buffer)) > 0)
                     ProcessData(buffer, size);
+            }
             else
+            {
+                if (_socket == null)
+                    return;
                 while ((size = _socket.Receive(out buffer)) > 0)
                     ProcessData(buffer, size);
+            }
         }
 
 
