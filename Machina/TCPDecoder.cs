@@ -155,7 +155,7 @@ namespace Machina
                         if (packetOffset >= packet.Length - header.DataOffset)
                         {
                             // this packet will get removed once we exit the loop.
-                            Trace.WriteLine("TCPDecoder: packet data already processed, expected sequence [" + _NextSequence.ToString() + "], received [" + header.SequenceNumber + "], size [" + (packet.Length - header.DataOffset) + "].  Data: " + Utility.ByteArrayToHexString(packet));
+                            Trace.WriteLine("TCPDecoder: packet data already processed, expected sequence [" + _NextSequence.ToString() + "], received [" + header.SequenceNumber + "], size [" + (packet.Length - header.DataOffset) + "].  Data: " + Utility.ByteArrayToHexString(packet, 0, 50));
                             continue;
                         }
 

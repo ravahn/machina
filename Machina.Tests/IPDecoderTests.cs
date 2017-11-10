@@ -478,8 +478,7 @@ namespace Machina.Tests
                 Assert.AreEqual(i + 11, ret[i]);
 
             Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(1, TestInfrastructure.Listener.Messages.Count);
-            Assert.IsTrue(TestInfrastructure.Listener.Messages[0].Contains("fragment purged"));
+            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
         }
 
         /// <summary>

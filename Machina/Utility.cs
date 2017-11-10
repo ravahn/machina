@@ -107,6 +107,9 @@ namespace Machina
 
             foreach (NetworkInterface netInterface in NetworkInterface.GetAllNetworkInterfaces())
             {
+                if (netInterface.OperationalStatus != OperationalStatus.Up)
+                    continue;
+
                 IPInterfaceProperties ipProps = netInterface.GetIPProperties();
                 foreach (string ip in ipProps.UnicastAddresses.Select(x => x.Address.ToString() ?? ""))
                     if (ip.Length <= 15 && ip.Contains('.')) // ipv4 addresses only

@@ -123,7 +123,7 @@ namespace Machina.FFXIV
                                 if (message_offset > messageBufferSize)
                                 {
                                     Trace.WriteLine("FFXIVBundleDecoder: Bad message offset - offset=" + message_offset.ToString() + ", bufferSize=" + messageBufferSize.ToString() +
-                                        ", data: " + Utility.ByteArrayToHexString(data));
+                                        ", data: " + Utility.ByteArrayToHexString(data, 0, 50));
 
                                     _allocated = 0;
                                     return;

@@ -23,7 +23,9 @@ namespace Machina.Tests
             var sut = new FirewallWrapper();
 
             var result = sut.IsFirewallDisabled();
-            Assert.IsTrue(result);
+
+            // result could be either true or false based on local configuration.
+
             Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
         }
 

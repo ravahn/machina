@@ -255,8 +255,8 @@ namespace Machina
                                         Fragments.RemoveAt(j);
                                     else if (Utility.ntohs(BitConverter.ToUInt16(Fragments[j], 4)) < currentId - 99)
                                     {
-                                        Trace.WriteLine("IP: Old fragment purged.  Current ID: [" + currentId.ToString("X4") + "], Old ID: + [" +
-                                            IPAddress.NetworkToHostOrder((short)BitConverter.ToUInt16(Fragments[j], 4)) + "] " + Utility.ByteArrayToHexString(Fragments[j]));
+                                        //Trace.WriteLine("IP: Old fragment purged.  Current ID: [" + currentId.ToString("X4") + "], Old ID: + [" +
+                                            //IPAddress.NetworkToHostOrder((short)BitConverter.ToUInt16(Fragments[j], 4)) + "] " + Utility.ByteArrayToHexString(Fragments[j], 0, 50));
                                         Fragments.RemoveAt(j);
                                     }
                                 }

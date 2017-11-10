@@ -21,6 +21,7 @@ using System.Threading;
 using System.Linq;
 
 using Machina;
+using System.Threading.Tasks;
 
 namespace Machina.Tests
 {
@@ -41,16 +42,22 @@ namespace Machina.Tests
         [TestMethod()]
         public void RawSocket_GetDataTwiceTest()
         {
-            string ip = Utility.GetNetworkInterfaceIPs().First();
+            string ip = Utility.GetNetworkInterfaceIPs().FirstOrDefault();
+            Assert.IsTrue(!string.IsNullOrEmpty(ip), "Unable to locate a network interface to test RawSocket.");
             System.Net.IPAddress address = System.Net.IPAddress.Parse(ip);
 
             var sut = new RawSocket();
+
+            // start an async download
+            System.Net.WebClient client = new System.Net.WebClient();
+            Task t = client.DownloadStringTaskAsync("http://www.google.com");
 
             int receivedCount = 0;
 
             try
             {
                 sut.Create((uint)address.Address);
+                t.Wait();
 
                 byte[] buffer;
                 for (int i=0;i<100;i++)
