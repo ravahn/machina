@@ -144,7 +144,6 @@ namespace Machina
 
         private void Cleanup()
         {
-            _connections.Clear();
             if (_socket != null)
             {
                 _socket.Destroy();
@@ -156,6 +155,7 @@ namespace Machina
                 _winpcap = null;
             }
 
+            _connections.Clear();
             _localAddress = 0;
         }
 
@@ -178,10 +178,6 @@ namespace Machina
 
                     Thread.Sleep(10);
                 }
-
-                Cleanup();
-
-                return;
             }
             catch (Exception ex)
             {
@@ -226,9 +222,18 @@ namespace Machina
             uint newLocalAddress = 0;
             if (string.IsNullOrWhiteSpace(LocalIP))
             {
-                newLocalAddress = _connections.FirstOrDefault()?.LocalIP ?? 0;
-                if (newLocalAddress == 0x100007F && _connections.Select(x => x.LocalIP).Distinct().Count() > 1) // 127.0.0.1 localhost
-                    newLocalAddress = _connections.FirstOrDefault(x => x.LocalIP != 0x100007F)?.LocalIP ?? 0;
+                // pick the first IP address by default
+                if (_connections.Count > 0)
+                    newLocalAddress = _connections[0].LocalIP;
+
+                // if we happened to have picked localhost, which may be used by some VPN/proxy software, look for any other ip other than localhost and pick it instead.
+                if (newLocalAddress == 0x100007F)
+                    for (int i = 0; i < _connections.Count; i++)
+                        if (_connections[i].LocalIP != 0x100007f)
+                        {
+                            newLocalAddress = _connections[i].LocalIP;
+                            break;
+                        }
             }
             else
                 newLocalAddress = (uint)IPAddress.Parse(LocalIP).Address;

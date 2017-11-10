@@ -78,6 +78,8 @@ namespace Machina
         { get; set; } = "";
 
 
+        private uint _currentProcessID = 0;
+
         [DllImport("user32.dll", EntryPoint = "FindWindow")]
         private static extern IntPtr FindWindow(string sClass, string sWindow);
         [DllImport("user32.dll", SetLastError = true)]
@@ -86,7 +88,7 @@ namespace Machina
         /// <summary>
         /// This returns the process id of the first window with the specified window name.
         /// </summary>
-        /// <param name="windowName">name of the window to look for</param>
+        /// <param name="windowName">name of the window to look for</param> 
         /// <returns>Process ID</returns>
         public uint GetProcessIDByWindowName(string windowName)
         {
@@ -104,17 +106,20 @@ namespace Machina
         /// <param name="connections">List containing prior connections that needs to be maintained</param>
         public unsafe void UpdateTCPIPConnections(List<TCPConnection> connections)
         {
-            if (ProcessID == 0)
-            {
-                if (string.IsNullOrWhiteSpace(ProcessWindowName))
-                    return;
-                else
-                    ProcessID = GetProcessIDByWindowName(ProcessWindowName);
-            }
+            if (ProcessID > 0)
+                _currentProcessID = ProcessID;
+            else 
+                _currentProcessID = GetProcessIDByWindowName(ProcessWindowName);         
 
-            if (ProcessID == 0)
+            if (_currentProcessID == 0)
             {
-                connections.Clear();
+                if (connections.Count > 0)
+                {
+                    Trace.WriteLine("ProcessTCPInfo: Process has exited, closing all connections.");
+
+                    connections.Clear();
+                }
+
                 return;
             }
 
@@ -152,7 +157,7 @@ namespace Machina
                         MIB_TCPROW_EX entry = *(MIB_TCPROW_EX*)tmpPtr;
 
                         // Process if ProcessID matches
-                        if (entry.dwProcessId == ProcessID)
+                        if (entry.dwProcessId == _currentProcessID)
                         {
                             bool bFound = false;
                             for (int j = 0; j < connections.Count; j++)
@@ -180,7 +185,7 @@ namespace Machina
 
                                 connections.Add(connection);
 
-                                Trace.WriteLine("ProcessNetInfo: Connection detected for Process [" + ProcessID.ToString() + "]: " + connection.ToString());
+                                Trace.WriteLine("ProcessTCPInfo: New connection detected for Process [" + _currentProcessID.ToString() + "]: " + connection.ToString());
                             }
                         }
 
@@ -198,7 +203,7 @@ namespace Machina
                             MIB_TCPROW_EX entry = *(MIB_TCPROW_EX*)tmpPtr;
 
                             // Process if ProcessID matches
-                            if (entry.dwProcessId == ProcessID)
+                            if (entry.dwProcessId == _currentProcessID)
                             {
                                 if (connections[i].LocalIP == entry.dwLocalAddr &&
                                     connections[i].RemoteIP == entry.dwRemoteAddr &&
@@ -214,18 +219,21 @@ namespace Machina
                             tmpPtr += sizeof(MIB_TCPROW_EX);
                         }
                         if (!bFound)
+                        {
+                            Trace.WriteLine("ProcessTCPInfo: Removed connection " + connections[i].ToString());
                             connections.RemoveAt(i);
+                        }
                     }
                 }
                 else
                 {
-                    Trace.WriteLine("ProcessNetInfo: Unable to retrieve TCP table. Return code: " + ret.ToString());
+                    Trace.WriteLine("ProcessTCPInfo: Unable to retrieve TCP table. Return code: " + ret.ToString());
                     throw new System.ComponentModel.Win32Exception(ret);
                 }
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("ProcessNetInfo: Exception updating TCP connection list." + ex.ToString());
+                Trace.WriteLine("ProcessTCPInfo: Exception updating TCP connection list." + ex.ToString());
                 throw new System.ComponentModel.Win32Exception(ret, ex.Message);
             }
             finally
