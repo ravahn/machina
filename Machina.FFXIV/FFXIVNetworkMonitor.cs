@@ -50,25 +50,25 @@ namespace Machina.FFXIV
         { get; set; } = "";
 
         #region Message Delegates section
-        public delegate void MessageReceivedDelegate(long epoch, byte[] message);
+        public delegate void MessageReceivedDelegate(string connection, long epoch, byte[] message);
 
         /// <summary>
         /// Specifies the delegate that is called when data is received and successfully decoded/
         /// </summary>
         public MessageReceivedDelegate MessageReceived = null;
 
-        public void OnMessageReceived(long epoch, byte[] message)
+        public void OnMessageReceived(string connection, long epoch, byte[] message)
         {
-            MessageReceived?.Invoke(epoch, message);
+            MessageReceived?.Invoke(connection, epoch, message);
         }
         
-        public delegate void MessageSentDelegate(long epoch, byte[] message);
+        public delegate void MessageSentDelegate(string connection, long epoch, byte[] message);
 
         public MessageSentDelegate MessageSent = null;
 
-        public void OnMessageSent(long epoch, byte[] message)
+        public void OnMessageSent(string connection, long epoch, byte[] message)
         {
-            MessageSent?.Invoke(epoch, message);
+            MessageSent?.Invoke(connection, epoch, message);
         }
 
         #endregion
@@ -125,7 +125,7 @@ namespace Machina.FFXIV
             _sentDecoders[connection].StoreData(data);
             while ((message = _sentDecoders[connection].GetNextFFXIVMessage()) != null)
             {
-                OnMessageSent(message.Item1, message.Item2);
+                OnMessageSent(connection, message.Item1, message.Item2);
             }
         }
 
@@ -138,7 +138,7 @@ namespace Machina.FFXIV
             _receivedDecoders[connection].StoreData(data);
             while ((message = _receivedDecoders[connection].GetNextFFXIVMessage()) != null)
             {
-                OnMessageReceived(message.Item1, message.Item2);
+                OnMessageReceived(connection, message.Item1, message.Item2);
             }
 
         }
