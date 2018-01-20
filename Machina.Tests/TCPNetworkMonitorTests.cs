@@ -24,11 +24,15 @@ namespace Machina.Tests
             monitor.DataReceived += (string connection, byte[] data) => DataReceived(connection, data);
             monitor.DataSent += (string connection, byte[] data) => DataSent(connection, data);
 
-
-            // start an async download
+            monitor.Start();
+            // start a dummy async download
             System.Net.WebClient client = new System.Net.WebClient();
             Task t = client.DownloadStringTaskAsync("http://www.google.com");
-            monitor.Start();
+            System.Threading.Thread.Sleep(500);
+
+
+
+            t = client.DownloadStringTaskAsync("http://www.google.com");
             t.Wait();
 
             for (int i=0;i<100;i++)

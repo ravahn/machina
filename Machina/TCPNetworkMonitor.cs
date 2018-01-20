@@ -220,11 +220,15 @@ namespace Machina
         private void CheckForIPChange()
         {
             uint newLocalAddress = 0;
+            uint newRemoteAddress = 0;
             if (string.IsNullOrWhiteSpace(LocalIP))
             {
                 // pick the first IP address by default
                 if (_connections.Count > 0)
+                {
                     newLocalAddress = _connections[0].LocalIP;
+                    newRemoteAddress = _connections[0].RemoteIP;
+                }
 
                 // if we happened to have picked localhost, which may be used by some VPN/proxy software, look for any other ip other than localhost and pick it instead.
                 if (newLocalAddress == 0x100007F)
@@ -232,6 +236,7 @@ namespace Machina
                         if (_connections[i].LocalIP != 0x100007f)
                         {
                             newLocalAddress = _connections[i].LocalIP;
+                            newRemoteAddress = _connections[i].RemoteIP;
                             break;
                         }
             }
@@ -257,7 +262,7 @@ namespace Machina
                         _socket.Destroy();
 
                     _socket = new RawSocket();
-                    _socket.Create(_localAddress);
+                    _socket.Create(_localAddress, newRemoteAddress);
                 }
             }
         }
