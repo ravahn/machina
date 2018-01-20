@@ -12,7 +12,7 @@ namespace Machina.FFXIV.Tests
             bool dataReceived = false;
 
             var sut = new FFXIVNetworkMonitor();
-            sut.MessageReceived = (long epoch, byte[] data) =>
+            sut.MessageReceived = (string id, long epoch, byte[] data) =>
                 { dataReceived = true; };
             sut.Start();
             for (int i=0;i<100;i++)
