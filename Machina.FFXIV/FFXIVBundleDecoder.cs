@@ -144,6 +144,8 @@ namespace Machina.FFXIV
                 return null;
         }
 
+        private bool _encodingError = false;
+
         private unsafe byte[] DecompressFFXIVMessage(ref FFXIVBundleHeader header, byte[] buffer, int offset, out int ffxivMessageSize)
         {
             ffxivMessageSize = 0;
@@ -164,7 +166,9 @@ namespace Machina.FFXIV
 
             if (header.encoding != 0x0101 && header.encoding != 0x0100)
             {
-                Trace.WriteLine("FFXIVBundleDecoder: unknown encoding type: " + header.encoding.ToString("X4"));
+                if (!_encodingError)
+                    Trace.WriteLine("FFXIVBundleDecoder: unknown encoding type: " + header.encoding.ToString("X4"));
+                _encodingError = true;
                 return null;
             }
 
