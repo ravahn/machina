@@ -97,6 +97,7 @@ namespace Machina.FFXIV
                 _monitor.WindowName = "FINAL FANTASY XIV";
             _monitor.MonitorType = MonitorType;
             _monitor.LocalIP = LocalIP;
+            _monitor.UseOneSocketPerRemoteIP = true;
 
             _monitor.DataSent = (string connection, byte[] data) => ProcessSentMessage(connection, data);
             _monitor.DataReceived = (string connection, byte[] data) => ProcessReceivedMessage(connection, data);

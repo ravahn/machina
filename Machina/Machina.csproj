@@ -41,6 +41,7 @@
     <Compile Include="Headers\IPv6Header.cs" />
     <Compile Include="Headers\UDPHeader.cs" />
     <Compile Include="FirewallManager.cs" />
+    <Compile Include="IRawSocket.cs" />
     <Compile Include="TCPNetworkMonitor.cs" />
     <Compile Include="ProcessTCPInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

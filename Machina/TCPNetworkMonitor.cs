@@ -18,6 +18,9 @@ namespace Machina
     ///     supplied to distinguish between multiple connections from the same process.
     ///   DataSent: Delegate that is called when data is sent and successfully decoded through IP and TCP decoders.  Note that a connection identifier is 
     ///     supplied to distinguish between multiple connections from the same process.
+    ///   UseOneSocketPerRemoteIP: boolean that specifies whether to start data capture as connections are detected within the target process (new behavior), or monitor
+    ///     the primary interface for the process and capture all data sent/received on that interface - and filter it.  The new behavior may cause some data to be lost 
+    ///     on connection startup, but significantly reduces the filtering overhead caused by other traffic on the network interface.
     ///     
     /// This class uses a long-running task to monitor the network data as it is received.  It also monitors the specified process for changes to its active
     ///   TCPIP connections and filters out all traffic not related to these connections
@@ -56,6 +59,9 @@ namespace Machina
         public string WindowName
         { get; set; } = "";
 
+        public bool UseOneSocketPerRemoteIP
+        { get; set; } = false;
+
         #region Data Delegates section
         public delegate void DataReceivedDelegate(string connection, byte[] data);
 
@@ -80,9 +86,7 @@ namespace Machina
         
         #endregion
 
-        private RawSocket _socket = null;
-        private RawPCap _winpcap = null;
-        private uint _localAddress = 0;
+        private List<IRawSocket> _sockets = new List<IRawSocket>();
         private List<TCPConnection> _connections = new List<TCPConnection>(2);
 
 
@@ -144,19 +148,16 @@ namespace Machina
 
         private void Cleanup()
         {
-            if (_socket != null)
+            for (int i = 0; i < _sockets.Count; i++)
             {
-                _socket.Destroy();
-                _socket = null;
-            }
-            if (_winpcap != null)
-            {
-                _winpcap.Destroy();
-                _winpcap = null;
+                _sockets[i].Destroy();
+                Trace.WriteLine("TCPNetworkMonitor: Stopping " + MonitorType.ToString() + " listener between [" +
+                    new IPAddress(_sockets[i].LocalIP).ToString() + "] => [" +
+                    new IPAddress(_sockets[i].RemoteIP).ToString() + "].");
             }
 
+            _sockets.Clear();
             _connections.Clear();
-            _localAddress = 0;
         }
 
         private void Run()
@@ -168,11 +169,11 @@ namespace Machina
                     UpdateProcessConnections();
                     if (_connections.Count == 0)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(100);
                         continue;
                     }
 
-                    CheckForIPChange();
+                    UpdateSockets();
 
                     ProcessNetworkData();
 
@@ -216,48 +217,46 @@ namespace Machina
                 }
             }
         }
-
-        private void CheckForIPChange()
+        
+        private void UpdateSockets()
         {
-            uint newLocalAddress = 0;
-            if (string.IsNullOrWhiteSpace(LocalIP))
+            for (int i=0;i<_connections.Count;i++)
             {
-                // pick the first IP address by default
-                if (_connections.Count > 0)
-                    newLocalAddress = _connections[0].LocalIP;
+                bool found = false;
+                for (int j = 0; j < _sockets.Count; j++)
+                    if (_connections[i].LocalIP == _sockets[j].LocalIP &&
+                        (!UseOneSocketPerRemoteIP || (_connections[i].RemoteIP == _sockets[j].RemoteIP)))
+                        found = true;
 
-                // if we happened to have picked localhost, which may be used by some VPN/proxy software, look for any other ip other than localhost and pick it instead.
-                if (newLocalAddress == 0x100007F)
-                    for (int i = 0; i < _connections.Count; i++)
-                        if (_connections[i].LocalIP != 0x100007f)
-                        {
-                            newLocalAddress = _connections[i].LocalIP;
-                            break;
-                        }
-            }
-            else
-                newLocalAddress = (uint)IPAddress.Parse(LocalIP).Address;
-
-            if (_localAddress != newLocalAddress)
-            {
-                Trace.WriteLine("TCPNetworkMonitor: " + ((MonitorType == NetworkMonitorType.WinPCap) ? "WinPCap " : "") + "listening on IP: " + new IPAddress(newLocalAddress).ToString());
-                _localAddress = newLocalAddress;
-
-                if (MonitorType == NetworkMonitorType.WinPCap)
+                if (!found)
                 {
-                    if (_winpcap != null)
-                        _winpcap.Destroy();
+                    Trace.WriteLine("TCPNetworkMonitor: Starting " + MonitorType.ToString() + " listener between [" +
+                        new IPAddress(_connections[i].LocalIP).ToString() + "] => [" +
+                        new IPAddress(_connections[i].RemoteIP).ToString() + "].");
 
-                    _winpcap = new RawPCap();
-                    _winpcap.Create(_localAddress);
+                    if (MonitorType == NetworkMonitorType.WinPCap)
+                        _sockets.Add(new RawPCap());
+                    else
+                        _sockets.Add(new RawSocket());
+                    _sockets.Last().Create(_connections[i].LocalIP, UseOneSocketPerRemoteIP ? _connections[i].RemoteIP : 0);
                 }
-                else
-                {
-                    if (_socket != null)
-                        _socket.Destroy();
+            }
 
-                    _socket = new RawSocket();
-                    _socket.Create(_localAddress);
+            for (int i=_sockets.Count-1;i>=0;i--)
+            {
+                bool found = false;
+                for (int j=0;j<_connections.Count;j++)
+                    if (_connections[j].LocalIP == _sockets[i].LocalIP &&
+                        (!UseOneSocketPerRemoteIP || (_connections[j].RemoteIP == _sockets[i].RemoteIP)))
+                        found = true;
+
+                if (!found)
+                {
+                    Trace.WriteLine("TCPNetworkMonitor: Stopping " + MonitorType.ToString() + " listener between [" +
+                        new IPAddress(_sockets[i].LocalIP).ToString() + "] => [" +
+                          new IPAddress(_sockets[i].RemoteIP).ToString() + "].");
+                    _sockets[i].Destroy();
+                    _sockets.RemoveAt(i);
                 }
             }
         }
@@ -267,20 +266,9 @@ namespace Machina
             int size;
             byte[] buffer;
 
-            if (MonitorType == NetworkMonitorType.WinPCap)
-            {
-                if (_winpcap == null)
-                    return;
-                while ((size = _winpcap.Receive(out buffer)) > 0)
+            for (int i=0;i<_sockets.Count;i++)
+                while ((size = _sockets[i].Receive(out buffer)) > 0)
                     ProcessData(buffer, size);
-            }
-            else
-            {
-                if (_socket == null)
-                    return;
-                while ((size = _socket.Receive(out buffer)) > 0)
-                    ProcessData(buffer, size);
-            }
         }
 
 

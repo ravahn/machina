@@ -20,14 +20,22 @@ using System.Net.Sockets;
 
 namespace Machina
 {
-    public class RawSocket
+    public class RawSocket : IRawSocket
     {
         private Socket _receiveSocket = null;
         private byte[] _receiveBuffer = null;
 
-        public void Create(uint address)
+        public uint LocalIP
+        { get; private set; }
+        public uint RemoteIP
+        { get; private set; }
+
+        public void Create(uint localAddress, uint remoteAddress = 0)
         {
-            _receiveSocket = CreateRawSocket(address);
+            LocalIP = localAddress;
+            RemoteIP = remoteAddress;
+
+            _receiveSocket = CreateRawSocket(localAddress, remoteAddress);
             _receiveBuffer = new byte[1024 * 128];
         }
 
@@ -60,11 +68,11 @@ namespace Machina
             }
         }
 
-        private Socket CreateRawSocket(uint address)
+        private Socket CreateRawSocket(uint localAddress, uint remoteAddress)
         {
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
 
-            socket.Bind(new IPEndPoint(address, 0));
+            socket.Bind(new IPEndPoint(localAddress, 0));
 
             socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
 
@@ -73,7 +81,10 @@ namespace Machina
 
             socket.IOControl(IOControlCode.ReceiveAll, trueBytes, outBytes);
 
-            socket.ReceiveBufferSize = 1024 * 500; // this is the size of the internal network card buffer
+            socket.ReceiveBufferSize = 1024 * 5000; // this is the size of the internal network card buffer
+
+            if (remoteAddress > 0)
+                socket.Connect(new IPEndPoint(remoteAddress, 0));
 
             return socket;
         }

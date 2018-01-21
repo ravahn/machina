@@ -34,13 +34,13 @@ namespace Machina.Tests
             for (int i=0;i<100;i++)
             {
                 if (dataSentCount > 1 && dataReceivedCount > 1)
-                    break;
+                    break;  
 
                 System.Threading.Thread.Sleep(10);
             }
 
             monitor.Stop();
-
+            
             Assert.IsTrue(dataReceivedCount >= 1);
             Assert.IsTrue(dataSentCount >= 1);
         }
@@ -52,6 +52,12 @@ namespace Machina.Tests
         private void DataSent(string connection, byte[] data)
         {
             dataSentCount++;
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            TestInfrastructure.Listener.Messages.Clear();
         }
     }
 }

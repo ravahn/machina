@@ -22,10 +22,11 @@ using System.Text;
 
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Net;
 
 namespace Machina
 {
-    public class RawPCap
+    public class RawPCap : IRawSocket
     {
         private DeviceState _activeDevice = null;
         private byte[] _buffer = null;
@@ -201,17 +202,26 @@ namespace Machina
         }
         #endregion
 
-        public void Create(uint address)
+        public uint LocalIP
+        { get; private set; }
+        public uint RemoteIP
+        { get; private set; }
+
+        public void Create(uint localAddress, uint remoteAddress = 0)
         {
+            LocalIP = localAddress;
+            RemoteIP = remoteAddress;
+
             _buffer = new byte[1024 * 128];
 
             Device device = GetAllDevices().FirstOrDefault(x =>
-                x.Addresses.Contains(address));
+                x.Addresses.Contains(localAddress));
 
             if (!string.IsNullOrWhiteSpace(device.Name))
-                StartCapture(device);
+                StartCapture(device, remoteAddress);
             else
-                Trace.WriteLine("IP [" + new System.Net.IPAddress(address).ToString() + " selected but unable to find corresponding WinPCap device.");
+                Trace.WriteLine("IP [" + new System.Net.IPAddress(localAddress).ToString() + " selected but unable to find corresponding WinPCap device.");
+
         }
 
         public void Destroy()
@@ -232,7 +242,12 @@ namespace Machina
             }
         }
 
-        public unsafe int Receive(out byte[] buffer)
+        public int Receive(out byte[] buffer)
+        {
+            return unsafeReceive(out buffer);
+        }
+
+        private unsafe int unsafeReceive(out byte[] buffer)
         {
             buffer = _buffer;
 
@@ -336,9 +351,11 @@ namespace Machina
             return deviceList;
         }
 
-        private void StartCapture(Device device)
+        private void StartCapture(Device device, uint remoteAddress)
         {
-            const string filterText = "ip and tcp";
+            string filterText = "ip and tcp";
+            if (remoteAddress > 0)
+                filterText += " and host " + new IPAddress(remoteAddress).ToString();
 
             IntPtr filter = Marshal.AllocHGlobal(12);
 
