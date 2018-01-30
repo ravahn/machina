@@ -23,13 +23,16 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 
 namespace Machina
 {
     public class RawPCap : IRawSocket
     {
         private DeviceState _activeDevice = null;
-        private byte[] _buffer = null;
+        private Thread _thread = null;
+        private NetworkBufferFactory _bufferFactory = new NetworkBufferFactory(20, 0);
+        private bool _cancelThread = false;
 
         #region Interop / WinPCap PInvoice
         [StructLayout(LayoutKind.Sequential)]
@@ -68,7 +71,6 @@ namespace Machina
             public uint timestamp_usec;
             public uint caplen; //Length of portion present in the capture. 
             public uint len; //Real length this packet (off wire). 
-            public uint npkt; //Ordinal number of the packet (i.e. the first one captured has '1', the second one '2', etc). 
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -183,6 +185,11 @@ namespace Machina
         [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl)]
         static extern void pcap_close(IntPtr p);
 
+        /// <summary>
+        /// returns the most recent error.
+        /// </summary>
+        [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl)]
+        static extern IntPtr pcap_geterr(IntPtr ph);
         #endregion
 
         #region Device Structs
@@ -212,15 +219,13 @@ namespace Machina
             LocalIP = localAddress;
             RemoteIP = remoteAddress;
 
-            _buffer = new byte[1024 * 128];
-
             Device device = GetAllDevices().FirstOrDefault(x =>
                 x.Addresses.Contains(localAddress));
 
             if (!string.IsNullOrWhiteSpace(device.Name))
                 StartCapture(device, remoteAddress);
             else
-                Trace.WriteLine("IP [" + new System.Net.IPAddress(localAddress).ToString() + " selected but unable to find corresponding WinPCap device.");
+                Trace.WriteLine("RawPCap: IP [" + new System.Net.IPAddress(localAddress).ToString() + " selected but unable to find corresponding WinPCap device.");
 
         }
 
@@ -228,6 +233,20 @@ namespace Machina
         {
             try
             {
+                // stop pcap capture thread
+                if (_thread != null)
+                {
+                    _cancelThread = true;
+                    for (int i = 0; i < 100; i++)
+                        if (_thread.IsAlive)
+                            Thread.Sleep(10);
+                        else
+                            break;
+
+                    _thread.Abort();
+                    _thread = null;
+                }
+
                 if (_activeDevice == null)
                     return;
 
@@ -238,61 +257,24 @@ namespace Machina
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("Exception cleaning up RawPCap class. " + ex.ToString());
+                Trace.WriteLine("RawPCap: Exception cleaning up RawPCap class. " + ex.ToString());
             }
         }
 
         public int Receive(out byte[] buffer)
         {
-            return unsafeReceive(out buffer);
+            // retrieve data from allocated buffer.
+            NetworkBufferFactory.Buffer data = _bufferFactory.GetNextAllocatedBuffer();
+            buffer = data?.Data;
+            return data?.AllocatedSize ?? 0;
         }
 
-        private unsafe int unsafeReceive(out byte[] buffer)
+        public void FreeBuffer(ref byte[] buffer)
         {
-            buffer = _buffer;
-
-            if (_activeDevice == null)
-                return 0;
-
-            try
-            {
-                IntPtr packetDataPtr = IntPtr.Zero;
-                IntPtr packetHeaderPtr = IntPtr.Zero;
-
-                int layer2Length = (_activeDevice.LinkType == DLT_EN10MB ? 14 : 4); // 14 for ethernet, 4 for loopback
-
-                // note: buffer returned by pcap_next_ex is static and owned by pcap library, does not need to be freed.
-                int status = pcap_next_ex(_activeDevice.Handle, ref packetHeaderPtr, ref packetDataPtr);
-                if (status < 0)
-                {
-                    // todo: log?
-                    return 0;
-                }
-                else if (status != 0)
-                {
-                    pcap_pkthdr packetHeader = *(pcap_pkthdr*)packetHeaderPtr;
-
-                    if (packetHeader.caplen <= layer2Length)
-                        return 0;
-
-                    // prepare data - skip the 14-byte ethernet header
-                    int size = (int)packetHeader.caplen - layer2Length;
-                    if (size > _buffer.Length)
-                        throw new ApplicationException("packet length too large: " + size.ToString());
-
-                    Marshal.Copy(packetDataPtr + layer2Length, _buffer, 0, size);
-
-                    return size;
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("Exception during WinPCap Receive. " + ex.ToString());
-            }
-
-            return 0;
+            NetworkBufferFactory.Buffer data = new NetworkBufferFactory.Buffer() { Data = buffer, AllocatedSize = 0 };
+            _bufferFactory.AddFreeBuffer(data);
         }
-
+        
 
         private unsafe IList<Device> GetAllDevices()
         {
@@ -375,23 +357,27 @@ namespace Machina
                 // flags=0 turns off promiscous mode, which is not needed or desired.
                 _activeDevice.Handle = pcap_open(device.Name, 65536, 0, 500, IntPtr.Zero, errorBuffer);
                 if (_activeDevice.Handle == IntPtr.Zero)
-                    throw new ApplicationException("Cannot open pcap interface [" + device.Name + "].  Error: " + errorBuffer.ToString());
+                    throw new ApplicationException("RawPCap: Cannot open pcap interface [" + device.Name + "].  Error: " + errorBuffer.ToString());
 
                 // check data link type
                 _activeDevice.LinkType = pcap_datalink(_activeDevice.Handle);
                 if (_activeDevice.LinkType != DLT_EN10MB && _activeDevice.LinkType != DLT_NULL)
-                    throw new ApplicationException("Interface [" + device.Description + "] does not appear to support Ethernet.");
+                    throw new ApplicationException("RawPCap: Interface [" + device.Description + "] does not appear to support Ethernet.");
 
                 // create filter
                 if (pcap_compile(_activeDevice.Handle, filter, filterText, 1, 0) != 0)
-                    throw new ApplicationException("Unable to create TCP packet filter.");
+                    throw new ApplicationException("RawPCap: Unable to create TCP packet filter.");
 
                 // apply filter
                 if (pcap_setfilter(_activeDevice.Handle, filter) != 0)
-                    throw new ApplicationException("Unable to apply TCP packet filter.");
+                    throw new ApplicationException("RawPCap: Unable to apply TCP packet filter.");
 
                 // free filter memory
                 pcap_freecode(filter);
+
+                // Start thread
+                _thread = new Thread(new ThreadStart(RunCaptureLoop));
+                _thread.Start();
             }
             catch (Exception ex)
             {
@@ -401,7 +387,7 @@ namespace Machina
 
                 _activeDevice = null;
 
-                throw new ApplicationException("Unable to open winpcap device [" + device.Name + "].", ex);
+                throw new ApplicationException("RawPCap: Unable to open winpcap device [" + device.Name + "].", ex);
             }
             finally
             {
@@ -410,5 +396,130 @@ namespace Machina
             }
         }
 
+
+        private unsafe void RunCaptureLoop()
+        {
+            try
+            {
+                while (_cancelThread == false)
+                {
+                    if (_activeDevice == null)
+                    {
+                        System.Threading.Thread.Sleep(100);
+                        continue;
+                    }
+
+                    IntPtr packetDataPtr = IntPtr.Zero;
+                    IntPtr packetHeaderPtr = IntPtr.Zero;
+
+                    int layer2Length = (_activeDevice.LinkType == DLT_EN10MB ? 14 : 4); // 14 for ethernet, 4 for loopback
+
+                    // note: buffer returned by pcap_next_ex is static and owned by pcap library, does not need to be freed.
+                    int status = pcap_next_ex(_activeDevice.Handle, ref packetHeaderPtr, ref packetDataPtr);
+                    if (status == 0)//500ms timeout
+                        continue;
+                    else if (status == -1) // error
+                    {
+                        string error = "";// Marshal.PtrToStringAnsi(pcap_geterr(_activeDevice.Handle));
+                        Trace.Write("RawPCap: Error during pcap_loop. " + error);
+
+                        System.Threading.Thread.Sleep(100);
+                        continue;
+                    }
+                    else if (status != 1) // anything else besides success
+                    {
+                        Trace.Write("RawPCap: Unknown response code [" + status.ToString() + "] from pcap_next_ex.);");
+                        System.Threading.Thread.Sleep(100);
+                        continue;
+                    }
+                    else
+                    {
+                        pcap_pkthdr packetHeader = *(pcap_pkthdr*)packetHeaderPtr;
+                        //pcap_pkthdr packetHeader = (pcap_pkthdr)Marshal.PtrToStructure(packetHeaderPtr, typeof(pcap_pkthdr));
+                        if (packetHeader.caplen <= layer2Length)
+                            continue;
+
+                        NetworkBufferFactory.Buffer buffer = _bufferFactory.GetNextFreeBuffer();
+
+                        // prepare data - skip the 14-byte ethernet header
+                        buffer.AllocatedSize = (int)packetHeader.caplen - layer2Length;
+                        if (buffer.AllocatedSize > buffer.Data.Length)
+                            Trace.Write("RawPCap: packet length too large: " + buffer.AllocatedSize.ToString());
+                        else
+                        {
+
+                            Marshal.Copy(packetDataPtr + layer2Length, buffer.Data, 0, buffer.AllocatedSize);
+
+                            _bufferFactory.AddAllocatedBuffer(buffer);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("WinPCap: Exception during RunCaptureLoop. " + ex.ToString());
+            }
+
+        }
+        //private void RunPcapLoop()
+        //{
+        //    while (true)
+        //    {
+        //        pcap_callback del = new pcap_callback(DataReceived);
+
+        //        // Note: this is not supposed to exit, but throwing into a loop just in case.
+        //        int status = pcap_loop(_activeDevice.Handle, 0, del , IntPtr.Zero);
+
+        //        if (status == -2) // break-loop
+        //            return;
+        //        else if (status == 0)
+        //            continue;
+        //        else if (status == -1)
+        //        {
+        //            string error = Marshal.PtrToStringAnsi(pcap_geterr(_activeDevice.Handle));
+        //            Trace.Write("RawPCap: Error during pcap_loop. " + error);
+        //        }
+        //        else
+        //        {
+        //            Trace.Write("RawPCap: Unknown status result from pcap_loop [" + status.ToString() + "]. exiting.");
+        //            return;
+        //        }
+        //    }
+        //}
+
+        //private void DataReceived(IntPtr user, IntPtr pkt_header, IntPtr pkt_data)
+        //{
+        //    // do nothing if we have no device active
+        //    if (_activeDevice == null)
+        //        return;
+
+        //    try
+        //    {
+        //        NetworkBufferFactory.Buffer buffer = _bufferFactory.GetNextFreeBuffer();
+
+        //        int layer2Length = (_activeDevice.LinkType == DLT_EN10MB ? 14 : 4); // 14 for ethernet, 4 for loopback
+
+        //        // note: buffer pased into this method is static and owned by pcap library, does not need to be freed.
+
+        //        //pcap_pkthdr packetHeader = *(pcap_pkthdr*)pkt_header;
+        //        pcap_pkthdr packetHeader = (pcap_pkthdr)Marshal.PtrToStructure(pkt_header, typeof(pcap_pkthdr));
+
+        //        if (packetHeader.caplen <= layer2Length)
+        //            return;
+
+        //        // prepare data - skip the 14-byte ethernet header
+        //        buffer.AllocatedSize = (int)packetHeader.caplen - layer2Length;
+        //        if (buffer.AllocatedSize > buffer.Data.Length)
+        //            throw new ApplicationException("packet length too large: " + buffer.AllocatedSize.ToString());
+
+        //        Marshal.Copy(pkt_data + layer2Length, buffer.Data, 0, buffer.AllocatedSize);
+
+        //        _bufferFactory.AddAllocatedBuffer(buffer);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Trace.WriteLine("RawPCap: Exception during WinPCap Receive. " + ex.ToString());
+        //    }
+        //}
     }
 }

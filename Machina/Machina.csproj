@@ -29,6 +29,7 @@
     <Optimize>true</Optimize>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -36,6 +37,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetworkBufferFactory.cs" />
     <Compile Include="IPDecoder.cs" />
     <Compile Include="Headers\IPv4Header.cs" />
     <Compile Include="Headers\IPv6Header.cs" />

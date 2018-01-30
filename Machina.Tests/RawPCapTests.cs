@@ -46,6 +46,7 @@ namespace Machina.Tests
             System.Net.IPAddress address = System.Net.IPAddress.Parse(ip);
 
             var sut = new RawPCap();
+            sut.Create((uint)address.Address);
 
             // start an async download
             System.Net.WebClient client = new System.Net.WebClient();
@@ -55,7 +56,6 @@ namespace Machina.Tests
 
             try
             {
-                sut.Create((uint)address.Address);
                 t.Wait();
 
                 byte[] buffer;

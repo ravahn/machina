@@ -90,7 +90,7 @@ namespace Machina
         private List<TCPConnection> _connections = new List<TCPConnection>(2);
 
 
-        private Task _monitorTask = null;
+        private Thread _monitorThread = null;
         private int _Abort = 0;
         private bool Abort
         {
@@ -122,9 +122,9 @@ namespace Machina
             _processTCPInfo.ProcessID = ProcessID;
             _processTCPInfo.ProcessWindowName = WindowName;
 
-            _monitorTask = new Task(() => Run(), TaskCreationOptions.LongRunning);
-
-            _monitorTask.Start();
+            _monitorThread = new Thread(new ThreadStart(Run));
+            _monitorThread.Priority = ThreadPriority.Highest;
+            _monitorThread.Start();
         }
 
         /// <summary>
@@ -133,14 +133,18 @@ namespace Machina
         public void Stop()
         {
             Abort = true;
-            if (_monitorTask != null)
+            if (_monitorThread != null)
             {
-                _monitorTask.Wait(5000);
-                if (_monitorTask.Status == TaskStatus.Running)
+                for (int i = 0; i < 50; i++)
+                    if (_monitorThread.IsAlive)
+                        System.Threading.Thread.Sleep(100);
+                    else
+                        break;
+                if (_monitorThread.IsAlive)
                 {
-                    // todo: implement cancellation token to cancel task.
+                    _monitorThread.Abort();
                 }
-                _monitorTask = null;
+                _monitorThread = null;
             }
 
             Cleanup();
@@ -230,9 +234,9 @@ namespace Machina
 
                 if (!found)
                 {
-                    Trace.WriteLine("TCPNetworkMonitor: Starting " + MonitorType.ToString() + " listener between [" +
-                        new IPAddress(_connections[i].LocalIP).ToString() + "] => [" +
-                        new IPAddress(_connections[i].RemoteIP).ToString() + "].");
+                    Trace.WriteLine("TCPNetworkMonitor: Starting " + MonitorType.ToString() + " listener on [" +
+                        new IPAddress(_connections[i].LocalIP).ToString() + "]" +
+                        (UseOneSocketPerRemoteIP ? "=> [" + new IPAddress(_connections[i].RemoteIP).ToString() + "]." : ""));
 
                     if (MonitorType == NetworkMonitorType.WinPCap)
                         _sockets.Add(new RawPCap());
@@ -252,9 +256,9 @@ namespace Machina
 
                 if (!found)
                 {
-                    Trace.WriteLine("TCPNetworkMonitor: Stopping " + MonitorType.ToString() + " listener between [" +
-                        new IPAddress(_sockets[i].LocalIP).ToString() + "] => [" +
-                          new IPAddress(_sockets[i].RemoteIP).ToString() + "].");
+                    Trace.WriteLine("TCPNetworkMonitor: Stopping " + MonitorType.ToString() + " listener on [" +
+                        new IPAddress(_sockets[i].LocalIP).ToString() + "]" +
+                        (UseOneSocketPerRemoteIP ? "=> [" + new IPAddress(_sockets[i].RemoteIP).ToString() + "]." : ""));
                     _sockets[i].Destroy();
                     _sockets.RemoveAt(i);
                 }
@@ -266,9 +270,12 @@ namespace Machina
             int size;
             byte[] buffer;
 
-            for (int i=0;i<_sockets.Count;i++)
+            for (int i = 0; i < _sockets.Count; i++)
                 while ((size = _sockets[i].Receive(out buffer)) > 0)
+                {
                     ProcessData(buffer, size);
+                    _sockets[i].FreeBuffer(ref buffer);
+                }
         }
 
 

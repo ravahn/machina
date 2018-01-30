@@ -49,6 +49,13 @@ namespace Machina.FFXIV
         public string LocalIP
         { get; set; } = "";
 
+        /// <summary>
+        /// Specifies whether to use Winsock/WinPcap server IP filtering instead of filtering in code
+        ///   This has a small chance of losing data when new TCP sockets connect, but significantly reduces data processing overhead.
+        /// </summary>
+        public Boolean UseSocketFilter
+        { get; set; } = false;
+
         #region Message Delegates section
         public delegate void MessageReceivedDelegate(string connection, long epoch, byte[] message);
 
@@ -97,7 +104,7 @@ namespace Machina.FFXIV
                 _monitor.WindowName = "FINAL FANTASY XIV";
             _monitor.MonitorType = MonitorType;
             _monitor.LocalIP = LocalIP;
-            _monitor.UseOneSocketPerRemoteIP = true;
+            _monitor.UseOneSocketPerRemoteIP = UseSocketFilter;
 
             _monitor.DataSent = (string connection, byte[] data) => ProcessSentMessage(connection, data);
             _monitor.DataReceived = (string connection, byte[] data) => ProcessReceivedMessage(connection, data);

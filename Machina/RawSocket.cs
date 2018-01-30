@@ -15,6 +15,8 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.If not, see<http://www.gnu.org/licenses/>.
 
+using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 
@@ -22,8 +24,15 @@ namespace Machina
 {
     public class RawSocket : IRawSocket
     {
-        private Socket _receiveSocket = null;
-        private byte[] _receiveBuffer = null;
+        private class SocketState
+        {
+            public NetworkBufferFactory.Buffer buffer = null;
+            public Socket socket = null;
+            public object socketLock = new object();
+            public NetworkBufferFactory bufferFactory = new NetworkBufferFactory(20, 0);
+        }
+
+        private SocketState _socketState = new SocketState();
 
         public uint LocalIP
         { get; private set; }
@@ -35,40 +44,55 @@ namespace Machina
             LocalIP = localAddress;
             RemoteIP = remoteAddress;
 
-            _receiveSocket = CreateRawSocket(localAddress, remoteAddress);
-            _receiveBuffer = new byte[1024 * 128];
+            // set buffer
+            _socketState.buffer = _socketState.bufferFactory.GetNextFreeBuffer(); 
+
+            lock (_socketState.socketLock)
+            {
+                // create the socket
+                _socketState.socket = CreateRawSocket(localAddress, remoteAddress);
+
+                // start receiving data asynchronously
+                _socketState.socket.BeginReceive(_socketState.buffer.Data, 0, _socketState.buffer.Data.Length, SocketFlags.None, new AsyncCallback(OnReceive), (object)_socketState);
+            }
         }
 
         public int Receive(out byte[] buffer)
         {
-            buffer = _receiveBuffer;
+            // retrieve data from allocated buffer.
+            NetworkBufferFactory.Buffer data = _socketState.bufferFactory.GetNextAllocatedBuffer();
+            buffer = data?.Data;
+            return data?.AllocatedSize ?? 0;
+        }
 
-            if (_receiveSocket == null)
-                return 0;
-            if (_receiveSocket.Available == 0)
-                return 0;
-
-            return _receiveSocket.Receive(_receiveBuffer);
+        public void FreeBuffer(ref byte[] buffer)
+        {
+            NetworkBufferFactory.Buffer data = new NetworkBufferFactory.Buffer() { Data = buffer, AllocatedSize = 0 };
+            _socketState.bufferFactory.AddFreeBuffer(data);
         }
 
         public void Destroy()
         {
-            if (_receiveSocket != null)
+            lock (_socketState.socketLock)
             {
-                try
+                if (_socketState.socket != null)
                 {
-                    _receiveSocket.Shutdown(SocketShutdown.Both);
-                    _receiveSocket.Close();
-                    _receiveSocket.Dispose();
-                }
-                finally
-                {
-                    _receiveSocket = null;
+                    try
+                    {
+                        _socketState.socket.Shutdown(SocketShutdown.Both);
+                        _socketState.socket.Close();
+                        _socketState.socket.Dispose();
+                    }
+                    finally
+                    {
+                        _socketState.socket = null;
+                        _socketState.buffer = null;
+                    }
                 }
             }
         }
 
-        private Socket CreateRawSocket(uint localAddress, uint remoteAddress)
+        private static Socket CreateRawSocket(uint localAddress, uint remoteAddress)
         {
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
 
@@ -81,14 +105,47 @@ namespace Machina
 
             socket.IOControl(IOControlCode.ReceiveAll, trueBytes, outBytes);
 
-            socket.ReceiveBufferSize = 1024 * 5000; // this is the size of the internal network card buffer
-
             if (remoteAddress > 0)
                 socket.Connect(new IPEndPoint(remoteAddress, 0));
 
             return socket;
         }
 
+        private static void OnReceive(IAsyncResult ar)
+        {
+            try
+            {
+                SocketState state = ar.AsyncState as SocketState;
+                if (state == null)
+                    return;
+
+                NetworkBufferFactory.Buffer buffer = state?.buffer;
+
+                lock (state.socketLock)
+                {
+                    if (state.socket == null)
+                        return;
+
+                    int received = state.socket.EndReceive(ar);
+                    state.buffer = state.bufferFactory.GetNextFreeBuffer();
+                    state.socket.BeginReceive(state.buffer.Data, 0, state.buffer.Data.Length, SocketFlags.None, new System.AsyncCallback(OnReceive), (object)state);
+
+                    if (received > 0)
+                    {
+                        buffer.AllocatedSize = received;
+                        state.bufferFactory.AddAllocatedBuffer(buffer);
+                    }
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // do nothing - teardown occurring.
+            }
+            catch (Exception ex)
+            {
+                Trace.Write("RawSocket: Error while receiving socket data.  Network capture aborted, please restart application." + ex.ToString());
+            }
+        }
     }
 
 }

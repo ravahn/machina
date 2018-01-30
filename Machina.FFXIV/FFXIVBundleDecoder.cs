@@ -100,6 +100,13 @@ namespace Machina.FFXIV
                     }
                     int messageBufferSize;
                     byte[] message = DecompressFFXIVMessage(ref header, _bundleBuffer, offset, out messageBufferSize);
+                    
+                    // Handle error condition from decompression - stream may be invalid.
+                    if (message == null)
+                    {
+                        _allocated = 0;
+                        return;
+                    }
 
                     offset += header.length;
                     if (offset == _allocated)
