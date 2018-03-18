@@ -33,6 +33,7 @@ namespace Machina.FFXIV
         ActorCast = 0x0162,
         AddStatusEffect = 0x0141,
         ActorControl142 = 0x0142,
+        ActorControl143 = 0x0143,
         ActorControl144 = 0x0144,
         //ActorSpawn = 0x0190,
         ActorGauge = 0x027d
