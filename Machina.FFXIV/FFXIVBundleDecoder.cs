@@ -77,14 +77,7 @@ namespace Machina.FFXIV
                             if (LastMessageTimestamp != DateTime.MinValue)
                                 Trace.WriteLine("FFXIVBundleDecoder: Invalid magic # in header:" + Utility.ByteArrayToHexString(_bundleBuffer, offset, 36));
 
-                            offset = GetNextMagicNumberPos(_bundleBuffer, offset);
-                            if (offset == -1)
-                            {
-                                //reset stream
-                                _allocated = 0;
-                                _bundleBuffer = null;
-                                return;
-                            }
+                            offset = ResetStream(offset);
                             continue;
                         }
 
@@ -100,6 +93,11 @@ namespace Machina.FFXIV
                     }
                     int messageBufferSize;
                     byte[] message = DecompressFFXIVMessage(ref header, _bundleBuffer, offset, out messageBufferSize);
+                    if (message == null || messageBufferSize <= 0)
+                    {
+                        offset = ResetStream(offset);
+                        continue;
+                    }
 
                     offset += header.length;
                     if (offset == _allocated)
@@ -192,6 +190,18 @@ namespace Machina.FFXIV
             return _decompressionBuffer;
         }
 
+        private unsafe int ResetStream(int offset)
+        {
+            offset = GetNextMagicNumberPos(_bundleBuffer, offset);
+            if (offset == -1)
+            {
+                //reset stream
+                _allocated = 0;
+                _bundleBuffer = null;
+            }
+
+            return offset;
+        }
 
         private unsafe int GetNextMagicNumberPos(byte[] buffer, int offset)
         {

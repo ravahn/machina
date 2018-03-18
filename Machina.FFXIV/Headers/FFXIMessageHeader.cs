@@ -24,18 +24,19 @@ namespace Machina.FFXIV
     /// </summary>
     public enum ServerMessageType : ushort
     {
-        StatusEffectList = 0x00fa,
-        Ability1 = 0x00fb,
-        Ability8 = 0x00fe,
-        Ability16 = 0x00ff,
-        Ability24 = 0x0100,
-        Ability32 = 0x0101,
-        ActorCast = 0x0123,
+        StatusEffectList = 0x0125,
+        Ability1 = 0x0128,
+        Ability8 = 0x012b,
+        Ability16 = 0x0138,
+        Ability24 = 0x0139,
+        Ability32 = 0x013a,
+        ActorCast = 0x0162,
         AddStatusEffect = 0x0141,
         ActorControl142 = 0x0142,
+        ActorControl143 = 0x0143,
         ActorControl144 = 0x0144,
-        ActorSpawn = 0x0190,
-        ActorGauge = 0x0249
+        //ActorSpawn = 0x0190,
+        ActorGauge = 0x027d
     }
 
     [StructLayout(LayoutKind.Explicit)]
