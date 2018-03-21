@@ -23,7 +23,7 @@ namespace Machina.Tests
             monitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.RawSocket;
             monitor.DataReceived += (string connection, byte[] data) => DataReceived(connection, data);
             monitor.DataSent += (string connection, byte[] data) => DataSent(connection, data);
-            monitor.UseOneSocketPerRemoteIP = false;
+            monitor.UseSocketFilter = false;
 
             monitor.Start();
             // start a dummy async download

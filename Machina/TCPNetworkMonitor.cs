@@ -18,7 +18,7 @@ namespace Machina
     ///     supplied to distinguish between multiple connections from the same process.
     ///   DataSent: Delegate that is called when data is sent and successfully decoded through IP and TCP decoders.  Note that a connection identifier is 
     ///     supplied to distinguish between multiple connections from the same process.
-    ///   UseOneSocketPerRemoteIP: boolean that specifies whether to start data capture as connections are detected within the target process (new behavior), or monitor
+    ///   UseSocketFilter: boolean that specifies whether to start data capture as connections are detected within the target process (new behavior), or monitor
     ///     the primary interface for the process and capture all data sent/received on that interface - and filter it.  The new behavior may cause some data to be lost 
     ///     on connection startup, but significantly reduces the filtering overhead caused by other traffic on the network interface.
     ///     
@@ -59,7 +59,7 @@ namespace Machina
         public string WindowName
         { get; set; } = "";
 
-        public bool UseOneSocketPerRemoteIP
+        public bool UseSocketFilter
         { get; set; } = false;
 
         #region Data Delegates section
@@ -122,9 +122,10 @@ namespace Machina
             _processTCPInfo.ProcessID = ProcessID;
             _processTCPInfo.ProcessWindowName = WindowName;
 
-            _monitorThread = new Thread(new ThreadStart(Run));
-            _monitorThread.Priority = ThreadPriority.Highest;
-            _monitorThread.Start();
+            _monitorThread = new Thread(new ParameterizedThreadStart(Run));
+            _monitorThread.Name = "Machina.TCPNetworkMonitor.Start";
+            _monitorThread.IsBackground = true;
+            _monitorThread.Start(this);
         }
 
         /// <summary>
@@ -135,19 +136,29 @@ namespace Machina
             Abort = true;
             if (_monitorThread != null)
             {
-                for (int i = 0; i < 50; i++)
-                    if (_monitorThread.IsAlive)
-                        System.Threading.Thread.Sleep(100);
-                    else
-                        break;
                 if (_monitorThread.IsAlive)
                 {
-                    _monitorThread.Abort();
+                    for (int i = 0; i < 50; i++)
+                        if (_monitorThread.IsAlive)
+                            Thread.Sleep(10);
+                        else
+                            break;
                 }
+
+                try
+                {
+                    if (_monitorThread.IsAlive)
+                        _monitorThread.Abort();
+                }
+                catch (Exception)
+                {
+                }
+
                 _monitorThread = null;
             }
 
             Cleanup();
+            Abort = false;
         }
 
         private void Cleanup()
@@ -164,11 +175,11 @@ namespace Machina
             _connections.Clear();
         }
 
-        private void Run()
+        private void Run(object state)
         {
-            try
+            while (!(state as TCPNetworkMonitor).Abort)
             {
-                while (!Abort)
+                try
                 {
                     UpdateProcessConnections();
                     if (_connections.Count == 0)
@@ -181,12 +192,19 @@ namespace Machina
 
                     ProcessNetworkData();
 
-                    Thread.Sleep(10);
+
+                    Thread.Sleep(30);
                 }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("TCPNetworkMonitor Error: " + ex.ToString());
+                catch (ThreadAbortException)
+                {
+                    // do nothing, thread is aborting.
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("TCPNetworkMonitor Error: " + ex.ToString());
+                    return;
+                }
             }
 
             Cleanup();
@@ -229,20 +247,20 @@ namespace Machina
                 bool found = false;
                 for (int j = 0; j < _sockets.Count; j++)
                     if (_connections[i].LocalIP == _sockets[j].LocalIP &&
-                        (!UseOneSocketPerRemoteIP || (_connections[i].RemoteIP == _sockets[j].RemoteIP)))
+                        (!UseSocketFilter || (_connections[i].RemoteIP == _sockets[j].RemoteIP)))
                         found = true;
 
                 if (!found)
                 {
                     Trace.WriteLine("TCPNetworkMonitor: Starting " + MonitorType.ToString() + " listener on [" +
                         new IPAddress(_connections[i].LocalIP).ToString() + "]" +
-                        (UseOneSocketPerRemoteIP ? "=> [" + new IPAddress(_connections[i].RemoteIP).ToString() + "]." : ""));
+                        (UseSocketFilter ? "=> [" + new IPAddress(_connections[i].RemoteIP).ToString() + "]." : ""));
 
                     if (MonitorType == NetworkMonitorType.WinPCap)
                         _sockets.Add(new RawPCap());
                     else
                         _sockets.Add(new RawSocket());
-                    _sockets.Last().Create(_connections[i].LocalIP, UseOneSocketPerRemoteIP ? _connections[i].RemoteIP : 0);
+                    _sockets.Last().Create(_connections[i].LocalIP, UseSocketFilter ? _connections[i].RemoteIP : 0);
                 }
             }
 
@@ -251,14 +269,14 @@ namespace Machina
                 bool found = false;
                 for (int j=0;j<_connections.Count;j++)
                     if (_connections[j].LocalIP == _sockets[i].LocalIP &&
-                        (!UseOneSocketPerRemoteIP || (_connections[j].RemoteIP == _sockets[i].RemoteIP)))
+                        (!UseSocketFilter || (_connections[j].RemoteIP == _sockets[i].RemoteIP)))
                         found = true;
 
                 if (!found)
                 {
                     Trace.WriteLine("TCPNetworkMonitor: Stopping " + MonitorType.ToString() + " listener on [" +
                         new IPAddress(_sockets[i].LocalIP).ToString() + "]" +
-                        (UseOneSocketPerRemoteIP ? "=> [" + new IPAddress(_sockets[i].RemoteIP).ToString() + "]." : ""));
+                        (UseSocketFilter ? "=> [" + new IPAddress(_sockets[i].RemoteIP).ToString() + "]." : ""));
                     _sockets[i].Destroy();
                     _sockets.RemoveAt(i);
                 }

@@ -243,7 +243,14 @@ namespace Machina
                         else
                             break;
 
-                    _thread.Abort();
+                    try
+                    {
+                        if (_thread.IsAlive)
+                            _thread.Abort();
+                    }
+                    catch (Exception)
+                    {
+                    }
                     _thread = null;
                 }
 
@@ -377,6 +384,8 @@ namespace Machina
 
                 // Start thread
                 _thread = new Thread(new ThreadStart(RunCaptureLoop));
+                _thread.Name = "Machina.RawPCap.RunCaptureLoop";
+                _thread.IsBackground = true;
                 _thread.Start();
             }
             catch (Exception ex)
@@ -399,13 +408,15 @@ namespace Machina
 
         private unsafe void RunCaptureLoop()
         {
-            try
+            bool bExceptionLogged = false;
+
+            while (_cancelThread == false)
             {
-                while (_cancelThread == false)
+                try
                 {
                     if (_activeDevice == null)
                     {
-                        System.Threading.Thread.Sleep(100);
+                        Thread.Sleep(100);
                         continue;
                     }
 
@@ -416,26 +427,30 @@ namespace Machina
 
                     // note: buffer returned by pcap_next_ex is static and owned by pcap library, does not need to be freed.
                     int status = pcap_next_ex(_activeDevice.Handle, ref packetHeaderPtr, ref packetDataPtr);
-                    if (status == 0)//500ms timeout
+                    if (status == 0) // 500ms timeout
                         continue;
                     else if (status == -1) // error
                     {
-                        string error = "";// Marshal.PtrToStringAnsi(pcap_geterr(_activeDevice.Handle));
-                        Trace.Write("RawPCap: Error during pcap_loop. " + error);
+                        string error = Marshal.PtrToStringAnsi(pcap_geterr(_activeDevice.Handle));
+                        if (!bExceptionLogged)
+                            Trace.WriteLine("RawPCap: Error during pcap_loop. " + error);
 
-                        System.Threading.Thread.Sleep(100);
-                        continue;
+                        bExceptionLogged = true;
+
+                        Thread.Sleep(100);
                     }
                     else if (status != 1) // anything else besides success
                     {
-                        Trace.Write("RawPCap: Unknown response code [" + status.ToString() + "] from pcap_next_ex.);");
-                        System.Threading.Thread.Sleep(100);
-                        continue;
+                        if (!bExceptionLogged)
+                            Trace.WriteLine("RawPCap: Unknown response code [" + status.ToString() + "] from pcap_next_ex.);");
+
+                        bExceptionLogged = true;
+
+                        Thread.Sleep(100);
                     }
                     else
                     {
                         pcap_pkthdr packetHeader = *(pcap_pkthdr*)packetHeaderPtr;
-                        //pcap_pkthdr packetHeader = (pcap_pkthdr)Marshal.PtrToStructure(packetHeaderPtr, typeof(pcap_pkthdr));
                         if (packetHeader.caplen <= layer2Length)
                             continue;
 
@@ -444,7 +459,7 @@ namespace Machina
                         // prepare data - skip the 14-byte ethernet header
                         buffer.AllocatedSize = (int)packetHeader.caplen - layer2Length;
                         if (buffer.AllocatedSize > buffer.Data.Length)
-                            Trace.Write("RawPCap: packet length too large: " + buffer.AllocatedSize.ToString());
+                            Trace.WriteLine("RawPCap: packet length too large: " + buffer.AllocatedSize.ToString());
                         else
                         {
 
@@ -454,10 +469,21 @@ namespace Machina
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("WinPCap: Exception during RunCaptureLoop. " + ex.ToString());
+                catch (ThreadAbortException)
+                {
+                    // do nothing, thread is aborting.
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    if (!bExceptionLogged)
+                        Trace.WriteLine("WinPCap: Exception during RunCaptureLoop. " + ex.ToString());
+
+                    bExceptionLogged = true;
+                    
+                    // add sleep 
+                    Thread.Sleep(100);
+                }
             }
 
         }
@@ -477,11 +503,11 @@ namespace Machina
         //        else if (status == -1)
         //        {
         //            string error = Marshal.PtrToStringAnsi(pcap_geterr(_activeDevice.Handle));
-        //            Trace.Write("RawPCap: Error during pcap_loop. " + error);
+        //            Trace.WriteLine("RawPCap: Error during pcap_loop. " + error);
         //        }
         //        else
         //        {
-        //            Trace.Write("RawPCap: Unknown status result from pcap_loop [" + status.ToString() + "]. exiting.");
+        //            Trace.WriteLine("RawPCap: Unknown status result from pcap_loop [" + status.ToString() + "]. exiting.");
         //            return;
         //        }
         //    }
