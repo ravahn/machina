@@ -117,6 +117,8 @@ namespace Machina.FFXIV
         /// </summary>
         public void Stop()
         {
+            _monitor.DataSent = null;
+            _monitor.DataReceived = null;
             _monitor?.Stop();
             _monitor = null;
 
