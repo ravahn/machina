@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Machina</id>
-    <version>2.0.1</version>
+    <version>2.1.0</version>
     <title>Machina</title>
     <authors>Ravahn</authors>
     <owners>Ravahn</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/Ravahn/machina</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Network reading and decoding library</description>
-    <copyright>Copyright © 2017 Ravahn</copyright>
+    <copyright>Copyright © 2018 Ravahn</copyright>
     <tags>raw socket winpcap tcpip c# packet sniffer</tags>
   </metadata>
   <files>

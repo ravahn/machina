@@ -37,21 +37,25 @@ The import elements in the above code are:
 
 Prior to the above, be sure to either disable windows firewall, or add a rule for any exceutable using the above code to work through it.  And, the code must be executed as a local administrator.  To debug the above code, you will need to start Visual Studio using the 'Run as Administrator' option in Windows.
 
+The public property UseSocketFilter, when set to true, will apply socket and winpcap filters on both source and target IP Addresses for the connections being monitored.  Note that this means that each connection to a new remote IP must be detected and listening process started before data will be received.  It is likely that some network data will be lost between when the process initiates the connection, and when the Machina library begins to listen.  It should only be used if the initial data sent on the connection is not critical.  However, it has the benefit if significantly reducing the potential for data loss when there is excessive local network traffic.
+
 # Machina.FFXIV
 Machina.FFXIV is an extension to the Machina library that decodes Final Fantasy XIV network data and makes it available to programs.  It uses the Machina library to locate the game traffic and decode the TCP/IP layer, and then decodes / decompresses the game data into individual game messages.  It processes both incoming and outgoing messages.
 
     public static void Main(string[] args)
     {
         FFXIVNetworkMonitor monitor = new FFXIVNetworkMonitor();
-        monitor.MessageReceived = (long epoch, byte[] message) => MessageReceived(epoch, message);
+        monitor.MessageReceived = (string connection, long epoch, byte[] message) => MessageReceived(connection, epoch, message);
         monitor.Start();
         // Run for 10 seconds
         System.Threading.Thread.Sleep(10000);
         monitor.Stop();
     }
-    private static void MessageReceived(long epoch, byte[] message)
+    private static void MessageReceived(string connection, long epoch, byte[] message)
     {
         // Process Message
     }
 
 An optional Process ID and network monitor type can be specified as properties, to configure per the end-user's machine requirements.
+
+An optional property UseSocketFilter can be set, which is passed through to the TCPNetworkMonitor's property with the same name.  This is generally fine for FFXIV, since the TCP connection does not frequently change.
