@@ -129,7 +129,7 @@ namespace Machina
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("FirewallWrapper: Exception " + ex.ToString());
+                Trace.WriteLine("FirewallWrapper: Exception " + ex.ToString(), "FIREWALL");
             }
         }
     }

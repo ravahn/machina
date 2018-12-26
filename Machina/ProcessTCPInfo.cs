@@ -115,7 +115,7 @@ namespace Machina
             {
                 if (connections.Count > 0)
                 {
-                    Trace.WriteLine("ProcessTCPInfo: Process has exited, closing all connections.");
+                    Trace.WriteLine("ProcessTCPInfo: Process has exited, closing all connections.", "DEBUG-MACHINA");
 
                     connections.Clear();
                 }
@@ -185,7 +185,7 @@ namespace Machina
 
                                 connections.Add(connection);
 
-                                Trace.WriteLine("ProcessTCPInfo: New connection detected for Process [" + _currentProcessID.ToString() + "]: " + connection.ToString());
+                                Trace.WriteLine("ProcessTCPInfo: New connection detected for Process [" + _currentProcessID.ToString() + "]: " + connection.ToString(), "DEBUG-MACHINA");
                             }
                         }
 
@@ -220,20 +220,20 @@ namespace Machina
                         }
                         if (!bFound)
                         {
-                            Trace.WriteLine("ProcessTCPInfo: Removed connection " + connections[i].ToString());
+                            Trace.WriteLine("ProcessTCPInfo: Removed connection " + connections[i].ToString(), "DEBUG-MACHINA");
                             connections.RemoveAt(i);
                         }
                     }
                 }
                 else
                 {
-                    Trace.WriteLine("ProcessTCPInfo: Unable to retrieve TCP table. Return code: " + ret.ToString());
+                    Trace.WriteLine("ProcessTCPInfo: Unable to retrieve TCP table. Return code: " + ret.ToString(), "DEBUG-MACHINA");
                     throw new System.ComponentModel.Win32Exception(ret);
                 }
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("ProcessTCPInfo: Exception updating TCP connection list." + ex.ToString());
+                Trace.WriteLine("ProcessTCPInfo: Exception updating TCP connection list." + ex.ToString(), "DEBUG-MACHINA");
                 throw new System.ComponentModel.Win32Exception(ret, ex.Message);
             }
             finally

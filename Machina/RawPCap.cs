@@ -222,10 +222,10 @@ namespace Machina
             Device device = GetAllDevices().FirstOrDefault(x =>
                 x.Addresses.Contains(localAddress));
 
-            if (!string.IsNullOrWhiteSpace(device.Name))
+            if (!string.IsNullOrWhiteSpace(device?.Name))
                 StartCapture(device, remoteAddress);
             else
-                Trace.WriteLine("RawPCap: IP [" + new System.Net.IPAddress(localAddress).ToString() + " selected but unable to find corresponding WinPCap device.");
+                Trace.WriteLine("RawPCap: IP [" + new System.Net.IPAddress(localAddress).ToString() + " selected but unable to find corresponding WinPCap device.", "DEBUG-MACHINA");
 
         }
 
@@ -264,7 +264,7 @@ namespace Machina
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("RawPCap: Exception cleaning up RawPCap class. " + ex.ToString());
+                Trace.WriteLine("RawPCap: Exception cleaning up RawPCap class. " + ex.ToString(), "DEBUG-MACHINA");
             }
         }
 
@@ -433,7 +433,7 @@ namespace Machina
                     {
                         string error = Marshal.PtrToStringAnsi(pcap_geterr(_activeDevice.Handle));
                         if (!bExceptionLogged)
-                            Trace.WriteLine("RawPCap: Error during pcap_loop. " + error);
+                            Trace.WriteLine("RawPCap: Error during pcap_loop. " + error, "DEBUG-MACHINA");
 
                         bExceptionLogged = true;
 
@@ -442,7 +442,7 @@ namespace Machina
                     else if (status != 1) // anything else besides success
                     {
                         if (!bExceptionLogged)
-                            Trace.WriteLine("RawPCap: Unknown response code [" + status.ToString() + "] from pcap_next_ex.);");
+                            Trace.WriteLine("RawPCap: Unknown response code [" + status.ToString() + "] from pcap_next_ex.", "DEBUG-MACHINA");
 
                         bExceptionLogged = true;
 
@@ -459,7 +459,7 @@ namespace Machina
                         // prepare data - skip the 14-byte ethernet header
                         buffer.AllocatedSize = (int)packetHeader.caplen - layer2Length;
                         if (buffer.AllocatedSize > buffer.Data.Length)
-                            Trace.WriteLine("RawPCap: packet length too large: " + buffer.AllocatedSize.ToString());
+                            Trace.WriteLine("RawPCap: packet length too large: " + buffer.AllocatedSize.ToString(), "DEBUG-MACHINA");
                         else
                         {
 
@@ -477,7 +477,7 @@ namespace Machina
                 catch (Exception ex)
                 {
                     if (!bExceptionLogged)
-                        Trace.WriteLine("WinPCap: Exception during RunCaptureLoop. " + ex.ToString());
+                        Trace.WriteLine("WinPCap: Exception during RunCaptureLoop. " + ex.ToString(), "DEBUG-MACHINA");
 
                     bExceptionLogged = true;
                     

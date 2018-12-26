@@ -72,7 +72,7 @@ namespace Machina
             // There is one TCP packet per buffer.
             if (buffer?.Length < sizeof(TCPHeader))
             {
-                Trace.WriteLine("TCPDecoder: Buffer length smaller than TCP header: Length=[" + (buffer?.Length ?? 0).ToString() + "].");
+                Trace.WriteLine("TCPDecoder: Buffer length smaller than TCP header: Length=[" + (buffer?.Length ?? 0).ToString() + "].", "DEBUG-MACHINA");
                 return;
             }
 
@@ -137,11 +137,11 @@ namespace Machina
                                 _NextSequence = header.SequenceNumber + 1;
                             else if (Math.Abs(_NextSequence - header.SequenceNumber) > 100000)
                             {
-                                Trace.WriteLine("TCPDecoder: Updating sequence number from SYN packet.  Current Sequence: [" + _NextSequence.ToString() + ", sent sequence: [" + header.SequenceNumber.ToString() + "].");
+                                Trace.WriteLine("TCPDecoder: Updating sequence number from SYN packet.  Current Sequence: [" + _NextSequence.ToString() + ", sent sequence: [" + header.SequenceNumber.ToString() + "].", "DEBUG-MACHINA");
                                 _NextSequence = header.SequenceNumber + 1;
                             }
                             else
-                                Trace.WriteLine("TCPDecoder: Ignoring SYN packet new sequence number.  Current Sequence: [" + _NextSequence.ToString() + ", sent sequence: [" + header.SequenceNumber.ToString() + "].");
+                                Trace.WriteLine("TCPDecoder: Ignoring SYN packet new sequence number.  Current Sequence: [" + _NextSequence.ToString() + ", sent sequence: [" + header.SequenceNumber.ToString() + "].", "DEBUG-MACHINA");
 
                             continue; // do not process SYN packet, but set next sequence #.
                         }
@@ -155,7 +155,7 @@ namespace Machina
                         if (packetOffset >= packet.Length - header.DataOffset)
                         {
                             // this packet will get removed once we exit the loop.
-                            Trace.WriteLine("TCPDecoder: packet data already processed, expected sequence [" + _NextSequence.ToString() + "], received [" + header.SequenceNumber + "], size [" + (packet.Length - header.DataOffset) + "].  Data: " + Utility.ByteArrayToHexString(packet, 0, 50));
+                            Trace.WriteLine("TCPDecoder: packet data already processed, expected sequence [" + _NextSequence.ToString() + "], received [" + header.SequenceNumber + "], size [" + (packet.Length - header.DataOffset) + "].  Data: " + Utility.ByteArrayToHexString(packet, 0, 50), "DEBUG-MACHINA");
                             continue;
                         }
 
@@ -195,13 +195,13 @@ namespace Machina
             {
                 if (LastPacketTimestamp.AddMilliseconds(2000) < DateTime.UtcNow)
                 {
-                    Trace.WriteLine("TCPDecoder: >2 sec since last processed packet, resetting stream.");
+                    Trace.WriteLine("TCPDecoder: >2 sec since last processed packet, resetting stream.", "DEBUG-MACHINA");
 
                     for (int i = Packets.Count - 1; i >= 0; i--)
                     {
                         // todo: need to explore this logic, can we recover and get next highest sequence?
                         Trace.WriteLine("TCPDecoder: Missing Sequence # [" + _NextSequence.ToString() + "], Dropping packet with sequence # [" +
-                            Utility.ntohl(BitConverter.ToUInt32(Packets[i], 4)).ToString() + "].");
+                            Utility.ntohl(BitConverter.ToUInt32(Packets[i], 4)).ToString() + "].", "DEBUG-MACHINA");
                         Packets.RemoveAt(i);
                     }
                     _NextSequence = 0;

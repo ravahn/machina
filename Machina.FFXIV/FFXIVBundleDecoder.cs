@@ -75,7 +75,7 @@ namespace Machina.FFXIV
                             header.magic2 != 0 && header.magic3 != 0)
                         {
                             if (LastMessageTimestamp != DateTime.MinValue)
-                                Trace.WriteLine("FFXIVBundleDecoder: Invalid magic # in header:" + Utility.ByteArrayToHexString(_bundleBuffer, offset, 36));
+                                Trace.WriteLine("FFXIVBundleDecoder: Invalid magic # in header:" + Utility.ByteArrayToHexString(_bundleBuffer, offset, 36), "DEBUG-MACHINA");
 
                             offset = ResetStream(offset);
                             continue;
@@ -121,7 +121,7 @@ namespace Machina.FFXIV
                                 if (message_offset > messageBufferSize)
                                 {
                                     Trace.WriteLine("FFXIVBundleDecoder: Bad message offset - offset=" + message_offset.ToString() + ", bufferSize=" + messageBufferSize.ToString() +
-                                        ", data: " + Utility.ByteArrayToHexString(data, 0, 50));
+                                        ", data: " + Utility.ByteArrayToHexString(data, 0, 50), "DEBUG-MACHINA");
 
                                     _allocated = 0;
                                     return;
@@ -165,7 +165,7 @@ namespace Machina.FFXIV
             if (header.encoding != 0x0101 && header.encoding != 0x0100)
             {
                 if (!_encodingError)
-                    Trace.WriteLine("FFXIVBundleDecoder: unknown encoding type: " + header.encoding.ToString("X4"));
+                    Trace.WriteLine("FFXIVBundleDecoder: unknown encoding type: " + header.encoding.ToString("X4"), "DEBUG-MACHINA");
                 _encodingError = true;
                 return null;
             }
@@ -183,7 +183,7 @@ namespace Machina.FFXIV
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("FFXIVBundleDecoder: Decompression error: " + ex.ToString());
+                Trace.WriteLine("FFXIVBundleDecoder: Decompression error: " + ex.ToString(), "DEBUG-MACHINA");
                 return null;
             }
 

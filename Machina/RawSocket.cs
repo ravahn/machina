@@ -143,7 +143,7 @@ namespace Machina
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("RawSocket: Error while receiving socket data.  Network capture aborted, please restart application." + ex.ToString());
+                Trace.WriteLine("RawSocket: Error while receiving socket data.  Network capture aborted, please restart application." + ex.ToString(), "DEBUG-MACHINA");
             }
         }
     }

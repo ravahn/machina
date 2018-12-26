@@ -168,7 +168,7 @@ namespace Machina
                 _sockets[i].Destroy();
                 Trace.WriteLine("TCPNetworkMonitor: Stopping " + MonitorType.ToString() + " listener between [" +
                     new IPAddress(_sockets[i].LocalIP).ToString() + "] => [" +
-                    new IPAddress(_sockets[i].RemoteIP).ToString() + "].");
+                    new IPAddress(_sockets[i].RemoteIP).ToString() + "].", "DEBUG-MACHINA");
             }
 
             _sockets.Clear();
@@ -202,7 +202,7 @@ namespace Machina
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine("TCPNetworkMonitor Error: " + ex.ToString());
+                    Trace.WriteLine("TCPNetworkMonitor Error: " + ex.ToString(), "DEBUG-MACHINA");
                     return;
                 }
             }
@@ -254,7 +254,7 @@ namespace Machina
                 {
                     Trace.WriteLine("TCPNetworkMonitor: Starting " + MonitorType.ToString() + " listener on [" +
                         new IPAddress(_connections[i].LocalIP).ToString() + "]" +
-                        (UseSocketFilter ? "=> [" + new IPAddress(_connections[i].RemoteIP).ToString() + "]." : ""));
+                        (UseSocketFilter ? "=> [" + new IPAddress(_connections[i].RemoteIP).ToString() + "]." : ""), "DEBUG-MACHINA");
 
                     if (MonitorType == NetworkMonitorType.WinPCap)
                         _sockets.Add(new RawPCap());
@@ -276,7 +276,7 @@ namespace Machina
                 {
                     Trace.WriteLine("TCPNetworkMonitor: Stopping " + MonitorType.ToString() + " listener on [" +
                         new IPAddress(_sockets[i].LocalIP).ToString() + "]" +
-                        (UseSocketFilter ? "=> [" + new IPAddress(_sockets[i].RemoteIP).ToString() + "]." : ""));
+                        (UseSocketFilter ? "=> [" + new IPAddress(_sockets[i].RemoteIP).ToString() + "]." : ""), "DEBUG-MACHINA");
                     _sockets[i].Destroy();
                     _sockets.RemoveAt(i);
                 }

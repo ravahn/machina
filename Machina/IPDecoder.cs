@@ -86,7 +86,7 @@ namespace Machina
 
             if (buffer.Length < size)
             {
-                Trace.WriteLine("IPDecoder: Buffer length is less than specified size.  Size=[" + size.ToString() + "], Length=[" + buffer.Length + "]");
+                Trace.WriteLine("IPDecoder: Buffer length is less than specified size.  Size=[" + size.ToString() + "], Length=[" + buffer.Length + "]", "DEBUG-MACHINA");
                 return;
             }
 
@@ -101,7 +101,7 @@ namespace Machina
                         // TODO: IP6 packets, and mixed IP4/IP6, need to be tested with real-world data.
                         if (offset + sizeof(IPv6Header) > size)
                         {
-                            Trace.WriteLine("IPDecoder: IP6 Packet too small for header. offset: " + offset.ToString() + ", size: " + size.ToString());
+                            Trace.WriteLine("IPDecoder: IP6 Packet too small for header. offset: " + offset.ToString() + ", size: " + size.ToString(), "DEBUG-MACHINA");
                             return;
                         }
 
@@ -111,7 +111,7 @@ namespace Machina
                         if (header6.PayloadLength * 8 > buffer.Length - offset - sizeof(IPv6Header))
                         {
                             Trace.WriteLine("IPDecoder: IP6 Packet too small for payload. payload length: " +
-                                (header6.payload_length * 8).ToString() + ", Buffer: " + buffer.Length.ToString() + ", offset: " + offset.ToString());
+                                (header6.payload_length * 8).ToString() + ", Buffer: " + buffer.Length.ToString() + ", offset: " + offset.ToString(), "DEBUG-MACHINA");
                             return;
                         }
 
@@ -121,7 +121,7 @@ namespace Machina
                     }
                     else if (version != 4)
                     {
-                        Trace.WriteLine("IPDecoder: IP protocol version is neither 4 nor 6. Version is " + version.ToString());
+                        Trace.WriteLine("IPDecoder: IP protocol version is neither 4 nor 6. Version is " + version.ToString(), "DEBUG-MACHINA");
                         return;
                     }
 
@@ -136,12 +136,12 @@ namespace Machina
                     // make sure we have a valid exit condition
                     if (packetLength <= 0 & packetLength > 65535)
                     {
-                        Trace.WriteLine("IPDecoder: Invalid packet length [" + packetLength.ToString() + "].");
+                        Trace.WriteLine("IPDecoder: Invalid packet length [" + packetLength.ToString() + "].", "DEBUG-MACHINA");
                         return;
                     }
                     if (packetLength > buffer.Length - offset)
                     {
-                        Trace.WriteLine("IPDecoder: buffer too small to hold complete packet.  Packet length is [" + packetLength.ToString() + "], remaining buffer is [" + (buffer.Length - offset).ToString() + "].");
+                        Trace.WriteLine("IPDecoder: buffer too small to hold complete packet.  Packet length is [" + packetLength.ToString() + "], remaining buffer is [" + (buffer.Length - offset).ToString() + "].", "DEBUG-MACHINA");
                         return;
                     }
 
