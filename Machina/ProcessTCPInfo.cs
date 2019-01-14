@@ -76,12 +76,20 @@ namespace Machina
         /// </summary>
         public string ProcessWindowName
         { get; set; } = "";
+        
+        /// <summary>
+        /// Window class of the process to return network connection information about
+        /// </summary>
+        public string ProcessWindowClass
+        { get; set; } = "";
 
 
         private uint _currentProcessID = 0;
 
         [DllImport("user32.dll", EntryPoint = "FindWindow")]
         private static extern IntPtr FindWindow(string sClass, string sWindow);
+        [DllImport("user32.dll", EntryPoint = "FindWindowEx")]
+        private static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className,  string windowTitle);
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
@@ -98,9 +106,23 @@ namespace Machina
 
             return processID;
         }
+        
+        /// <summary>
+        /// This returns the process id of the first window with the specified window class.
+        /// </summary>
+        /// <param name="windowClass">class of the window to look for</param> 
+        /// <returns>Process ID</returns>
+        public uint GetProcessIDByWindowClass(string windowClass)
+        {
+            uint processID;
+            IntPtr hWindow = FindWindowEx(null, null, windowClass, null);
+            GetWindowThreadProcessId(hWindow, out processID);
+
+            return processID;
+        }
 
         /// <summary>
-        /// This retrieves all current TCPIP connections, filters them based on a process id (specified by either ProcessID or ProcessWindowName parameter),
+        /// This retrieves all current TCPIP connections, filters them based on a process id (specified by either ProcessID, ProcessWindowName or ProcessWindowClass parameter),
         ///   and updates the connections collection.
         /// </summary>
         /// <param name="connections">List containing prior connections that needs to be maintained</param>
@@ -108,7 +130,9 @@ namespace Machina
         {
             if (ProcessID > 0)
                 _currentProcessID = ProcessID;
-            else 
+            else if(string.IsNullOrWhiteSpace(ProcessWindowClass)) // i prefer it first since it's language irrelevant, ascii only and constant until the window being destroyed.
+                _currentProcessID = GetProcessIDByWindowClass(ProcessWindowClass);
+            else
                 _currentProcessID = GetProcessIDByWindowName(ProcessWindowName);         
 
             if (_currentProcessID == 0)
