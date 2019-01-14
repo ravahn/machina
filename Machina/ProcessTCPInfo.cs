@@ -115,7 +115,7 @@ namespace Machina
         public uint GetProcessIDByWindowClass(string windowClass)
         {
             uint processID;
-            IntPtr hWindow = FindWindowEx(null, null, windowClass, null);
+            IntPtr hWindow = FindWindowEx(IntPtr.Zero, IntPtr.Zero, windowClass, null);
             GetWindowThreadProcessId(hWindow, out processID);
 
             return processID;
