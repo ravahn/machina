@@ -130,7 +130,7 @@ namespace Machina
         {
             if (ProcessID > 0)
                 _currentProcessID = ProcessID;
-            else if(string.IsNullOrWhiteSpace(ProcessWindowClass)) // i prefer it first since it's language irrelevant, ascii only and constant until the window being destroyed.
+            else if(!string.IsNullOrWhiteSpace(ProcessWindowClass)) // i prefer it first since it's language irrelevant, ascii only and constant until the window being destroyed.
                 _currentProcessID = GetProcessIDByWindowClass(ProcessWindowClass);
             else
                 _currentProcessID = GetProcessIDByWindowName(ProcessWindowName);         
