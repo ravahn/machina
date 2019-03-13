@@ -19,6 +19,7 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.Win32;
 
 namespace Machina
 {
@@ -94,21 +95,29 @@ namespace Machina
 
         private static Socket CreateRawSocket(uint localAddress, uint remoteAddress)
         {
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
+            RegistryKey rkSubKey = Registry.CurrentUser.OpenSubKey(@"Software\Wine", false);
 
-            socket.Bind(new IPEndPoint(localAddress, 0));
-
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
-
-            byte[] trueBytes = new byte[4] { 3, 0, 0, 0 }; // 3 == RCVALL_IPLEVEL, so it only intercepts the target interface
-            byte[] outBytes = new byte[4];
-
-            socket.IOControl(IOControlCode.ReceiveAll, trueBytes, outBytes);
-
-            if (remoteAddress > 0)
-                socket.Connect(new IPEndPoint(remoteAddress, 0));
-
-            return socket;
+            if (rkSubKey == null)
+            {
+                Trace.WriteLine("Wine not detected", "DEBUG-MACHINA");
+                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
+                socket.Bind(new IPEndPoint(localAddress, 0));
+                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
+                byte[] trueBytes = new byte[4] { 3, 0, 0, 0 }; // 3 == RCVALL_IPLEVEL, so it only intercepts the target interface
+                byte[] outBytes = new byte[4];
+                socket.IOControl(IOControlCode.ReceiveAll, trueBytes, outBytes);
+                if (remoteAddress > 0)
+                    socket.Connect(new IPEndPoint(remoteAddress, 0));
+                return socket;
+            }
+            else
+            {
+                Trace.WriteLine("Wine detected", "DEBUG-MACHINA");
+                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.Tcp);
+                socket.Bind(new IPEndPoint(localAddress, 0));
+                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
+                return socket;
+            }
         }
 
         private static void OnReceive(IAsyncResult ar)
