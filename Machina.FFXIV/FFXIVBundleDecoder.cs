@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 
 using System.Diagnostics;
+using Machina.FFXIV.Headers;
 
 namespace Machina.FFXIV
 {
@@ -55,7 +56,7 @@ namespace Machina.FFXIV
             int offset = 0;
             while (offset < _allocated)
             {
-                if (_allocated - offset < sizeof(FFXIVBundleHeader))
+                if (_allocated - offset < sizeof(Server_BundleHeader))
                 {
                     if (offset > 0)
                     {
@@ -68,7 +69,7 @@ namespace Machina.FFXIV
 
                 fixed (byte* ptr = _bundleBuffer)
                 {
-                    FFXIVBundleHeader header = *(FFXIVBundleHeader*)(ptr + offset);
+                    Server_BundleHeader header = *(Server_BundleHeader*)(ptr + offset);
 
                     if (header.magic0 != 0x41a05252)
                         if (header.magic0 != 0 && header.magic1 != 0 &&
@@ -144,18 +145,18 @@ namespace Machina.FFXIV
 
         private bool _encodingError = false;
 
-        private unsafe byte[] DecompressFFXIVMessage(ref FFXIVBundleHeader header, byte[] buffer, int offset, out int ffxivMessageSize)
+        private unsafe byte[] DecompressFFXIVMessage(ref Server_BundleHeader header, byte[] buffer, int offset, out int ffxivMessageSize)
         {
             ffxivMessageSize = 0;
 
             if (header.encoding == 0x0000 || header.encoding == 0x0001)
             {
                 // uncompressed - copy to output buffer
-                ffxivMessageSize = header.length - sizeof(FFXIVBundleHeader);
+                ffxivMessageSize = header.length - sizeof(Server_BundleHeader);
                 for (int i = 0; i < ffxivMessageSize / 4; i++)
                 {
                     // todo: use unsafe pointer operations
-                    uint value = BitConverter.ToUInt32(buffer, offset + i * 4 + sizeof(FFXIVBundleHeader));
+                    uint value = BitConverter.ToUInt32(buffer, offset + i * 4 + sizeof(Server_BundleHeader));
                     Array.Copy(BitConverter.GetBytes(value), 0, _decompressionBuffer, i * 4, 4);
                 }
 

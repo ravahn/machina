@@ -1,4 +1,4 @@
-﻿// Machina.FFXIV ~ FFXIVBundleHeader.cs
+﻿// Machina.FFXIV ~ Server_BundleHeader.cs
 // 
 // Copyright © 2017 Ravahn - All Rights Reserved
 // 
@@ -14,13 +14,13 @@
 
 //You should have received a copy of the GNU General Public License
 //along with this program.If not, see<http://www.gnu.org/licenses/>.
-
+using System;
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV
+namespace Machina.FFXIV.Headers
 {
     [StructLayout(LayoutKind.Explicit)]
-    public struct FFXIVBundleHeader
+    public struct Server_BundleHeader
     {
         [FieldOffset(0)]
         public uint magic0;

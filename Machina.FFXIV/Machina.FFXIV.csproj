@@ -40,9 +40,20 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Headers\FFXIMessageHeader.cs" />
+    <Compile Include="Headers\Server_ActorMove.cs" />
+    <Compile Include="Headers\Server_ActorSetPos.cs" />
+    <Compile Include="Headers\Server_MessageHeader.cs" />
     <Compile Include="FFXIVBundleDecoder.cs" />
-    <Compile Include="Headers\FFXIVBundleHeader.cs" />
+    <Compile Include="Headers\Server_BundleHeader.cs" />
+    <Compile Include="Headers\Server_ActionEffect.cs" />
+    <Compile Include="Headers\Server_ActorCast.cs" />
+    <Compile Include="Headers\Server_ActorControl.cs" />
+    <Compile Include="Headers\Server_ActorGauge.cs" />
+    <Compile Include="Headers\Server_Npcspawn.cs" />
+    <Compile Include="Headers\Server_PlayerSpawn.cs" />
+    <Compile Include="Headers\Server_StatusEffectList.cs" />
+    <Compile Include="Headers\Server_AddStatusEffect.cs" />
+    <Compile Include="Headers\Server_UpdateHpMpTp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FFXIVNetworkMonitor.cs" />
   </ItemGroup>
