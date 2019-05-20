@@ -35,7 +35,7 @@ namespace Machina.FFXIV
         ActorControl142 = 0x0142,
         ActorControl143 = 0x0143,
         ActorControl144 = 0x0144,
-        ActorGauge = 0x0292 // Needs update for 4.5
+        ActorGauge = 0x029a
     }
 
     [StructLayout(LayoutKind.Explicit)]
