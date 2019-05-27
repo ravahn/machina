@@ -25,6 +25,7 @@ namespace Machina.FFXIV.Headers
         CancelAbility = 0x0f,
         Death = 0x06,
         TargetIcon = 0x22,
+        Tether = 0x23,
         GainEffect = 0x14,
         LoseEffect = 0x15,
         Targetable = 0x36,
