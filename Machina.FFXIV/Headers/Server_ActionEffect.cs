@@ -97,9 +97,12 @@ namespace Machina.FFXIV.Headers
         public UInt16 padding2;
         public fixed UInt32 Effects[256];
         public UInt16 padding3;
+        public UInt32 padding4;
         public fixed UInt64 TargetID[16];
-        public UInt32 effectflags;
-        public UInt32 padding78;
+        public UInt32 effectflags1;
+        public UInt16 effectflags2;
+        public UInt16 padding5;
+        public UInt32 padding6;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -110,9 +113,12 @@ namespace Machina.FFXIV.Headers
         public UInt16 padding2;
         public fixed UInt32 Effects[384];
         public UInt16 padding3;
+        public UInt32 padding4;
         public fixed UInt64 TargetID[24];
-        public UInt32 effectflags;
-        public UInt32 padding78;
+        public UInt32 effectflags1;
+        public UInt16 effectflags2;
+        public UInt16 padding5;
+        public UInt32 padding6;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -123,8 +129,11 @@ namespace Machina.FFXIV.Headers
         public UInt16 padding2;
         public fixed UInt32 Effects[512];
         public UInt16 padding3;
+        public UInt32 padding4;
         public fixed UInt64 TargetID[32];
-        public UInt32 effectflags;
-        public UInt32 padding78;
+        public UInt32 effectflags1;
+        public UInt16 effectflags2;
+        public UInt16 padding5;
+        public UInt32 padding6;
     }
 }
