@@ -28,6 +28,7 @@ namespace Machina.FFXIV.Headers
         Tether = 0x23,
         GainEffect = 0x14,
         LoseEffect = 0x15,
+        UpdateEffect = 0x16,
         Targetable = 0x36,
         DirectorUpdate = 0x6d,
     };

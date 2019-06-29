@@ -21,6 +21,7 @@ namespace Machina.FFXIV.Headers
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Server_Npcspawn
     {
+        /* Needs updating to 5.0
         public Server_MessageHeader MessageHeader; // 8 DWORDS
 
         public UInt32 gimmickId; // needs to be existing in the map, mob will snap to it
@@ -98,5 +99,6 @@ namespace Machina.FFXIV.Headers
         public byte unk32;
         public UInt16 unk33;
         public UInt32 unk34;
+        */
     }
 }

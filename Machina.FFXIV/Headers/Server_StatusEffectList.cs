@@ -40,8 +40,9 @@ namespace Machina.FFXIV.Headers
         public uint MaxHP;
         public UInt16 CurrentMP;
         public UInt16 MaxMP;
-        public UInt16 CurrentTP;
+        public UInt16 unknown0; // used to be TP
         public UInt16 unknown1;
         public fixed byte Effects[30 * 3 * 4];
+        // 4 bytes padding at end?
     }
 }

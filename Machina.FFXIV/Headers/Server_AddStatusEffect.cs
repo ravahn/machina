@@ -23,7 +23,7 @@ namespace Machina.FFXIV.Headers
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Server_StatusEffectAddEntry
     {
-        public UInt16 unknown1;
+        public UInt16 EffectIndex;
         public UInt16 EffectID;
         public UInt16 unknown2;
         public UInt16 unknown3;
@@ -35,18 +35,18 @@ namespace Machina.FFXIV.Headers
     public unsafe struct Server_AddStatusEffect
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public UInt32 Unknown1;
+        public UInt32 RelatedActionSequence;
         public UInt32 TargetID;
-        public UInt16 Unknown2;
-        public UInt16 Unknown3;
         public UInt32 CurrentHP;
+        public UInt32 MaxHp;
         public UInt16 CurrentMP;
-        public UInt16 CurrentTP;
-        public UInt32 MaxHP;
+        public UInt16 Unknown3;
         public UInt16 MaxMP;
+        public UInt16 Unknown4;
+        public byte Unknown5;
         public byte EffectCount;
-        public byte Unknown4;
+        public UInt16 Unknown6;
         public fixed byte Effects[4 * 4 * 4];
-        public UInt32 unknown2;
+        public UInt32 Unknown7;
     }
 }
