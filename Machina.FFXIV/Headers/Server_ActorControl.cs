@@ -31,6 +31,7 @@ namespace Machina.FFXIV.Headers
         UpdateEffect = 0x16,
         Targetable = 0x36,
         DirectorUpdate = 0x6d,
+        LimitBreak = 0x1f9
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

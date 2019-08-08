@@ -42,7 +42,7 @@ namespace Machina.FFXIV.Headers
         NpcSpawn2 = 0x0181,
         ActorMove = 0x0182,
         ActorSetPos = 0x0184,
-        ActorGauge = 0x02a5 // Candidate for 5.0, need to test.
+        ActorGauge = 0x02a5
     }
 
     [StructLayout(LayoutKind.Explicit)]
