@@ -99,7 +99,7 @@ namespace Machina
 
             if (rkSubKey == null)
             {
-                Trace.WriteLine("Wine not detected", "DEBUG-MACHINA");
+                Trace.WriteLine("RawSocket: Wine not detected, using raw IP socket.", "DEBUG-MACHINA");
                 Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
                 socket.Bind(new IPEndPoint(localAddress, 0));
                 socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
@@ -112,7 +112,7 @@ namespace Machina
             }
             else
             {
-                Trace.WriteLine("Wine detected", "DEBUG-MACHINA");
+                Trace.WriteLine("RawSocket: Wine detected, using raw TCP socket.", "DEBUG-MACHINA");
                 Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.Tcp);
                 socket.Bind(new IPEndPoint(localAddress, 0));
                 socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
