@@ -26,6 +26,7 @@ namespace Machina.FFXIV.Headers
     public enum Server_MessageType : ushort
     {
         StatusEffectList = 0x015b,
+        BossStatusEffectList = 0x15d,
         Ability1 = 0x015e,
         Ability8 = 0x0161,
         Ability16 = 0x0162,

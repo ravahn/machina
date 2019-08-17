@@ -1,4 +1,4 @@
-﻿// Machina.FFXIV ~ Server_AddStatusEffect.cs
+﻿// Machina.FFXIV ~ Server_StatusEffectList.cs
 // 
 // Copyright © 2017 Ravahn - All Rights Reserved
 // 
@@ -17,37 +17,25 @@
 using System;
 using System.Runtime.InteropServices;
 
-
 namespace Machina.FFXIV.Headers
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_StatusEffectAddEntry
-    {
-        public byte EffectIndex;
-        public byte unknown1;
-        public UInt16 EffectID;
-        public UInt16 unknown2;
-        public UInt16 unknown3;
-        public float duration;
-        public UInt32 SourceActorID;
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Server_AddStatusEffect
+    public unsafe struct Server_BossStatusEffectList
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public UInt32 RelatedActionSequence;
-        public UInt32 TargetID;
-        public UInt32 CurrentHP;
-        public UInt32 MaxHp;
+        public fixed byte Effects2[30 * 3 * 4];
+        public byte JobID;
+        public byte Level1;
+        public byte Level2;
+        public byte Level3;
+        public uint CurrentHP;
+        public uint MaxHP;
         public UInt16 CurrentMP;
-        public UInt16 Unknown3;
         public UInt16 MaxMP;
-        public UInt16 Unknown4;
-        public byte Unknown5;
-        public byte EffectCount;
-        public UInt16 Unknown6;
-        public fixed byte Effects[4 * 4 * 4];
-        public UInt32 Unknown7;
+        public UInt16 CurrentTP;
+        public UInt16 MaxTP;
+        public fixed byte Effects1[30 * 3 * 4];
+        public uint Unknown1;
+        public uint padding;
     }
 }

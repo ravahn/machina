@@ -51,6 +51,7 @@
     <Compile Include="Headers\Server_ActorGauge.cs" />
     <Compile Include="Headers\Server_Npcspawn.cs" />
     <Compile Include="Headers\Server_PlayerSpawn.cs" />
+    <Compile Include="Headers\Server_BossStatusEffectList.cs" />
     <Compile Include="Headers\Server_StatusEffectList.cs" />
     <Compile Include="Headers\Server_AddStatusEffect.cs" />
     <Compile Include="Headers\Server_UpdateHpMpTp.cs" />
