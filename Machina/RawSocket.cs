@@ -95,7 +95,7 @@ namespace Machina
 
         private static Socket CreateRawSocket(uint localAddress, uint remoteAddress)
         {
-            const string ENV_VAR = "FORCE_ACT_WINE_COMPAT";
+            const string ENV_VAR = "FORCE_MACHINA_RAW_SOCKET_WINE_COMPAT";
             bool Windows = true;
             Process[] processes = Process.GetProcessesByName("Idle");
             if (processes.Length == 0)
