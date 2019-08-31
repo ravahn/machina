@@ -22,13 +22,14 @@ namespace Machina.FFXIV.Headers
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Server_UpdateHpMpTp
     {
-        /* Needs update for 5.0
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public UInt32 hp;
-        public UInt32 mp;
-        public UInt16 tp;
-        public UInt32 unknown1;
-        public UInt32 unknown2;
-        */
+        public UInt32 CurrentHp;
+        public UInt16 CurrentMp;
+        public UInt16 CurrentTp;
+        public UInt16 unknown1;
+        public UInt16 unknown2;
+        public UInt16 unknown3;
+        public UInt16 unknown4;
+
     }
 }

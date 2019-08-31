@@ -37,14 +37,14 @@ namespace Machina.FFXIV.Headers
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
         public UInt32 RelatedActionSequence;
-        public UInt32 TargetID;
+        public UInt32 ActorID;
         public UInt32 CurrentHP;
-        public UInt32 MaxHp;
+        public UInt32 MaxHP;
         public UInt16 CurrentMP;
         public UInt16 Unknown3;
         public UInt16 MaxMP;
         public UInt16 Unknown4;
-        public byte Unknown5;
+        public byte DamageShield;
         public byte EffectCount;
         public UInt16 Unknown6;
         public fixed byte Effects[4 * 4 * 4];

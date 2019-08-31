@@ -32,10 +32,10 @@ namespace Machina.FFXIV.Headers
         public uint MaxHP;
         public UInt16 CurrentMP;
         public UInt16 MaxMP;
-        public UInt16 CurrentTP;
-        public UInt16 MaxTP;
+        public UInt16 Unknown1;
+        public byte DamageShield;
+        public byte Unknown2;
         public fixed byte Effects1[30 * 3 * 4];
-        public uint Unknown1;
-        public uint padding;
+        public uint Unknown3;
     }
 }

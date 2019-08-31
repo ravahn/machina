@@ -23,9 +23,9 @@ namespace Machina.FFXIV.Headers
     public struct Server_StatusEffectListEntry
     {
         public UInt16 EffectID;
-        public UInt16 unknown1;
-        public float duration;
-        public UInt32 SourceActorID;
+        public UInt16 OtherInfo;
+        public float Duration;
+        public UInt32 ActorID;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -40,8 +40,9 @@ namespace Machina.FFXIV.Headers
         public uint MaxHP;
         public UInt16 CurrentMP;
         public UInt16 MaxMP;
-        public UInt16 unknown0; // used to be TP
-        public UInt16 unknown1;
+        public UInt16 Unknown1; // used to be TP
+        public byte DamageShield;
+        public byte Unknown2;
         public fixed byte Effects[30 * 3 * 4];
         // 4 bytes padding at end?
     }
