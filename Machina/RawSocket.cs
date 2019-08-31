@@ -95,31 +95,37 @@ namespace Machina
 
         private static Socket CreateRawSocket(uint localAddress, uint remoteAddress)
         {
-            RegistryKey rkSubKey = Registry.CurrentUser.OpenSubKey(@"Software\Wine", false);
-
-            if (rkSubKey == null)
+            const string ENV_VAR = "FORCE_MACHINA_RAW_SOCKET_WINE_COMPAT";
+            bool Windows = true;
+            Process[] processes = Process.GetProcessesByName("Idle");
+            if (processes.Length == 0)
             {
-                Trace.WriteLine("RawSocket: Wine not detected, using raw IP socket.", "DEBUG-MACHINA");
-                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
-                socket.Bind(new IPEndPoint(localAddress, 0));
-                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
+                Trace.WriteLine("RawSocket: Did not detect Idle process, using TCP socket instead of IP socket for wine compatability.", "DEBUG-MACHINA");
+                Windows = false;
+            }
+
+            if (Environment.GetEnvironmentVariable(ENV_VAR) == "1")
+            {
+                Trace.WriteLine($"RawSocket: Environment variable {ENV_VAR} set, forcing wine compatability.", "DEBUG-MACHINA");
+                Windows = false;
+            }
+
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, Windows ? ProtocolType.IP : ProtocolType.Tcp);
+            socket.Bind(new IPEndPoint(localAddress, 0));
+
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
+
+            if (Windows)
+            {
                 byte[] trueBytes = new byte[4] { 3, 0, 0, 0 }; // 3 == RCVALL_IPLEVEL, so it only intercepts the target interface
                 byte[] outBytes = new byte[4];
                 socket.IOControl(IOControlCode.ReceiveAll, trueBytes, outBytes);
-                if (remoteAddress > 0)
-                    socket.Connect(new IPEndPoint(remoteAddress, 0));
-                return socket;
             }
-            else
-            {
-                Trace.WriteLine("RawSocket: Wine detected, using raw TCP socket.", "DEBUG-MACHINA");
-                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.Tcp);
-                socket.Bind(new IPEndPoint(localAddress, 0));
-                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
-                if (remoteAddress > 0)
-                    socket.Connect(new IPEndPoint(remoteAddress, 0));
-                return socket;
-            }
+
+            if (remoteAddress > 0)
+                socket.Connect(new IPEndPoint(remoteAddress, 0));
+            
+            return socket;
         }
 
         private static void OnReceive(IAsyncResult ar)
