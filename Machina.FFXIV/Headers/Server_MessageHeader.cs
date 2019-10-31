@@ -25,25 +25,25 @@ namespace Machina.FFXIV.Headers
     /// </summary>
     public enum Server_MessageType : ushort
     {
-        StatusEffectList = 0x015b,
-        BossStatusEffectList = 0x15d,
-        Ability1 = 0x015e,
-        Ability8 = 0x0161,
-        Ability16 = 0x0162,
-        Ability24 = 0x0163, 
-        Ability32 = 0x0164,
-        ActorCast = 0x0186,
-        AddStatusEffect = 0x0141,
-        ActorControl142 = 0x0142,
-        ActorControl143 = 0x0143,
-        ActorControl144 = 0x0144,
-        UpdateHpMpTp = 0x0145,
-        PlayerSpawn = 0x017f,
-        NpcSpawn = 0x0180,
-        NpcSpawn2 = 0x0181,
-        ActorMove = 0x0182,
-        ActorSetPos = 0x0184,
-        ActorGauge = 0x02a5
+        StatusEffectList = 0x23a,
+        BossStatusEffectList = 0x00e6,
+        Ability1 = 0x00A7,
+        Ability8 = 0x00A9,
+        Ability16 = 0x015f,
+        Ability24 = 0x0292, 
+        Ability32 = 0x0268,
+        ActorCast = 0x012c,
+        AddStatusEffect = 0x0153,
+        ActorControl142 = 0x0164,
+        ActorControl143 = 0x0264,
+        ActorControl144 = 0x016c,
+        UpdateHpMpTp = 0x032d,
+        PlayerSpawn = 0x0386,
+        NpcSpawn = 0x010a,
+        NpcSpawn2 = 0x0115,
+        ActorMove = 0x01bc,
+        ActorSetPos = 0x0311,
+        ActorGauge = 0x037f
     }
 
     [StructLayout(LayoutKind.Explicit)]
