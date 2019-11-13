@@ -26,7 +26,7 @@ namespace Machina.FFXIV.Headers
     public enum Server_MessageType : ushort
     {
         StatusEffectList = 0x0399,
-        BossStatusEffectList = 0x00e6,//to fix
+        BossStatusEffectList = 0x0236,
         Ability1 = 0x0165,
         Ability8 = 0x00e9,
         Ability16 = 0x007f,
@@ -43,7 +43,7 @@ namespace Machina.FFXIV.Headers
         NpcSpawn2 = 0x0137,
         ActorMove = 0x00dd,
         ActorSetPos = 0x0092,
-        ActorGauge = 0x037f // to fix
+        ActorGauge = 0x01d2 
     }
 
     [StructLayout(LayoutKind.Explicit)]
