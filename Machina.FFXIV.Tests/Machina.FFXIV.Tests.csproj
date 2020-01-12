@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FFXIVBundleDecoderTests.cs" />
+    <Compile Include="Headers\Opcodes\OpcodeManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FFXIVNetworkMonitorTests.cs" />
     <Compile Include="Utility\Helper.cs" />

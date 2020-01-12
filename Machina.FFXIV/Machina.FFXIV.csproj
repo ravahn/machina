@@ -40,6 +40,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Headers\Opcodes\OpcodeManager.cs" />
     <Compile Include="Headers\Server_ActorMove.cs" />
     <Compile Include="Headers\Server_ActorSetPos.cs" />
     <Compile Include="Headers\Server_MessageHeader.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="Headers\Server_StatusEffectList.cs" />
     <Compile Include="Headers\Server_AddStatusEffect.cs" />
     <Compile Include="Headers\Server_UpdateHpMpTp.cs" />
+    <Compile Include="Headers\Opcodes\Server_MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FFXIVNetworkMonitor.cs" />
   </ItemGroup>
@@ -63,6 +65,24 @@
       <Project>{2681c607-a075-4070-be13-34f0a395119e}</Project>
       <Name>Machina</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Headers\Opcodes\5.04.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Headers\Opcodes\5.10.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Headers\Opcodes\5.11.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Headers\Opcodes\5.15.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Headers\Opcodes\5.18.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Headers\Opcodes\5.08.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
