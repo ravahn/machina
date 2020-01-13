@@ -28,7 +28,7 @@ namespace Machina.FFXIV.Headers
         public static readonly Server_MessageType ActorSetPos = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorSetPos"]; 
         public static readonly Server_MessageType ActorGauge = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorGauge"];
 
-        private ushort InternalValue { get; set; }
+        public ushort InternalValue { get; private set; }
 
         public override bool Equals(object obj)
         {
@@ -40,8 +40,29 @@ namespace Machina.FFXIV.Headers
         {
             return (obj1.InternalValue == obj2.InternalValue);
         }
+        public static bool operator ==(ushort obj1, Server_MessageType obj2)
+        {
+            return (obj1 == obj2.InternalValue);
+        }
+        public static bool operator ==(Server_MessageType obj1, ushort obj2)
+        {
+            return (obj1.InternalValue == obj2);
+        }
+
+        public override int GetHashCode()
+        {
+            return InternalValue.GetHashCode();
+        }
 
         public static bool operator !=(Server_MessageType obj1, Server_MessageType ojb2)
+        {
+            return !(obj1 == ojb2);
+        }
+        public static bool operator !=(ushort obj1, Server_MessageType ojb2)
+        {
+            return !(obj1 == ojb2);
+        }
+        public static bool operator !=(Server_MessageType obj1, ushort ojb2)
         {
             return !(obj1 == ojb2);
         }
@@ -52,6 +73,11 @@ namespace Machina.FFXIV.Headers
             {
                 InternalValue = otherType
             };
+        }
+
+        public static implicit operator ushort(Server_MessageType otherType)
+        {
+            return otherType.InternalValue;
         }
     }
 }

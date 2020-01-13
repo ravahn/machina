@@ -61,7 +61,7 @@ namespace Machina.FFXIV.Headers.Opcodes
 
             CurrentOpcodes = _opcodes[v];
 
-            System.Diagnostics.Trace.WriteLine($"Machina: using FFXIV Opcodes for game version {v}", "Machina");
+            System.Diagnostics.Trace.WriteLine($"Using FFXIV Opcodes for game version {v}", "Machina");
         }
     }
 }
