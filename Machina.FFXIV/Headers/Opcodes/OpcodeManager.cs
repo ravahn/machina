@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Globalization;
 
 namespace Machina.FFXIV.Headers.Opcodes
 {
@@ -30,7 +31,8 @@ namespace Machina.FFXIV.Headers.Opcodes
                 if (!resource.Contains(".Opcodes."))
                     continue;
 
-                if (!float.TryParse(resource.Substring(resource.IndexOf(".Opcodes.") + 9, 4), out float version))
+                string versionString = resource.Substring(resource.IndexOf(".Opcodes.") + 9, 4);
+                if (!float.TryParse(versionString, NumberStyles.Float, CultureInfo.InvariantCulture, out float version))
                     continue;
 
                 using (Stream stream = assembly.GetManifestResourceStream(resource))
