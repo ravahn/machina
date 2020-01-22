@@ -20,7 +20,6 @@ namespace Machina.FFXIV.Headers.Opcodes
         {
             _opcodes = new Dictionary<float, Dictionary<string, ushort>>();
             LoadVersions();
-            SetVersion(_opcodes.Keys.Max());
         }
 
         private void LoadVersions()
