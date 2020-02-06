@@ -1,5 +1,5 @@
 StatusEffectList|037c
-BossStatusEffectList|00e6
+BossStatusEffectList|00f7
 Ability1|0250
 Ability8|009d
 Ability16|0233
@@ -13,7 +13,7 @@ ActorControl144|03ac
 UpdateHpMpTp|03d4
 PlayerSpawn|0147
 NpcSpawn|007e
-NpcSpawn2|0115
+NpcSpawn2|034c
 ActorMove|02a9
 ActorSetPos|02f2
 ActorGauge|02b6
