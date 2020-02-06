@@ -103,7 +103,7 @@ namespace Machina.FFXIV.Headers.Opcodes
 
         public void SetVersion(float version)
         {
-            SetVersion(version, 1);
+            SetVersion(version, 5);
         }
     }
 }
