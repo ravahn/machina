@@ -42,8 +42,8 @@ namespace Machina.FFXIV.Headers
         public UInt32 MaxHP;
         public UInt16 CurrentMP;
         public UInt16 Unknown3;
-        public UInt16 MaxMP;
-        public UInt16 Unknown4;
+//        public UInt16 MaxMP;
+  //      public UInt16 Unknown4;
         public byte DamageShield;
         public byte EffectCount;
         public UInt16 Unknown6;

@@ -25,11 +25,13 @@ namespace Machina.FFXIV.Headers
         public Server_MessageHeader MessageHeader; // 8 DWORDS
         public UInt32 CurrentHp;
         public UInt16 CurrentMp;
-        public UInt16 CurrentTp;
-        public UInt16 unknown1;
-        public UInt16 unknown2;
-        public UInt16 unknown3;
-        public UInt16 unknown4;
+        public UInt16 CurrentTp; // todo - 5.2, this seems to be a sequence number
+        
+        // removed in patch 5.2
+        //public UInt16 unknown1;
+        //public UInt16 unknown2;
+        //public UInt16 unknown3;
+        //public UInt16 unknown4;
 
     }
 }
