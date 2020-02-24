@@ -11,6 +11,11 @@ namespace Machina.FFXIV.Headers.Opcodes.Tests
     [TestClass()]
     public class Server_MessageTypeTests
     {
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
+        {
+            OpcodeManager.Instance.SetVersion(float.MaxValue);
+        }
         [TestMethod()]
         public void Server_MessageType_Equals()
         {
