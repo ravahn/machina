@@ -29,5 +29,17 @@ namespace Machina.FFXIV.Headers.Opcodes.Tests
             Assert.AreEqual(5.08f, sut.Version);
             Assert.AreEqual(sut.CurrentOpcodes["ActorControl142"], 0x142);
         }
+
+        [TestMethod()]
+        public void SetVersionLanguageTest()
+        {
+            var sut = new OpcodeManager();
+
+            sut.SetVersion(5.10f, 5);
+
+            Assert.AreEqual(5.10f, sut.Version);
+            Assert.AreEqual(5, sut.Language);
+            Assert.AreEqual(sut.CurrentOpcodes["ActorControl142"], 0x0de);
+        }
     }
 }
