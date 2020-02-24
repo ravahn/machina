@@ -53,7 +53,7 @@ namespace Machina.FFXIV.Headers.Opcodes
                     using (StreamReader sr = new StreamReader(stream))
                     {
                         string[][] data = sr.ReadToEnd()
-                            .Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                            .Split(new string[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries)
                             .Select(x => x.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries)).ToArray();
 
                         var dict = data.ToDictionary(
