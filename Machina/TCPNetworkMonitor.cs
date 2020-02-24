@@ -14,6 +14,7 @@ namespace Machina
     ///   MonitorType: Specifies whether it should use a winsock raw socket, or use WinPCap (requires separate kernel driver installation).  Default is a raw socket.
     ///   ProcessID: Specifies the process ID to record traffic from
     ///   WindowName: Specifies the window name to record traffic from, where process ID is unavailable
+    ///   WindowClass: Specifies the window class to record traffic from, where process ID is unavailable
     ///   DataReceived: Delegate that is called when data is received and successfully decoded through IP and TCP decoders.  Note that a connection identifier is 
     ///     supplied to distinguish between multiple connections from the same process.
     ///   DataSent: Delegate that is called when data is sent and successfully decoded through IP and TCP decoders.  Note that a connection identifier is 
@@ -42,7 +43,7 @@ namespace Machina
         { get; set; } = NetworkMonitorType.RawSocket;
 
         /// <summary>
-        /// Specifies the Process ID that is generating or receiving the traffic.  Either ProcessID or WindowName must be specified.
+        /// Specifies the Process ID that is generating or receiving the traffic.  Either ProcessID, WindowName or WindowClass must be specified.
         /// </summary>
         public uint ProcessID
         { get; set; } = 0;
@@ -54,9 +55,15 @@ namespace Machina
         { get; set; } = "";
         
         /// <summary>
-        /// Specifies the Window Name of the application that is generating or receiving the traffic.  Either ProcessID or WindowName must be specified.
+        /// Specifies the Window Name of the application that is generating or receiving the traffic.  Either ProcessID, WindowName or WindowClass must be specified.
         /// </summary>
         public string WindowName
+        { get; set; } = "";
+        
+        /// <summary>
+        /// Specifies the Window Class of the application that is generating or receiving the traffic.  Either ProcessID, WindowName or WindowClass must be specified.
+        /// </summary>
+        public string WindowClass
         { get; set; } = "";
 
         public bool UseSocketFilter
@@ -114,13 +121,14 @@ namespace Machina
         /// </summary>
         public void Start()
         {
-            if (ProcessID == 0 && string.IsNullOrWhiteSpace(WindowName))
-                throw new ArgumentException("Either Process ID or Window Name must be specified");
+            if (ProcessID == 0 && string.IsNullOrWhiteSpace(WindowName) && string.IsNullOrWhiteSpace(WindowClass))
+                throw new ArgumentException("Either Process ID, Window Name or Window Class must be specified");
             if (DataReceived == null)
                 throw new ArgumentException("DataReceived delegate must be specified.");
 
             _processTCPInfo.ProcessID = ProcessID;
             _processTCPInfo.ProcessWindowName = WindowName;
+            _processTCPInfo.ProcessWindowClass = WindowClass;
 
             _monitorThread = new Thread(new ParameterizedThreadStart(Run));
             _monitorThread.Name = "Machina.TCPNetworkMonitor.Start";
