@@ -87,6 +87,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Headers\Opcodes.Cn\5.10.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Headers\Opcodes.Cn\5.11.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if "$(SolutionName)" == "Machina" if $(ConfigurationName) == Release (
