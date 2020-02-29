@@ -1,4 +1,20 @@
-﻿using System;
+﻿// Machina.FFXIV ~ OpcodeManager.cs
+// 
+// Copyright © 2020 Ravahn - All Rights Reserved
+// 
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+//GNU General Public License for more details.
+
+//You should have received a copy of the GNU General Public License
+//along with this program.If not, see<http://www.gnu.org/licenses/>.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -10,21 +26,15 @@ namespace Machina.FFXIV.Headers.Opcodes
     {
         public static OpcodeManager Instance { get; } = new OpcodeManager();
 
-        private Dictionary<float, Dictionary<string, ushort>> _opcodes;
-        private Dictionary<float, Dictionary<string, ushort>> _opcodesCn;
-        private Dictionary<float, Dictionary<string, ushort>> _opcodesKr;
+        private Dictionary<GameRegionEnum, Dictionary<string, ushort>> _opcodes;
 
         public Dictionary<string, ushort> CurrentOpcodes { get; set; }
 
-        public float Version { get; private set; }
-
-        public int Language { get; private set; }
+        public GameRegionEnum GameRegion { get; private set; }
 
         public OpcodeManager()
         {
-            _opcodes = new Dictionary<float, Dictionary<string, ushort>>();
-            _opcodesCn = new Dictionary<float, Dictionary<string, ushort>>();
-            _opcodesKr = new Dictionary<float, Dictionary<string, ushort>>();
+            _opcodes = new Dictionary<GameRegionEnum, Dictionary<string, ushort>>();
             LoadVersions();
         }
 
@@ -36,16 +46,8 @@ namespace Machina.FFXIV.Headers.Opcodes
                 if (!resource.Contains(".Opcodes."))
                     continue;
 
-                string vendorString = resource.Substring(resource.IndexOf(".Opcodes.") + 9, 2).ToLower();
-                if (vendorString != "cn" && vendorString != "kr")
-                {
-                    vendorString = "intl";
-                }
-
-                int versionStringOffset = vendorString == "intl" ? 9 : 12;
-
-                string versionString = resource.Substring(resource.IndexOf(".Opcodes.") + versionStringOffset, 4);
-                if (!float.TryParse(versionString, NumberStyles.Float, CultureInfo.InvariantCulture, out float version))
+                string regionString = resource.Substring(resource.IndexOf(".Opcodes.") + 9, resource.LastIndexOf(".")-resource.IndexOf(".Opcodes.") - 9);
+                if (!Enum.TryParse<GameRegionEnum>(regionString, out GameRegionEnum gameRegion))
                     continue;
 
                 using (Stream stream = assembly.GetManifestResourceStream(resource))
@@ -60,50 +62,21 @@ namespace Machina.FFXIV.Headers.Opcodes
                             x => x[0].Trim(),
                             x => Convert.ToUInt16(x[1].Trim(), 16));
 
-                        if (vendorString == "cn")
-                        {
-                            _opcodesCn.Add(version, dict);
-                        }
-                        else if (vendorString == "kr")
-                        {
-                            _opcodesKr.Add(version, dict);
-                        }
-                        else
-                        {
-                            _opcodes.Add(version, dict);
-                        }
+                        _opcodes.Add(gameRegion, dict);
                     }
                 }
 
             }
         }
-        public void SetVersion(float version, int language)
+        public void SetRegion(GameRegionEnum region)
         {
-            var opcodes = _opcodes;
-            if (language == 5)
-            {
-                opcodes = _opcodesCn;
-            }
-            else if (language == 6)
-            {
-                opcodes = _opcodesKr;
-            }
+            if (!_opcodes.ContainsKey(region))
+                region = GameRegionEnum.Global;
 
-            float v = opcodes.Keys.OrderBy(x => x).Where(x => version <= x).FirstOrDefault();
-            if (v == 0)
-                v = opcodes.Keys.Max();
+            GameRegion = region;
+            CurrentOpcodes = _opcodes[GameRegion];
 
-            Version = v;
-            Language = language;
-
-            CurrentOpcodes = opcodes[v];
-
-            System.Diagnostics.Trace.WriteLine($"Using FFXIV Opcodes for game version {v}", "Machina");
-        }
-
-        public void SetVersion(float version)
-        {
-            SetVersion(version, 1);
+            System.Diagnostics.Trace.WriteLine($"Using FFXIV Opcodes for game region {region}", "Machina");
         }
     }
 }

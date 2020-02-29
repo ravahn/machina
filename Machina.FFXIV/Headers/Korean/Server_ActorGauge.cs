@@ -1,4 +1,4 @@
-﻿// Machina.FFXIV ~ Server_UpdateHpMpTp.cs
+﻿// Machina.FFXIV ~ Server_ActorGauge.cs
 // 
 // Copyright © 2017 Ravahn - All Rights Reserved
 // 
@@ -17,21 +17,15 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers
+namespace Machina.FFXIV.Headers.Korean
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_UpdateHpMpTp
+    public struct Server_ActorGauge
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public UInt32 CurrentHp;
-        public UInt16 CurrentMp;
-        public UInt16 CurrentTp; // todo - 5.2, this seems to be a sequence number
-        
-        // removed in patch 5.2
-        //public UInt16 unknown1;
-        //public UInt16 unknown2;
-        //public UInt16 unknown3;
-        //public UInt16 unknown4;
-
+        public UInt32 param1; // first byte is classjobid
+        public UInt32 param2;
+        public UInt32 param3;
+        public UInt32 param4;
     }
 }

@@ -19,7 +19,6 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using Microsoft.Win32;
 
 namespace Machina
 {

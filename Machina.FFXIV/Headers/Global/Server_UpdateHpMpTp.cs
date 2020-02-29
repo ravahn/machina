@@ -1,4 +1,4 @@
-﻿// Machina.FFXIV ~ Server_ActorSetPos.cs
+﻿// Machina.FFXIV ~ Server_UpdateHpMpTp.cs
 // 
 // Copyright © 2017 Ravahn - All Rights Reserved
 // 
@@ -20,16 +20,18 @@ using System.Runtime.InteropServices;
 namespace Machina.FFXIV.Headers
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_ActorSetPos
+    public struct Server_UpdateHpMpTp
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public UInt16 unknown1;
-        public byte waitForLoad;
-        public byte unknown2;
-        public UInt32 unknown3;
-        public float PosX;
-        public float PosY;
-        public float PosZ;
-        public UInt32 unknown4;
+        public UInt32 CurrentHp;
+        public UInt16 Unknown1; 
+        public UInt16 CurrentMp;
+
+        // removed in patch 5.2
+        //public UInt16 unknown1;
+        //public UInt16 unknown2;
+        //public UInt16 unknown3;
+        //public UInt16 unknown4;
+
     }
 }
