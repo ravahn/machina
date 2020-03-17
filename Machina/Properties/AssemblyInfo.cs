@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Machina")]
-[assembly: AssemblyCopyright("Copyright © 2019 Ravahn")]
+[assembly: AssemblyCopyright("Copyright © 2020 Ravahn")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
