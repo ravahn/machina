@@ -17,3 +17,4 @@ NpcSpawn2|0225
 ActorMove|035e
 ActorSetPos|00e5
 ActorGauge|026c
+ActorDrink|cafe
