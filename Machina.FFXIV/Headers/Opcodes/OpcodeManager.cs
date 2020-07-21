@@ -70,8 +70,9 @@ namespace Machina.FFXIV.Headers.Opcodes
         }
         public void SetRegion(GameRegionEnum region)
         {
+            region = GameRegionEnum.Chinese;
             if (!_opcodes.ContainsKey(region))
-                region = GameRegionEnum.Global;
+                throw new Exception("Oops my maChina!");
 
             GameRegion = region;
             CurrentOpcodes = _opcodes[GameRegion];
