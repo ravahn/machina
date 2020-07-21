@@ -18,7 +18,7 @@ using System;
 using System.Runtime.InteropServices;
 
 
-namespace Machina.FFXIV.Headers
+namespace Machina.FFXIV.Headers.Korean
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Server_StatusEffectAddEntry

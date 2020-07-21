@@ -1,4 +1,4 @@
-﻿// Machina.FFXIV ~ Server_ActorSetPos.cs
+﻿// Machina.FFXIV ~ Server_ActorGauge.cs
 // 
 // Copyright © 2017 Ravahn - All Rights Reserved
 // 
@@ -17,19 +17,15 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers
+namespace Machina.FFXIV.Headers.Korean
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_ActorSetPos
+    public struct Server_ActorGauge
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public UInt16 unknown1;
-        public byte waitForLoad;
-        public byte unknown2;
-        public UInt32 unknown3;
-        public float PosX;
-        public float PosY;
-        public float PosZ;
-        public UInt32 unknown4;
+        public UInt32 param1; // first byte is classjobid
+        public UInt32 param2;
+        public UInt32 param3;
+        public UInt32 param4;
     }
 }

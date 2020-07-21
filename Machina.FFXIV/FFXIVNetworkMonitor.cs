@@ -56,9 +56,6 @@ namespace Machina.FFXIV
         public Boolean UseSocketFilter
         { get; set; } = false;
 
-        public float GameVersion
-        { get; set; } = 0;
-
         #region Message Delegates section
         public delegate void MessageReceivedDelegate(string connection, long epoch, byte[] message);
 
@@ -100,16 +97,7 @@ namespace Machina.FFXIV
 
             if (MessageReceived == null)
                 throw new ArgumentException("MessageReceived delegate must be specified.");
-
-            // Set Network Opcodes either to the max value, or the value specified by the property.
-            if (GameVersion == 0)
-            {
-                Headers.Opcodes.OpcodeManager.Instance.SetVersion(float.MaxValue);
-                GameVersion = Headers.Opcodes.OpcodeManager.Instance.Version;
-            }
-            else
-                Headers.Opcodes.OpcodeManager.Instance.SetVersion(GameVersion);
-            
+          
             _monitor = new TCPNetworkMonitor();
             _monitor.ProcessID = ProcessID;
             if (_monitor.ProcessID == 0)
