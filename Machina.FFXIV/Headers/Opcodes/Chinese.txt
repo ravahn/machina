@@ -6,7 +6,7 @@ Ability16|016e
 Ability24|0267
 Ability32|024C
 ActorCast|029d
-AddStatusEffect|0fff
+AddStatusEffect|00a7
 ActorControl142|03af
 ActorControl143|0142
 ActorControl144|cafe
@@ -14,7 +14,7 @@ UpdateHpMpTp|0282
 PlayerSpawn|03ba
 NpcSpawn|03d2
 NpcSpawn2|02e0
-ActorMove|0fff
+ActorMove|0356
 ActorSetPos|00d5
 ActorGauge|00f7
 ActorDrink|cafe
