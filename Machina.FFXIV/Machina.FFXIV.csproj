@@ -86,18 +86,6 @@
     <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
     <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Headers\Opcodes.Cn\5.11.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Headers\Opcodes.Cn\5.15.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Headers\Opcodes.Cn\5.18.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Headers\Opcodes.Cn\5.20.txt" />
-  </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
