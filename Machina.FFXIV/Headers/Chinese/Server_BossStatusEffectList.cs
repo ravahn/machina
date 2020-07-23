@@ -1,4 +1,4 @@
-﻿// Machina.FFXIV ~ Server_ActorMove.cs
+﻿// Machina.FFXIV ~ Server_StatusEffectList.cs
 // 
 // Copyright © 2017 Ravahn - All Rights Reserved
 // 
@@ -17,20 +17,25 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers
+namespace Machina.FFXIV.Headers.Chinese
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_ActorMove
+    public unsafe struct Server_BossStatusEffectList
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public byte rotation;
-        public byte unknown1;
-        public byte animationType;
-        public byte unknown2;
-        public UInt16 unknown3;
-        public UInt16 posX;
-        public UInt16 posY;
-        public UInt16 posZ;
-        public UInt32 unknown12;
+        public fixed byte Effects2[30 * 3 * 4];
+        public byte JobID;
+        public byte Level1;
+        public byte Level2;
+        public byte Level3;
+        public uint CurrentHP;
+        public uint MaxHP;
+        public UInt16 CurrentMP;
+        public UInt16 MaxMP;
+        public UInt16 Unknown1;
+        public byte DamageShield;
+        public byte Unknown2;
+        public fixed byte Effects1[30 * 3 * 4];
+        public uint Unknown3;
     }
 }
