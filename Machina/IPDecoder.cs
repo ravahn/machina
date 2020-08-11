@@ -133,7 +133,9 @@ namespace Machina
                         packetLength = size;
 
                     // make sure we have a valid exit condition
-                    if (packetLength <= 0 & packetLength > 65535)
+                    if (packetLength <= 0)
+                        return;
+                    if (packetLength > 65535)
                     {
                         Trace.WriteLine("IPDecoder: Invalid packet length [" + packetLength.ToString() + "].", "DEBUG-MACHINA");
                         return;

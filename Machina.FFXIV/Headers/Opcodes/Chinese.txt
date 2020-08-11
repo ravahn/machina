@@ -17,3 +17,5 @@ NpcSpawn2|034c
 ActorMove|02a9
 ActorSetPos|02f2
 ActorGauge|02b6
+PresetWaymark|0000
+UpdateWaymark|0000

@@ -43,6 +43,8 @@ namespace Machina.FFXIV.Headers
         public static readonly Server_MessageType ActorMove = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorMove"];
         public static readonly Server_MessageType ActorSetPos = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorSetPos"]; 
         public static readonly Server_MessageType ActorGauge = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorGauge"];
+        public static readonly Server_MessageType PresetWaymark = Opcodes.OpcodeManager.Instance.CurrentOpcodes["PresetWaymark"];
+        public static readonly Server_MessageType Waymark = Opcodes.OpcodeManager.Instance.CurrentOpcodes["Waymark"];
 
         public ushort InternalValue { get; private set; }
 

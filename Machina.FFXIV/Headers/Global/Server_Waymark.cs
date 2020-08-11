@@ -1,6 +1,6 @@
-﻿// Machina.FFXIV ~ Server_UpdateHpMpTp.cs
+﻿// Machina.FFXIV ~ Server_Waymark.cs
 // 
-// Copyright © 2017 Ravahn - All Rights Reserved
+// Copyright © 2020 Ravahn - All Rights Reserved
 // 
 //This program is free software: you can redistribute it and/or modify
 //it under the terms of the GNU General Public License as published by
@@ -20,11 +20,30 @@ using System.Runtime.InteropServices;
 namespace Machina.FFXIV.Headers
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_UpdateHpMpTp
+    public unsafe struct Server_Waymark
     {
+        public enum WaymarkEnum : byte
+        {
+            A = 0x0,
+            B = 0x1,
+            C = 0x2,
+            D = 0x3,
+            One = 0x4,
+            Two = 0x5,
+            Three = 0x6,
+            Four = 0x7,
+        };
+        public enum StatusEnum : byte
+        {
+            Off = 0,
+            On = 1
+        };
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public UInt32 CurrentHp;
-        public UInt16 CurrentMp;
-        public UInt16 Unknown1; 
+        public WaymarkEnum Waymark;
+        public StatusEnum Status;
+        public UInt16 unknown;
+        public UInt32 PosX;
+        public UInt32 PosY;// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
+        public UInt32 PosZ;
     }
 }

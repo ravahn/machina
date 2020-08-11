@@ -1,4 +1,4 @@
-﻿// Machina.FFXIV ~ Server_UpdateHpMpTp.cs
+﻿// Machina.FFXIV ~ Server_ActorGauge.cs
 // 
 // Copyright © 2017 Ravahn - All Rights Reserved
 // 
@@ -19,12 +19,26 @@ using System.Runtime.InteropServices;
 
 namespace Machina.FFXIV.Headers
 {
+    // Thanks to Discord user Wintermute for decoding this
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_UpdateHpMpTp
+    public unsafe struct Server_PresetWaymark
     {
+        public enum WaymarkStatusEnum : UInt32
+        {
+            A = 0x1,
+            B = 0x2,
+            C = 0x4,
+            D = 0x8,
+            One = 0x10,
+            Two = 0x20,
+            Three = 0x40,
+            Four = 0x80,
+        };
+
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public UInt32 CurrentHp;
-        public UInt16 CurrentMp;
-        public UInt16 Unknown1; 
+        public WaymarkStatusEnum WaymarkStatus;
+        public fixed UInt32 PosX[8];// Xints[0] has X of waymark A, Xints[1] X of B, etc.
+        public fixed UInt32 PosY[8];// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
+        public fixed UInt32 PosZ[8];
     }
 }

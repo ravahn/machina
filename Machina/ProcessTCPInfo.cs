@@ -165,6 +165,10 @@ namespace Machina
                     Marshal.FreeHGlobal(ptrTCPTable);
                     ptrTCPTable = IntPtr.Zero;
                 }
+
+                // fix for constant connection churn
+                bufferLength *= 2;
+
                 ptrTCPTable = Marshal.AllocHGlobal(bufferLength);
             }
 
