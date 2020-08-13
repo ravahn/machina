@@ -1,5 +1,5 @@
 ﻿StatusEffectList|0172
-BossStatusEffectList|1f5|
+BossStatusEffectList|02d7
 Ability1|00f4
 Ability8|00c9
 Ability16|03bf
