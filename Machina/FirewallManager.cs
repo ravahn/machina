@@ -31,18 +31,28 @@ namespace Machina
         /// Determines whether the windows firewall is enabled.
         /// </summary>
         /// <returns>boolean indicating whether firewall is enabled</returns>
-        public bool IsFirewallDisabled()
+        public bool? IsFirewallEnabled()
         {
-            Type typeFWMgr = Type.GetTypeFromProgID("HNetCfg.FwMgr");
-            NetFwTypeLib.INetFwMgr manager = Activator.CreateInstance(typeFWMgr) as NetFwTypeLib.INetFwMgr;
-            if (manager == null)
-                return false;
+            try
+            {
+                Type typeFWMgr = Type.GetTypeFromProgID("HNetCfg.FwMgr");
+                INetFwMgr manager = Activator.CreateInstance(typeFWMgr) as NetFwTypeLib.INetFwMgr;
+                if (manager == null)
+                    return false;
 
-            // check if Firewall is enabled
-            if (manager.LocalPolicy.CurrentProfile.FirewallEnabled == false)
-                return true;
+                // check if Firewall is enabled
+                return manager.LocalPolicy.CurrentProfile.FirewallEnabled;
+            }
+            catch (Exception ex)
+            {
+                // 99% of the time this means that Windows Firewall is disabled - it cannot connect to the RPC endpoint.
+                if (ex.Message.Contains("800706D9"))
+                    return false;
 
-            return false;
+                Trace.WriteLine("Error validating firewall.  " + ex.ToString().Replace(Environment.NewLine, " "), "FIREWALL");
+
+                return null;
+            }
         }
 
         /// <summary>
@@ -109,23 +119,47 @@ namespace Machina
         {
             try
             {
-                Type typeFWMgr = Type.GetTypeFromProgID("HNetCfg.FwMgr");
-                NetFwTypeLib.INetFwMgr manager = Activator.CreateInstance(typeFWMgr) as NetFwTypeLib.INetFwMgr;
-                if (manager == null)
-                    throw new ApplicationException("Unable to connect to fireall.");
+                Type policyType = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
+                INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(policyType);
 
-                Type typeApp = Type.GetTypeFromProgID("HNetCfg.FwAuthorizedApplication");
-                NetFwTypeLib.INetFwAuthorizedApplication app = Activator.CreateInstance(typeApp) as NetFwTypeLib.INetFwAuthorizedApplication;
-                if (app == null)
-                    throw new ApplicationException("Unable to create new Firewall Application reference.");
+                Type ruleType = Type.GetTypeFromProgID("HNetCfg.FWRule");
+                INetFwRule firewallRule = (INetFwRule)Activator.CreateInstance(ruleType);
 
-                app.Enabled = true;
-                //app.IpVersion = NET_FW_IP_VERSION_.NET_FW_IP_VERSION_V4;
-                app.Name = appName;
-                app.ProcessImageFileName = ExecutablePath;// System.Windows.Forms.Application.ExecutablePath;
-                app.Scope = NET_FW_SCOPE_.NET_FW_SCOPE_ALL;
+                firewallRule.ApplicationName = ExecutablePath;
+                firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
+                firewallRule.Description = "Machina library firewall rule";
+                firewallRule.Enabled = true;
+                firewallRule.InterfaceTypes = "All";
+                firewallRule.Name = appName;
 
-                manager.LocalPolicy.CurrentProfile.AuthorizedApplications.Add(app);
+                firewallPolicy.Rules.Add(firewallRule);                
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("FirewallWrapper: Exception " + ex.ToString(), "FIREWALL");
+            }
+        }
+
+        public void RemoveFirewallApplicationEntry(string appName)
+        {
+            try
+            {
+                Type policyType = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
+                INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(policyType);
+
+
+                int ruleCount = 0;
+
+                // find all firewall rules matching this application name
+                foreach (INetFwRule rule in firewallPolicy.Rules)
+                {
+                    if (rule.Name == appName)
+                        ruleCount++;
+                }
+                if (ruleCount == 0) ruleCount++;
+
+                for (int i=0;i<ruleCount;i++)
+                    firewallPolicy.Rules.Remove(appName);
             }
             catch (Exception ex)
             {

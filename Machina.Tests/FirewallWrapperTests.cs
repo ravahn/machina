@@ -22,7 +22,7 @@ namespace Machina.Tests
         {
             var sut = new FirewallWrapper();
 
-            var result = sut.IsFirewallDisabled();
+            var result = sut.IsFirewallEnabled();
 
             // result could be either true or false based on local configuration.
 
@@ -57,6 +57,16 @@ namespace Machina.Tests
             var sut = new FirewallWrapper();
 
             sut.AddFirewallApplicationEntry("Machina Test", System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+        }
+
+
+        [TestMethod()]
+        public void FirewallWrapper_RemoveFirewallApplicationEntryTest()
+        {
+            var sut = new FirewallWrapper();
+
+            sut.RemoveFirewallApplicationEntry("Machina Test");
             Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
         }
     }
