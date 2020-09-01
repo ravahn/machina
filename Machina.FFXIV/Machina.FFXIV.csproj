@@ -57,8 +57,10 @@
     <Compile Include="Headers\Korean\Server_ActorGauge.cs" />
     <Compile Include="Headers\Korean\Server_AddStatusEffect.cs" />
     <Compile Include="Headers\Korean\Server_BossStatusEffectList.cs" />
+    <Compile Include="Headers\Korean\Server_PresetWaymark.cs" />
     <Compile Include="Headers\Korean\Server_StatusEffectList.cs" />
     <Compile Include="Headers\Korean\Server_UpdateHpMpTp.cs" />
+    <Compile Include="Headers\Korean\Server_Waymark.cs" />
     <Compile Include="Headers\Opcodes\OpcodeManager.cs" />
     <Compile Include="Headers\Server_MessageHeader.cs" />
     <Compile Include="FFXIVBundleDecoder.cs" />
