@@ -37,8 +37,8 @@ namespace Machina.FFXIV.Headers
 
         public Server_MessageHeader MessageHeader; // 8 DWORDS
         public WaymarkStatusEnum WaymarkStatus;
-        public fixed UInt32 PosX[8];// Xints[0] has X of waymark A, Xints[1] X of B, etc.
-        public fixed UInt32 PosY[8];// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
-        public fixed UInt32 PosZ[8];
+        public fixed Int32 PosX[8];// Xints[0] has X of waymark A, Xints[1] X of B, etc.
+        public fixed Int32 PosZ[8];// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
+        public fixed Int32 PosY[8];
     }
 }
