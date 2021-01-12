@@ -201,7 +201,7 @@ namespace Machina
                                 }
                             }
 
-                            if (!bFound)
+                            if (!bFound && entry.dwLocalAddr != 0)
                             {
                                 var connection = new TCPConnection()
                                 {

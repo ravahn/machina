@@ -48,6 +48,5 @@ namespace Machina.FFXIV.Headers
         public byte EffectCount;
         public UInt16 Unknown6;
         public fixed byte Effects[4 * 4 * 4];
-        public UInt32 Unknown7;
     }
 }
