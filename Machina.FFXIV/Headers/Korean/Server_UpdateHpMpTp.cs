@@ -25,10 +25,6 @@ namespace Machina.FFXIV.Headers.Korean
         public Server_MessageHeader MessageHeader; // 8 DWORDS
         public UInt32 CurrentHp;
         public UInt16 CurrentMp;
-        public UInt16 CurrentTp;
-        public UInt16 unknown1;
-        public UInt16 unknown2;
-        public UInt16 unknown3;
-        public UInt16 unknown4;
+        public UInt16 Unknown1;
     }
 }

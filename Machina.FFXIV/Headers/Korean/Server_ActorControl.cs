@@ -31,6 +31,7 @@ namespace Machina.FFXIV.Headers.Korean
         UpdateEffect = 0x16,
         Targetable = 0x36,
         DirectorUpdate = 0x6d,
+        SetTargetSign = 0x1f6,
         LimitBreak = 0x1f9
     };
 

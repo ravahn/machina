@@ -42,12 +42,11 @@ namespace Machina.FFXIV.Headers.Korean
         public UInt32 MaxHP;
         public UInt16 CurrentMP;
         public UInt16 Unknown3;
-        public UInt16 MaxMP;
-        public UInt16 Unknown4;
+        //public UInt16 MaxMP;
+        //public UInt16 Unknown4;
         public byte DamageShield;
         public byte EffectCount;
         public UInt16 Unknown6;
         public fixed byte Effects[4 * 4 * 4];
-        public UInt32 Unknown7;
     }
 }

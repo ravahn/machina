@@ -42,8 +42,8 @@ namespace Machina.FFXIV.Headers.Korean
         public WaymarkEnum Waymark;
         public StatusEnum Status;
         public UInt16 unknown;
-        public UInt32 PosX;
-        public UInt32 PosY;// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
-        public UInt32 PosZ;
+        public Int32 PosX;
+        public Int32 PosY;// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
+        public Int32 PosZ;
     }
 }
