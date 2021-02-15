@@ -47,8 +47,12 @@
     <Compile Include="Headers\Chinese\Server_ActorGauge.cs" />
     <Compile Include="Headers\Chinese\Server_AddStatusEffect.cs" />
     <Compile Include="Headers\Chinese\Server_BossStatusEffectList.cs" />
+    <Compile Include="Headers\Chinese\Server_PresetWaymark.cs" />
     <Compile Include="Headers\Chinese\Server_StatusEffectList.cs" />
+    <Compile Include="Headers\Chinese\Server_StatusEffectList2.cs" />
     <Compile Include="Headers\Chinese\Server_UpdateHpMpTp.cs" />
+    <Compile Include="Headers\Chinese\Server_Waymark.cs" />
+    <Compile Include="Headers\Global\Server_StatusEffectList2.cs" />
     <Compile Include="Headers\Global\Server_Waymark.cs" />
     <Compile Include="Headers\Global\Server_PresetWaymark.cs" />
     <Compile Include="Headers\Korean\Server_ActionEffect.cs" />
@@ -59,6 +63,7 @@
     <Compile Include="Headers\Korean\Server_BossStatusEffectList.cs" />
     <Compile Include="Headers\Korean\Server_PresetWaymark.cs" />
     <Compile Include="Headers\Korean\Server_StatusEffectList.cs" />
+    <Compile Include="Headers\Korean\Server_StatusEffectList2.cs" />
     <Compile Include="Headers\Korean\Server_UpdateHpMpTp.cs" />
     <Compile Include="Headers\Korean\Server_Waymark.cs" />
     <Compile Include="Headers\Opcodes\OpcodeManager.cs" />

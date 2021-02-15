@@ -1,4 +1,5 @@
 ﻿StatusEffectList|314
+StatusEffectList2|0000
 BossStatusEffectList|0292|
 Ability1|266
 Ability8|167

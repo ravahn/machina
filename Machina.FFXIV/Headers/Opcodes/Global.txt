@@ -1,4 +1,5 @@
 ﻿StatusEffectList|c2
+StatusEffectList2|12e
 BossStatusEffectList|91
 Ability1|21f
 Ability8|3df
