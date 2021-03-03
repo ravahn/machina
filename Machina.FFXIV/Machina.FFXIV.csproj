@@ -1,106 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4303E4F0-4C90-44EB-90C2-691451FE49E7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Machina.FFXIV</RootNamespace>
-    <AssemblyName>Machina.FFXIV</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+
+  <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
+  <PropertyGroup>
+    <Version>2.1.8.1</Version>
+    <Authors>Ravahn</Authors>
+    <PackageId>Machina.FFXIV</PackageId>
+    <AssemblyVersion>2.1.8.1</AssemblyVersion>
+    <FileVersion>2.1.8.1</FileVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Description>Extension to Machina network library to support decoding of Final Fantasy XIV network data</Description>
+    <Copyright>Copyright © 2021 Ravahn</Copyright>
+    <PackageLicenseUrl>https://github.com/ravahn/machina/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
+    <None Remove="Headers\Opcodes\Chinese.txt" />
+    <None Remove="Headers\Opcodes\Global.txt" />
+    <None Remove="Headers\Opcodes\Korean.txt" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="GameRegionEnum.cs" />
-    <Compile Include="Headers\Chinese\Server_ActionEffect.cs" />
-    <Compile Include="Headers\Chinese\Server_ActorCast.cs" />
-    <Compile Include="Headers\Chinese\Server_ActorControl.cs" />
-    <Compile Include="Headers\Chinese\Server_ActorGauge.cs" />
-    <Compile Include="Headers\Chinese\Server_AddStatusEffect.cs" />
-    <Compile Include="Headers\Chinese\Server_BossStatusEffectList.cs" />
-    <Compile Include="Headers\Chinese\Server_PresetWaymark.cs" />
-    <Compile Include="Headers\Chinese\Server_StatusEffectList.cs" />
-    <Compile Include="Headers\Chinese\Server_StatusEffectList2.cs" />
-    <Compile Include="Headers\Chinese\Server_UpdateHpMpTp.cs" />
-    <Compile Include="Headers\Chinese\Server_Waymark.cs" />
-    <Compile Include="Headers\Global\Server_StatusEffectList2.cs" />
-    <Compile Include="Headers\Global\Server_Waymark.cs" />
-    <Compile Include="Headers\Global\Server_PresetWaymark.cs" />
-    <Compile Include="Headers\Korean\Server_ActionEffect.cs" />
-    <Compile Include="Headers\Korean\Server_ActorCast.cs" />
-    <Compile Include="Headers\Korean\Server_ActorControl.cs" />
-    <Compile Include="Headers\Korean\Server_ActorGauge.cs" />
-    <Compile Include="Headers\Korean\Server_AddStatusEffect.cs" />
-    <Compile Include="Headers\Korean\Server_BossStatusEffectList.cs" />
-    <Compile Include="Headers\Korean\Server_PresetWaymark.cs" />
-    <Compile Include="Headers\Korean\Server_StatusEffectList.cs" />
-    <Compile Include="Headers\Korean\Server_StatusEffectList2.cs" />
-    <Compile Include="Headers\Korean\Server_UpdateHpMpTp.cs" />
-    <Compile Include="Headers\Korean\Server_Waymark.cs" />
-    <Compile Include="Headers\Opcodes\OpcodeManager.cs" />
-    <Compile Include="Headers\Server_MessageHeader.cs" />
-    <Compile Include="FFXIVBundleDecoder.cs" />
-    <Compile Include="Headers\Server_BundleHeader.cs" />
-    <Compile Include="Headers\Global\Server_ActionEffect.cs" />
-    <Compile Include="Headers\Global\Server_ActorCast.cs" />
-    <Compile Include="Headers\Global\Server_ActorControl.cs" />
-    <Compile Include="Headers\Global\Server_ActorGauge.cs" />
-    <Compile Include="Headers\Global\Server_BossStatusEffectList.cs" />
-    <Compile Include="Headers\Global\Server_StatusEffectList.cs" />
-    <Compile Include="Headers\Global\Server_AddStatusEffect.cs" />
-    <Compile Include="Headers\Global\Server_UpdateHpMpTp.cs" />
-    <Compile Include="Headers\Opcodes\Server_MessageType.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FFXIVNetworkMonitor.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Machina\Machina.csproj">
-      <Project>{2681c607-a075-4070-be13-34f0a395119e}</Project>
-      <Name>Machina</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
+    <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
     <EmbeddedResource Include="Headers\Opcodes\Korean.txt" />
   </ItemGroup>
+  
   <ItemGroup>
-    <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
-    <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
+    <ProjectReference Include="..\Machina\Machina.csproj" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>if "$(SolutionName)" == "Machina" if $(ConfigurationName) == Release (
-$(SolutionDir).nuget\nuget.exe pack $(ProjectPath) -Properties Configuration=$(ConfigurationName) -Properties Platform=$(PlatformName) -IncludeReferencedProjects -Symbols -OutputDirectory ..\packages\
-%25SYSTEMROOT%25\System32\WindowsPowerShell\v1.0\powershell.exe –NonInteractive –ExecutionPolicy Unrestricted –command "&amp; { &amp;'$(SolutionDir)RenameSymbolsToPackage.ps1' '$(TargetName)' }"
-)</PostBuildEvent>
-  </PropertyGroup>
+
 </Project>
