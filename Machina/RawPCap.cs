@@ -485,67 +485,6 @@ namespace Machina
                     Thread.Sleep(100);
                 }
             }
-
         }
-        //private void RunPcapLoop()
-        //{
-        //    while (true)
-        //    {
-        //        pcap_callback del = new pcap_callback(DataReceived);
-
-        //        // Note: this is not supposed to exit, but throwing into a loop just in case.
-        //        int status = pcap_loop(_activeDevice.Handle, 0, del , IntPtr.Zero);
-
-        //        if (status == -2) // break-loop
-        //            return;
-        //        else if (status == 0)
-        //            continue;
-        //        else if (status == -1)
-        //        {
-        //            string error = Marshal.PtrToStringAnsi(pcap_geterr(_activeDevice.Handle));
-        //            Trace.WriteLine("RawPCap: Error during pcap_loop. " + error);
-        //        }
-        //        else
-        //        {
-        //            Trace.WriteLine("RawPCap: Unknown status result from pcap_loop [" + status.ToString() + "]. exiting.");
-        //            return;
-        //        }
-        //    }
-        //}
-
-        //private void DataReceived(IntPtr user, IntPtr pkt_header, IntPtr pkt_data)
-        //{
-        //    // do nothing if we have no device active
-        //    if (_activeDevice == null)
-        //        return;
-
-        //    try
-        //    {
-        //        NetworkBufferFactory.Buffer buffer = _bufferFactory.GetNextFreeBuffer();
-
-        //        int layer2Length = (_activeDevice.LinkType == DLT_EN10MB ? 14 : 4); // 14 for ethernet, 4 for loopback
-
-        //        // note: buffer pased into this method is static and owned by pcap library, does not need to be freed.
-
-        //        //pcap_pkthdr packetHeader = *(pcap_pkthdr*)pkt_header;
-        //        pcap_pkthdr packetHeader = (pcap_pkthdr)Marshal.PtrToStructure(pkt_header, typeof(pcap_pkthdr));
-
-        //        if (packetHeader.caplen <= layer2Length)
-        //            return;
-
-        //        // prepare data - skip the 14-byte ethernet header
-        //        buffer.AllocatedSize = (int)packetHeader.caplen - layer2Length;
-        //        if (buffer.AllocatedSize > buffer.Data.Length)
-        //            throw new ApplicationException("packet length too large: " + buffer.AllocatedSize.ToString());
-
-        //        Marshal.Copy(pkt_data + layer2Length, buffer.Data, 0, buffer.AllocatedSize);
-
-        //        _bufferFactory.AddAllocatedBuffer(buffer);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Trace.WriteLine("RawPCap: Exception during WinPCap Receive. " + ex.ToString());
-        //    }
-        //}
     }
 }
