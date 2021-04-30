@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="FirewallWrapperTests.cs" />
     <Compile Include="IPDecoderTests.cs" />
+    <Compile Include="ProcessTCPInfoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RawPCapTests.cs" />
     <Compile Include="RawSocketTests.cs" />

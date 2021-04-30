@@ -26,6 +26,8 @@ namespace Machina
         public uint RemoteIP { get; set; }
         public ushort RemotePort { get; set; }
 
+        public uint ProcessId { get; set; }
+
         public string ID
         { get; set; }
 
@@ -58,8 +60,8 @@ namespace Machina
 
         public override string ToString()
         {
-            return (new System.Net.IPAddress(LocalIP)).ToString() + ":" + LocalPort.ToString() + "=>" +
-                (new System.Net.IPAddress(RemoteIP)).ToString() + ":" + RemotePort.ToString();
+            return $"{new System.Net.IPAddress(LocalIP)}:{LocalPort}=>" +
+                $"{new System.Net.IPAddress(RemoteIP)}:{RemotePort}({ProcessId})";
         }
     }
 
