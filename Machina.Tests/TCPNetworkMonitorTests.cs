@@ -21,8 +21,8 @@ namespace Machina.Tests
             TCPNetworkMonitor monitor = new TCPNetworkMonitor();
             monitor.ProcessID = (uint)Process.GetCurrentProcess().Id;
             monitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.RawSocket;
-            monitor.DataReceived += (string connection, byte[] data) => DataReceived(connection, data);
-            monitor.DataSent += (string connection, byte[] data) => DataSent(connection, data);
+            monitor.DataReceived2 += (TCPConnection connection, byte[] data) => DataReceived(connection, data);
+            monitor.DataSent2 += (TCPConnection connection, byte[] data) => DataSent(connection, data);
             monitor.UseSocketFilter = false;
 
             monitor.Start();
@@ -48,11 +48,11 @@ namespace Machina.Tests
             Assert.IsTrue(dataSentCount >= 1);
         }
 
-        private void DataReceived(string connection, byte[] data)
+        private void DataReceived(TCPConnection connection, byte[] data)
         {
             dataReceivedCount++;
         }
-        private void DataSent(string connection, byte[] data)
+        private void DataSent(TCPConnection connection, byte[] data)
         {
             dataSentCount++;
         }

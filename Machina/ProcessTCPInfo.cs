@@ -58,7 +58,7 @@ namespace Machina
             public int dwLocalPort;
             public UInt32 dwRemoteAddr;
             public int dwRemotePort;
-            public int dwProcessId;
+            public uint dwProcessId;
         }
         private const Int32 AF_INET = 2;
 
@@ -70,6 +70,12 @@ namespace Machina
         /// </summary>
         public uint ProcessID
         { get; set; } = 0;
+
+        /// <summary>
+        /// Process ID of the process to return network connection information about
+        /// </summary>
+        public List<uint> ProcessIDList
+        { get; set; } = new List<uint>();
 
         /// <summary>
         /// Window text of the process to return network connection information about
@@ -84,7 +90,7 @@ namespace Machina
         { get; set; } = "";
 
 
-        private uint _currentProcessID = 0;
+        private readonly List<uint> _processFilterList = new List<uint>();
 
         [DllImport("user32.dll", EntryPoint = "FindWindow")]
         private static extern IntPtr FindWindow(string sClass, string sWindow);
@@ -94,31 +100,23 @@ namespace Machina
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
         /// <summary>
-        /// This returns the process id of the first window with the specified window name.
-        /// </summary>
-        /// <param name="windowName">name of the window to look for</param> 
-        /// <returns>Process ID</returns>
-        public uint GetProcessIDByWindowName(string windowName)
-        {
-            uint processID;
-            IntPtr hWindow = FindWindow(null, windowName);
-            GetWindowThreadProcessId(hWindow, out processID);
-
-            return processID;
-        }
-        
-        /// <summary>
-        /// This returns the process id of the first window with the specified window class.
+        /// This returns the process id of all windows with the specified window name or class.
         /// </summary>
         /// <param name="windowClass">class of the window to look for</param> 
-        /// <returns>Process ID</returns>
-        public uint GetProcessIDByWindowClass(string windowClass)
+        /// <param name="windowName">name of the window to look for</param> 
+        /// <returns>Process ID List</returns>
+        public List<uint> GetProcessIDByWindow(string windowClass, string windowName)
         {
-            uint processID;
-            IntPtr hWindow = FindWindowEx(IntPtr.Zero, IntPtr.Zero, windowClass, null);
-            GetWindowThreadProcessId(hWindow, out processID);
+            List<uint> processIDList = new List<uint>();
+            IntPtr hWindow = IntPtr.Zero;
 
-            return processID;
+            while ((hWindow = FindWindowEx(IntPtr.Zero, hWindow, windowClass, windowName)) != IntPtr.Zero)
+            {
+                GetWindowThreadProcessId(hWindow, out uint processID);
+                if (processID > 0)
+                    processIDList.Add(processID);
+            }
+            return processIDList;
         }
 
         /// <summary>
@@ -128,14 +126,18 @@ namespace Machina
         /// <param name="connections">List containing prior connections that needs to be maintained</param>
         public unsafe void UpdateTCPIPConnections(List<TCPConnection> connections)
         {
-            if (ProcessID > 0)
-                _currentProcessID = ProcessID;
-            else if(!string.IsNullOrWhiteSpace(ProcessWindowClass)) // i prefer it first since it's language irrelevant, ascii only and constant until the window being destroyed.
-                _currentProcessID = GetProcessIDByWindowClass(ProcessWindowClass);
-            else
-                _currentProcessID = GetProcessIDByWindowName(ProcessWindowName);         
+            _processFilterList.Clear();
 
-            if (_currentProcessID == 0)
+            if (ProcessIDList.Count > 0)
+                _processFilterList.AddRange(ProcessIDList);
+            else if (ProcessID > 0)
+                _processFilterList.Add(ProcessID);
+            else if (!string.IsNullOrWhiteSpace(ProcessWindowClass)) // i prefer it first since it's language irrelevant, ascii only and constant until the window being destroyed.
+                _processFilterList.AddRange(GetProcessIDByWindow(ProcessWindowClass, null));
+            else if (!string.IsNullOrWhiteSpace(ProcessWindowName))
+                _processFilterList.AddRange(GetProcessIDByWindow(null, ProcessWindowName));
+
+            if (_processFilterList.Count == 0)
             {
                 if (connections.Count > 0)
                 {
@@ -185,7 +187,7 @@ namespace Machina
                         MIB_TCPROW_EX entry = *(MIB_TCPROW_EX*)tmpPtr;
 
                         // Process if ProcessID matches
-                        if (entry.dwProcessId == _currentProcessID)
+                        if (_processFilterList.Contains(entry.dwProcessId))
                         {
                             bool bFound = false;
                             for (int j = 0; j < connections.Count; j++)
@@ -208,12 +210,13 @@ namespace Machina
                                     LocalIP = entry.dwLocalAddr,
                                     RemoteIP = entry.dwRemoteAddr,
                                     LocalPort = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwLocalPort),
-                                    RemotePort = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwRemotePort)
+                                    RemotePort = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwRemotePort),
+                                    ProcessId = entry.dwProcessId
                                 };
 
                                 connections.Add(connection);
 
-                                Trace.WriteLine("ProcessTCPInfo: New connection detected for Process [" + _currentProcessID.ToString() + "]: " + connection.ToString(), "DEBUG-MACHINA");
+                                Trace.WriteLine($"ProcessTCPInfo: New connection detected for Process [{entry.dwProcessId}]: {connection}", "DEBUG-MACHINA");
                             }
                         }
 
@@ -231,7 +234,7 @@ namespace Machina
                             MIB_TCPROW_EX entry = *(MIB_TCPROW_EX*)tmpPtr;
 
                             // Process if ProcessID matches
-                            if (entry.dwProcessId == _currentProcessID)
+                            if (_processFilterList.Contains(entry.dwProcessId))
                             {
                                 if (connections[i].LocalIP == entry.dwLocalAddr &&
                                     connections[i].RemoteIP == entry.dwRemoteAddr &&
@@ -248,14 +251,14 @@ namespace Machina
                         }
                         if (!bFound)
                         {
-                            Trace.WriteLine("ProcessTCPInfo: Removed connection " + connections[i].ToString(), "DEBUG-MACHINA");
+                            Trace.WriteLine($"ProcessTCPInfo: Removed connection {connections[i]}", "DEBUG-MACHINA");
                             connections.RemoveAt(i);
                         }
                     }
                 }
                 else
                 {
-                    Trace.WriteLine("ProcessTCPInfo: Unable to retrieve TCP table. Return code: " + ret.ToString(), "DEBUG-MACHINA");
+                    Trace.WriteLine($"ProcessTCPInfo: Unable to retrieve TCP table. Return code: {ret}", "DEBUG-MACHINA");
                     throw new System.ComponentModel.Win32Exception(ret);
                 }
             }
