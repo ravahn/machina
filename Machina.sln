@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Machina.FFXIV", "Machina.FF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Machina.Tests", "Machina.Tests\Machina.Tests.csproj", "{2EDF0C75-C75C-471C-B93C-F858B66DF1BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Machina.FFXIV.Tests", "Machina.FFXIV.Tests\Machina.FFXIV.Tests.csproj", "{0AEBA707-7889-4330-9615-48F2C18BEFB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Machina.FFXIV.Tests", "Machina.FFXIV.Tests\Machina.FFXIV.Tests.csproj", "{0AEBA707-7889-4330-9615-48F2C18BEFB4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
