@@ -1,39 +1,37 @@
-﻿// Machina.FFXIV ~ FFXIVBundleDecoder.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
-using System.IO.Compression;
-
 using System.Diagnostics;
+using System.Globalization;
+using System.IO.Compression;
 using Machina.FFXIV.Headers;
 
 namespace Machina.FFXIV
 {
     public class FFXIVBundleDecoder
     {
-        private byte[] _bundleBuffer = null;
-        private byte[] _decompressionBuffer = new byte[1024 * 128];
-        private int _allocated = 0;
+        private byte[] _bundleBuffer;
+        private readonly byte[] _decompressionBuffer = new byte[1024 * 128];
+        private int _allocated;
 
         public Queue<Tuple<long, byte[]>> Messages = new Queue<Tuple<long, byte[]>>(20);
 
         public DateTime LastMessageTimestamp
-            { get; set; } = DateTime.MinValue;
+        { get; set; } = DateTime.MinValue;
 
         public unsafe void StoreData(byte[] buffer)
         {
@@ -86,14 +84,13 @@ namespace Machina.FFXIV
                     if (header.length > _bundleBuffer.Length - offset)
                     {
                         if ((offset > 0) && (_allocated != offset))
-                        { 
+                        {
                             Array.Copy(_bundleBuffer, offset, _bundleBuffer, 0, _allocated - offset);
                             _allocated -= offset;
                         }
                         return;
                     }
-                    int messageBufferSize;
-                    byte[] message = DecompressFFXIVMessage(ref header, _bundleBuffer, offset, out messageBufferSize);
+                    byte[] message = DecompressFFXIVMessage(ref header, _bundleBuffer, offset, out int messageBufferSize);
                     if (message == null || messageBufferSize <= 0)
                     {
                         offset = ResetStream(offset);
@@ -121,8 +118,8 @@ namespace Machina.FFXIV
                                 message_offset += message_length;
                                 if (message_offset > messageBufferSize)
                                 {
-                                    Trace.WriteLine("FFXIVBundleDecoder: Bad message offset - offset=" + message_offset.ToString() + ", bufferSize=" + messageBufferSize.ToString() +
-                                        ", data: " + Utility.ByteArrayToHexString(data, 0, 50), "DEBUG-MACHINA");
+                                    Trace.WriteLine($"FFXIVBundleDecoder: Bad message offset - offset={message_offset}, bufferSize={messageBufferSize}, " +
+                                        $"data: {Utility.ByteArrayToHexString(data, 0, 50)}", "DEBUG-MACHINA");
 
                                     _allocated = 0;
                                     return;
@@ -137,13 +134,10 @@ namespace Machina.FFXIV
 
         public unsafe Tuple<long, byte[]> GetNextFFXIVMessage()
         {
-            if (Messages.Count > 0)
-                return Messages.Dequeue();
-            else
-                return null;
+            return Messages.Count > 0 ? Messages.Dequeue() : null;
         }
 
-        private bool _encodingError = false;
+        private bool _encodingError;
 
         private unsafe byte[] DecompressFFXIVMessage(ref Server_BundleHeader header, byte[] buffer, int offset, out int ffxivMessageSize)
         {
@@ -156,7 +150,7 @@ namespace Machina.FFXIV
                 for (int i = 0; i < ffxivMessageSize / 4; i++)
                 {
                     // todo: use unsafe pointer operations
-                    uint value = BitConverter.ToUInt32(buffer, offset + i * 4 + sizeof(Server_BundleHeader));
+                    uint value = BitConverter.ToUInt32(buffer, offset + (i * 4) + sizeof(Server_BundleHeader));
                     Array.Copy(BitConverter.GetBytes(value), 0, _decompressionBuffer, i * 4, 4);
                 }
 
@@ -166,7 +160,7 @@ namespace Machina.FFXIV
             if (header.encoding != 0x0101 && header.encoding != 0x0100)
             {
                 if (!_encodingError)
-                    Trace.WriteLine("FFXIVBundleDecoder: unknown encoding type: " + header.encoding.ToString("X4"), "DEBUG-MACHINA");
+                    Trace.WriteLine($"FFXIVBundleDecoder: unknown encoding type: {header.encoding.ToString("X4", CultureInfo.InvariantCulture)}", "DEBUG-MACHINA");
                 _encodingError = true;
                 return null;
             }
@@ -204,7 +198,7 @@ namespace Machina.FFXIV
             return offset;
         }
 
-        private unsafe int GetNextMagicNumberPos(byte[] buffer, int offset)
+        private static unsafe int GetNextMagicNumberPos(byte[] buffer, int offset)
         {
             fixed (byte* ptr = buffer)
             {

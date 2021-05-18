@@ -1,19 +1,17 @@
-﻿// Machina ~ RawSocket.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System;
 using System.Diagnostics;
@@ -26,13 +24,13 @@ namespace Machina
     {
         private class SocketState
         {
-            public NetworkBufferFactory.Buffer buffer = null;
-            public Socket socket = null;
+            public NetworkBufferFactory.Buffer buffer;
+            public Socket socket;
             public object socketLock = new object();
             public NetworkBufferFactory bufferFactory = new NetworkBufferFactory(20, 0);
         }
 
-        private SocketState _socketState = new SocketState();
+        private readonly SocketState _socketState = new SocketState();
 
         public uint LocalIP
         { get; private set; }
@@ -45,7 +43,7 @@ namespace Machina
             RemoteIP = remoteAddress;
 
             // set buffer
-            _socketState.buffer = _socketState.bufferFactory.GetNextFreeBuffer(); 
+            _socketState.buffer = _socketState.bufferFactory.GetNextFreeBuffer();
 
             lock (_socketState.socketLock)
             {
@@ -53,7 +51,7 @@ namespace Machina
                 _socketState.socket = CreateRawSocket(localAddress, remoteAddress);
 
                 // start receiving data asynchronously
-                _socketState.socket.BeginReceive(_socketState.buffer.Data, 0, _socketState.buffer.Data.Length, SocketFlags.None, new AsyncCallback(OnReceive), (object)_socketState);
+                _ = _socketState.socket.BeginReceive(_socketState.buffer.Data, 0, _socketState.buffer.Data.Length, SocketFlags.None, new AsyncCallback(OnReceive), _socketState);
             }
         }
 
@@ -118,12 +116,12 @@ namespace Machina
             {
                 byte[] trueBytes = new byte[4] { 3, 0, 0, 0 }; // 3 == RCVALL_IPLEVEL, so it only intercepts the target interface
                 byte[] outBytes = new byte[4];
-                socket.IOControl(IOControlCode.ReceiveAll, trueBytes, outBytes);
+                _ = socket.IOControl(IOControlCode.ReceiveAll, trueBytes, outBytes);
             }
 
             if (remoteAddress > 0)
                 socket.Connect(new IPEndPoint(remoteAddress, 0));
-            
+
             return socket;
         }
 
@@ -131,8 +129,7 @@ namespace Machina
         {
             try
             {
-                SocketState state = ar.AsyncState as SocketState;
-                if (state == null)
+                if (!(ar.AsyncState is SocketState state))
                     return;
 
                 NetworkBufferFactory.Buffer buffer = state?.buffer;
@@ -144,7 +141,7 @@ namespace Machina
 
                     int received = state.socket.EndReceive(ar);
                     state.buffer = state.bufferFactory.GetNextFreeBuffer();
-                    state.socket.BeginReceive(state.buffer.Data, 0, state.buffer.Data.Length, SocketFlags.None, new System.AsyncCallback(OnReceive), (object)state);
+                    _ = state.socket.BeginReceive(state.buffer.Data, 0, state.buffer.Data.Length, SocketFlags.None, new AsyncCallback(OnReceive), state);
 
                     if (received > 0)
                     {

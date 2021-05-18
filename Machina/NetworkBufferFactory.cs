@@ -1,19 +1,18 @@
-﻿// Machina ~ NetworkBufferFactory.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
 using System.Collections.Concurrent;
 
 namespace Machina
@@ -35,11 +34,11 @@ namespace Machina
         }
 
         // Internal queues used to store the two types of buffers - allocated an free.
-        private ConcurrentQueue<Buffer> _freeBufferQueue = new ConcurrentQueue<Buffer>();
-        private ConcurrentQueue<Buffer> _allocatedBufferQueue = new ConcurrentQueue<Buffer>();
+        private readonly ConcurrentQueue<Buffer> _freeBufferQueue = new ConcurrentQueue<Buffer>();
+        private readonly ConcurrentQueue<Buffer> _allocatedBufferQueue = new ConcurrentQueue<Buffer>();
 
         // default buffer size
-        private int _bufferSize = 1024 * 64+1; // maximum TCP packet size is just under 64kb, and winsock seems to limit receive calls to this size.
+        private readonly int _bufferSize = (1024 * 64) + 1; // maximum TCP packet size is just under 64kb, and winsock seems to limit receive calls to this size.
 
         /// <summary>
         /// constructor for the buffer factory

@@ -16,6 +16,8 @@
     <Copyright>Copyright © 2021 Ravahn</Copyright>
     <PackageLicenseUrl>https://github.com/ravahn/machina/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>TRUE</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="FirewallManager.cs" />
