@@ -13,18 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-using System.Runtime.InteropServices;
+using System;
 
-namespace Machina.FFXIV.Headers.Korean
+namespace Machina.FFXIV.Headers.Chinese
 {
-    // Thanks to Discord user Wintermute for decoding this
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Server_PresetWaymark
+    [Flags]
+    public enum WaymarkType : uint
     {
-        public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public WaymarkType WaymarkType;
-        public fixed int PosX[8];// Xints[0] has X of waymark A, Xints[1] X of B, etc.
-        public fixed int PosY[8];// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
-        public fixed int PosZ[8];
-    }
+        A = 0x1,
+        B = 0x2,
+        C = 0x4,
+        D = 0x8,
+        One = 0x10,
+        Two = 0x20,
+        Three = 0x40,
+        Four = 0x80,
+    };
 }

@@ -16,8 +16,8 @@
 //along with this program.If not, see<http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections;
 using System.Diagnostics;
-using NetFwTypeLib;
 
 namespace Machina
 {
@@ -35,8 +35,7 @@ namespace Machina
         {
             try
             {
-                Type typeFWMgr = Type.GetTypeFromProgID("HNetCfg.FwMgr");
-                INetFwMgr manager = Activator.CreateInstance(typeFWMgr) as NetFwTypeLib.INetFwMgr;
+                dynamic manager = COMObject.CreateObject("HNetCfg.FwMgr");
                 if (manager == null)
                     return false;
 
@@ -62,25 +61,23 @@ namespace Machina
         /// <returns>boolean indicating whether firewall is configured for the specified application</returns>
         public bool IsFirewallApplicationConfigured(string appName)
         {
-            bool bFound = false;
-
-            Type typeFWMgr = Type.GetTypeFromProgID("HNetCfg.FwMgr");
-            NetFwTypeLib.INetFwMgr manager = Activator.CreateInstance(typeFWMgr) as NetFwTypeLib.INetFwMgr;
+            dynamic manager = COMObject.CreateObject("HNetCfg.FwMgr");
             if (manager == null)
                 return false;
 
             // check applications list
-            System.Collections.IEnumerator appEnumerate = manager.LocalPolicy.CurrentProfile.AuthorizedApplications.GetEnumerator();
+            IEnumerator appEnumerate = manager.LocalPolicy.CurrentProfile.AuthorizedApplications.GetEnumerator();
             if (appEnumerate == null)
                 return false;
-            while (appEnumerate.MoveNext() && bFound == false)
+
+            while (appEnumerate.MoveNext())
             {
-                NetFwTypeLib.INetFwAuthorizedApplication app = appEnumerate.Current as NetFwTypeLib.INetFwAuthorizedApplication;
+                dynamic app = new COMObject(appEnumerate.Current);
                 if (app != null && app.Name == appName && app.Enabled == true)
-                    bFound = true;
+                    return true;
             }
 
-            return bFound;
+            return false;
         }
 
         /// <summary>
@@ -93,16 +90,15 @@ namespace Machina
             bool bFound = false;
 
             // check firewall rules - need TCP open for the application
-            Type typePolicy = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
-            NetFwTypeLib.INetFwPolicy2 policy = Activator.CreateInstance(typePolicy) as NetFwTypeLib.INetFwPolicy2;
+            dynamic policy = COMObject.CreateObject("HNetCfg.FwPolicy2");
             if (policy == null)
                 return false;
-            System.Collections.IEnumerator appEnumerate = policy.Rules.GetEnumerator();
+            IEnumerator appEnumerate = policy.Rules.GetEnumerator();
             if (appEnumerate == null)
                 return false;
             while (appEnumerate.MoveNext() && bFound == false)
             {
-                NetFwTypeLib.INetFwRule2 rule = appEnumerate.Current as NetFwTypeLib.INetFwRule2;
+                dynamic rule = new COMObject(appEnumerate.Current);
                 if (rule != null && rule.Name == appName && rule.Enabled == true)// && rule.Protocol == 6) // tcp
                     bFound = true;
             }
@@ -119,20 +115,18 @@ namespace Machina
         {
             try
             {
-                Type policyType = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
-                INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(policyType);
+                dynamic firewallPolicy = COMObject.CreateObject("HNetCfg.FwPolicy2");
 
-                Type ruleType = Type.GetTypeFromProgID("HNetCfg.FWRule");
-                INetFwRule firewallRule = (INetFwRule)Activator.CreateInstance(ruleType);
+                dynamic firewallRule = COMObject.CreateObject("HNetCfg.FWRule");
 
                 firewallRule.ApplicationName = ExecutablePath;
-                firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
+                firewallRule.Action = 1; // NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
                 firewallRule.Description = "Machina library firewall rule";
                 firewallRule.Enabled = true;
                 firewallRule.InterfaceTypes = "All";
                 firewallRule.Name = appName;
 
-                firewallPolicy.Rules.Add(firewallRule);                
+                firewallPolicy.Rules.Add(firewallRule.instance);                
             }
             catch (Exception ex)
             {
@@ -144,19 +138,21 @@ namespace Machina
         {
             try
             {
-                Type policyType = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
-                INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(policyType);
-
-
+                dynamic firewallPolicy = COMObject.CreateObject("HNetCfg.FwPolicy2");
+ 
                 int ruleCount = 0;
+                IEnumerator enumerable = firewallPolicy.Rules.GetEnumerator();
+                if (enumerable == null)
+                    while (enumerable.MoveNext())
+                    {
+                        dynamic rule = new COMObject(enumerable.Current);
 
-                // find all firewall rules matching this application name
-                foreach (INetFwRule rule in firewallPolicy.Rules)
-                {
-                    if (rule.Name == appName)
-                        ruleCount++;
-                }
-                if (ruleCount == 0) ruleCount++;
+                        // find all firewall rules matching this application name
+                        if (rule.Name == appName)
+                            ruleCount++;
+                    }
+                if (ruleCount == 0) 
+                    ruleCount++;
 
                 for (int i=0;i<ruleCount;i++)
                     firewallPolicy.Rules.Remove(appName);

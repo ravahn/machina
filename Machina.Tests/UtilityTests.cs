@@ -1,11 +1,17 @@
-﻿// Machina.Tests ~ Utility.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 //This program is distributed in the hope that it will be useful,
 //but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,9 +21,8 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.If not, see<http://www.gnu.org/licenses/>.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Machina;
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests
 {
@@ -66,10 +71,10 @@ namespace Machina.Tests
         {
             string data = "0102030405060708090a0b0c0d0e0f1011121314";
 
-            var result = Utility.HexStringToByteArray(data);
+            byte[] result = Utility.HexStringToByteArray(data);
 
             for (int i = 0; i < 20; i++)
-                Assert.AreEqual(i+1, result[i]);
+                Assert.AreEqual(i + 1, result[i]);
         }
 
         [TestMethod()]
@@ -77,7 +82,7 @@ namespace Machina.Tests
         {
             DateTime currentTime = DateTime.Now;
 
-            long epoch = (long)(currentTime.Subtract(DateTime.Parse("1/1/1970")).TotalMilliseconds);
+            long epoch = (long)currentTime.Subtract(DateTime.Parse("1/1/1970")).TotalMilliseconds;
             DateTime result = Utility.EpochToDateTime(epoch);
 
             Assert.AreEqual(0, (long)currentTime.Subtract(result).TotalMilliseconds);
@@ -88,7 +93,7 @@ namespace Machina.Tests
         {
             ushort data = 0x1234;
 
-            var result = Utility.ntohs(data);
+            ushort result = Utility.ntohs(data);
             Assert.AreEqual((ushort)0x3412, result);
         }
 
@@ -97,7 +102,7 @@ namespace Machina.Tests
         {
             uint data = 0x12345678;
 
-            var result = Utility.ntohl(data);
+            uint result = Utility.ntohl(data);
             Assert.AreEqual((uint)0x78563412, result);
         }
 
@@ -106,8 +111,8 @@ namespace Machina.Tests
         {
             ulong data = 0x1122334455667788;
 
-            var result = Utility.ntohq(data);
-            Assert.AreEqual((ulong)0x8877665544332211, result);
+            ulong result = Utility.ntohq(data);
+            Assert.AreEqual(0x8877665544332211, result);
         }
 
         [TestMethod()]
@@ -115,7 +120,7 @@ namespace Machina.Tests
         {
             ushort data = 0x1234;
 
-            var result = Utility.htons(data);
+            ushort result = Utility.htons(data);
             Assert.AreEqual((ushort)0x3412, result);
         }
 
@@ -124,7 +129,7 @@ namespace Machina.Tests
         {
             uint data = 0x12345678;
 
-            var result = Utility.htonl(data);
+            uint result = Utility.htonl(data);
             Assert.AreEqual((uint)0x78563412, result);
         }
 
@@ -133,14 +138,14 @@ namespace Machina.Tests
         {
             ulong data = 0x1122334455667788;
 
-            var result = Utility.htonq(data);
-            Assert.AreEqual((ulong)0x8877665544332211, result);
+            ulong result = Utility.htonq(data);
+            Assert.AreEqual(0x8877665544332211, result);
         }
 
         [TestMethod()]
         public void Utility_GetNetworkInterfacesTest()
         {
-            var result = Utility.GetNetworkInterfaceIPs();
+            System.Collections.Generic.IList<string> result = Utility.GetNetworkInterfaceIPs();
 
             Assert.IsTrue(result.Contains("127.0.0.1"));
         }

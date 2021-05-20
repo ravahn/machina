@@ -1,23 +1,23 @@
-﻿// Machina ~ Utility.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
 
@@ -47,7 +47,7 @@ namespace Machina
             StringBuilder sb = new StringBuilder(size * 2);
 
             for (int i = offset; i < offset + size; i++)
-                sb.Append(data[i].ToString("X2"));
+                _ = sb.Append(data[i].ToString("X2", CultureInfo.InvariantCulture));
 
             return sb.ToString();
         }
@@ -73,35 +73,45 @@ namespace Machina
 
         public static ushort ntohs(ushort value)
         {
-            return (ushort)System.Net.IPAddress.NetworkToHostOrder((short)value);
+            return (ushort)IPAddress.NetworkToHostOrder((short)value);
         }
 
         public static uint ntohl(uint value)
         {
-            return (uint)System.Net.IPAddress.NetworkToHostOrder((int)value);
+            return (uint)IPAddress.NetworkToHostOrder((int)value);
         }
 
         public static ulong ntohq(ulong value)
         {
-            return (ulong)System.Net.IPAddress.NetworkToHostOrder((long)value);
+            return (ulong)IPAddress.NetworkToHostOrder((long)value);
         }
 
         public static ushort htons(ushort value)
         {
-            return (ushort)System.Net.IPAddress.HostToNetworkOrder((short)value);
+            return (ushort)IPAddress.HostToNetworkOrder((short)value);
         }
 
         public static uint htonl(uint value)
         {
-            return (uint)System.Net.IPAddress.HostToNetworkOrder((int)value);
+            return (uint)IPAddress.HostToNetworkOrder((int)value);
         }
 
         public static ulong htonq(ulong value)
         {
-            return (ulong)System.Net.IPAddress.HostToNetworkOrder((long)value);
+            return (ulong)IPAddress.HostToNetworkOrder((long)value);
         }
 
-        public static List<string> GetNetworkInterfaceIPs()
+        public static uint IPStringToUint(string ip)
+        {
+            if (!IPAddress.TryParse(ip, out IPAddress address))
+                return 0;
+            if (address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+                return 0;
+            uint longIp = BitConverter.ToUInt32(address.GetAddressBytes(), 0);
+            return longIp;
+        }
+
+        public static IList<string> GetNetworkInterfaceIPs()
         {
             List<string> ret = new List<string>();
 

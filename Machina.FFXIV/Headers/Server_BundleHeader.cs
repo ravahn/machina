@@ -1,20 +1,18 @@
-﻿// Machina.FFXIV ~ Server_BundleHeader.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
-using System;
 using System.Runtime.InteropServices;
 
 namespace Machina.FFXIV.Headers
@@ -31,7 +29,7 @@ namespace Machina.FFXIV.Headers
         [FieldOffset(12)]
         public uint magic3;
         [FieldOffset(16)]
-        private ulong _epoch;
+        private readonly ulong _epoch;
         [FieldOffset(24)]
         public ushort length;
         [FieldOffset(26)]
@@ -51,7 +49,8 @@ namespace Machina.FFXIV.Headers
 
         //public const int MinSize = 40;
 
-        public ulong epoch
-        { get { return (((ulong)Utility.ntohl((uint)(int)(_epoch & 0xFFFFFFFF))) << 32) + (ulong)Utility.ntohl((uint)(int)(_epoch >> 32)); } }
+        public ulong epoch =>
+            (((ulong)Utility.ntohl((uint)(int)(_epoch & 0xFFFFFFFF))) << 32) +
+                     Utility.ntohl((uint)(int)(_epoch >> 32));
     }
 }

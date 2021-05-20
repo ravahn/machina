@@ -1,11 +1,20 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Machina;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests
 {
@@ -21,8 +30,8 @@ namespace Machina.Tests
             TCPNetworkMonitor monitor = new TCPNetworkMonitor();
             monitor.ProcessID = (uint)Process.GetCurrentProcess().Id;
             monitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.RawSocket;
-            monitor.DataReceived += (string connection, byte[] data) => DataReceived(connection, data);
-            monitor.DataSent += (string connection, byte[] data) => DataSent(connection, data);
+            monitor.DataReceivedEventHandler += (TCPConnection connection, byte[] data) => DataReceived();
+            monitor.DataSentEventHandler += (TCPConnection connection, byte[] data) => DataSent();
             monitor.UseSocketFilter = false;
 
             monitor.Start();
@@ -34,25 +43,25 @@ namespace Machina.Tests
             t = client.DownloadStringTaskAsync("http://www.google.com");
             t.Wait();
 
-            for (int i=0;i<100;i++)
+            for (int i = 0; i < 100; i++)
             {
                 if (dataSentCount > 1 && dataReceivedCount > 1)
-                    break;  
+                    break;
 
                 System.Threading.Thread.Sleep(10);
             }
 
             monitor.Stop();
-            
+
             Assert.IsTrue(dataReceivedCount >= 1);
             Assert.IsTrue(dataSentCount >= 1);
         }
 
-        private void DataReceived(string connection, byte[] data)
+        private void DataReceived()
         {
             dataReceivedCount++;
         }
-        private void DataSent(string connection, byte[] data)
+        private void DataSent()
         {
             dataSentCount++;
         }

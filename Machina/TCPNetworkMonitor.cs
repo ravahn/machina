@@ -1,19 +1,18 @@
-﻿// Machina ~ TCPNetworkMonitor.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,6 +26,7 @@ namespace Machina
     /// TCPNetworkMonitor is configured through the following properties after it is constructed:
     ///   MonitorType: Specifies whether it should use a winsock raw socket, or use WinPCap (requires separate kernel driver installation).  Default is a raw socket.
     ///   ProcessID: Specifies the process ID to record traffic from
+    ///   ProcessIDList: Specifies a list of process IDs to record traffic from, to support collecting data from multiple processes at the same time
     ///   WindowName: Specifies the window name to record traffic from, where process ID is unavailable
     ///   WindowClass: Specifies the window class to record traffic from, where process ID is unavailable
     ///   DataReceived: Delegate that is called when data is received and successfully decoded through IP and TCP decoders.  Note that a connection identifier is 
@@ -57,78 +57,96 @@ namespace Machina
         { get; set; } = NetworkMonitorType.RawSocket;
 
         /// <summary>
-        /// Specifies the Process ID that is generating or receiving the traffic.  Either ProcessID, WindowName or WindowClass must be specified.
+        /// Specifies the Process ID that is generating or receiving the traffic.  Either ProcessID, ProcessIDList, WindowName or WindowClass must be specified.
         /// </summary>
         public uint ProcessID
-        { get; set; } = 0;
+        { get; set; }
+
+        /// <summary>
+        /// Specifies a list of process IDs to filter traffic against.
+        /// </summary>
+        public ICollection<uint> ProcessIDList
+        { get; set; } = new List<uint>();
 
         /// <summary>
         /// Specifies the local IP address of the network interface to monitor
         /// </summary>
         public string LocalIP
         { get; set; } = "";
-        
+
         /// <summary>
-        /// Specifies the Window Name of the application that is generating or receiving the traffic.  Either ProcessID, WindowName or WindowClass must be specified.
+        /// Specifies the Window Name of the application that is generating or receiving the traffic.  Either ProcessID, ProcessIDList, WindowName or WindowClass must be specified.
         /// </summary>
         public string WindowName
         { get; set; } = "";
-        
+
         /// <summary>
-        /// Specifies the Window Class of the application that is generating or receiving the traffic.  Either ProcessID, WindowName or WindowClass must be specified.
+        /// Specifies the Window Class of the application that is generating or receiving the traffic.  Either ProcessID, ProcessIDList, WindowName or WindowClass must be specified.
         /// </summary>
         public string WindowClass
         { get; set; } = "";
 
         public bool UseSocketFilter
-        { get; set; } = false;
+        { get; set; }
 
         #region Data Delegates section
+        [Obsolete("To be retired.")]
         public delegate void DataReceivedDelegate(string connection, byte[] data);
 
         /// <summary>
-        /// Specifies the delegate that is called when data is received and successfully decoded/
+        /// Specifies the delegate that is called when data is received and successfully decoded.
         /// </summary>
+        [Obsolete("To be replaced by DataReceivedEventHandler")]
         public DataReceivedDelegate DataReceived = null;
 
-        public void OnDataReceived(string connection, byte[] data)
-        {
-            DataReceived?.Invoke(connection, data);
-        }
-        
+        [Obsolete("To be retired.")]
         public delegate void DataSentDelegate(string connection, byte[] data);
 
+        [Obsolete("To be replaced by DataSentEventHandler")]
         public DataSentDelegate DataSent = null;
 
-        public void OnDataSent(string connection, byte[] data)
-        {
-            DataSent?.Invoke(connection, data);
-        }
-        
         #endregion
 
-        private List<IRawSocket> _sockets = new List<IRawSocket>();
-        private List<TCPConnection> _connections = new List<TCPConnection>(2);
+        #region Data Delegates with Process Id section
+        public delegate void DataReceivedDelegate2(TCPConnection connection, byte[] data);
 
+        /// <summary>
+        /// Specifies the delegate that is called when data is received and successfully decoded.
+        /// </summary>
+        public DataReceivedDelegate2 DataReceivedEventHandler;
 
-        private Thread _monitorThread = null;
-        private int _Abort = 0;
-        private bool Abort
+        public void OnDataReceived(TCPConnection connection, byte[] data)
         {
-            get
-            {
-                return _Abort != 0;
-            }
-            set
-            {
-                if (value)
-                    Interlocked.Exchange(ref _Abort, 1);
-                else
-                    Interlocked.Exchange(ref _Abort, 0);
-            }
+            DataReceivedEventHandler?.Invoke(connection, data);
+            DataReceived?.Invoke(connection.ID, data);
         }
 
-        private ProcessTCPInfo _processTCPInfo = new ProcessTCPInfo();
+        public delegate void DataSentDelegate2(TCPConnection connection, byte[] data);
+
+        public DataSentDelegate2 DataSentEventHandler;
+
+        public void OnDataSent(TCPConnection connection, byte[] data)
+        {
+            DataSentEventHandler?.Invoke(connection, data);
+            DataSent?.Invoke(connection.ID, data);
+        }
+        #endregion
+
+        private readonly IList<IRawSocket> _sockets = new List<IRawSocket>();
+        private readonly IList<TCPConnection> _connections = new List<TCPConnection>(2);
+
+
+        private Thread _monitorThread;
+        private int _Abort;
+        private bool Abort
+        {
+            get => _Abort != 0;
+            set => _ = value ?
+                    Interlocked.Exchange(ref _Abort, 1) :
+                    Interlocked.Exchange(ref _Abort, 0);
+        }
+
+        private readonly ProcessTCPInfo _processTCPInfo = new ProcessTCPInfo();
 
         /// <summary>
         /// Validates the parameters and starts the monitor.
@@ -137,12 +155,10 @@ namespace Machina
         {
             if (ProcessID == 0 && string.IsNullOrWhiteSpace(WindowName) && string.IsNullOrWhiteSpace(WindowClass))
                 throw new ArgumentException("Either Process ID, Window Name or Window Class must be specified");
-            if (DataReceived == null)
-                throw new ArgumentException("DataReceived delegate must be specified.");
-
-            _processTCPInfo.ProcessID = ProcessID;
-            _processTCPInfo.ProcessWindowName = WindowName;
-            _processTCPInfo.ProcessWindowClass = WindowClass;
+            if (DataReceived == null && DataReceivedEventHandler == null)
+                throw new ArgumentException("DataReceived or DataReceived2 delegate must be specified.");
+            if (DataReceived != null)
+                Trace.WriteLine($"TCPNetworkMonitor: Warning - DataReceived will soon be retired.  Please update Machina reference to use DataReceived2.", "DEBUG-MACHINA");
 
             _monitorThread = new Thread(new ParameterizedThreadStart(Run));
             _monitorThread.Name = "Machina.TCPNetworkMonitor.Start";
@@ -234,6 +250,12 @@ namespace Machina
 
         private void UpdateProcessConnections()
         {
+            // Update any filters
+            _processTCPInfo.ProcessID = ProcessID;
+            _processTCPInfo.ProcessIDList = ProcessIDList;
+            _processTCPInfo.ProcessWindowName = WindowName;
+            _processTCPInfo.ProcessWindowClass = WindowClass;
+
             // get any active game connections
             _processTCPInfo.UpdateTCPIPConnections(_connections);
             if (_connections.Count == 0)
@@ -250,21 +272,21 @@ namespace Machina
                     connection.ID = connection.ToString(); //TODO: In the future there may be a better way to define the ID other than such a long string.
 
                     // Set up decoders for data sent from local machine
-                    connection.IPDecoder_Send = new IPDecoder(connection.LocalIP, connection.RemoteIP, IPProtocol.TCP);
-                    connection.TCPDecoder_Send = new TCPDecoder(connection.LocalPort, connection.RemotePort);
+                    connection.IPDecoderSend = new IPDecoder(connection.LocalIP, connection.RemoteIP, IPProtocol.TCP);
+                    connection.TCPDecoderSend = new TCPDecoder(connection.LocalPort, connection.RemotePort);
 
                     // set up decoders for data received by local machine
-                    connection.IPDecoder_Receive = new IPDecoder(connection.RemoteIP, connection.LocalIP, IPProtocol.TCP);
-                    connection.TCPDecoder_Receive = new TCPDecoder(connection.RemotePort, connection.LocalPort);
+                    connection.IPDecoderReceive = new IPDecoder(connection.RemoteIP, connection.LocalIP, IPProtocol.TCP);
+                    connection.TCPDecoderReceive = new TCPDecoder(connection.RemotePort, connection.LocalPort);
 
                     continue;
                 }
             }
         }
-        
+
         private void UpdateSockets()
         {
-            for (int i=0;i<_connections.Count;i++)
+            for (int i = 0; i < _connections.Count; i++)
             {
                 bool found = false;
                 for (int j = 0; j < _sockets.Count; j++)
@@ -286,10 +308,10 @@ namespace Machina
                 }
             }
 
-            for (int i=_sockets.Count-1;i>=0;i--)
+            for (int i = _sockets.Count - 1; i >= 0; i--)
             {
                 bool found = false;
-                for (int j=0;j<_connections.Count;j++)
+                for (int j = 0; j < _connections.Count; j++)
                     if (_connections[j].LocalIP == _sockets[i].LocalIP &&
                         (!UseSocketFilter || (_connections[j].RemoteIP == _sockets[i].RemoteIP)))
                         found = true;
@@ -308,10 +330,9 @@ namespace Machina
         private void ProcessNetworkData()
         {
             int size;
-            byte[] buffer;
 
             for (int i = 0; i < _sockets.Count; i++)
-                while ((size = _sockets[i].Receive(out buffer)) > 0)
+                while ((size = _sockets[i].Receive(out byte[] buffer)) > 0)
                 {
                     ProcessData(buffer, size);
                     _sockets[i].FreeBuffer(ref buffer);
@@ -326,24 +347,24 @@ namespace Machina
             for (int i = 0; i < _connections.Count; i++)
             {
                 TCPConnection connection = _connections[i];
-                connection.IPDecoder_Send.FilterAndStoreData(buffer, size);
+                connection.IPDecoderSend.FilterAndStoreData(buffer, size);
 
-                while ((tcpbuffer = connection.IPDecoder_Send.GetNextIPPayload()) != null)
-                { 
-                    connection.TCPDecoder_Send.FilterAndStoreData(tcpbuffer);
-                    while ((payloadBuffer = connection.TCPDecoder_Send.GetNextTCPDatagram()) != null)
+                while ((tcpbuffer = connection.IPDecoderSend.GetNextIPPayload()) != null)
+                {
+                    connection.TCPDecoderSend.FilterAndStoreData(tcpbuffer);
+                    while ((payloadBuffer = connection.TCPDecoderSend.GetNextTCPDatagram()) != null)
                     {
-                        OnDataSent(connection.ID, payloadBuffer);
+                        OnDataSent(connection, payloadBuffer);
                     }
                 }
 
-                connection.IPDecoder_Receive.FilterAndStoreData(buffer, size);
-                while ((tcpbuffer = connection.IPDecoder_Receive.GetNextIPPayload()) != null)
+                connection.IPDecoderReceive.FilterAndStoreData(buffer, size);
+                while ((tcpbuffer = connection.IPDecoderReceive.GetNextIPPayload()) != null)
                 {
-                    connection.TCPDecoder_Receive.FilterAndStoreData(tcpbuffer);
-                    while ((payloadBuffer = connection.TCPDecoder_Receive.GetNextTCPDatagram()) != null)
+                    connection.TCPDecoderReceive.FilterAndStoreData(tcpbuffer);
+                    while ((payloadBuffer = connection.TCPDecoderReceive.GetNextTCPDatagram()) != null)
                     {
-                        OnDataReceived(connection.ID, payloadBuffer);
+                        OnDataReceived(connection, payloadBuffer);
                     }
                 }
             }

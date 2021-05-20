@@ -1,24 +1,23 @@
-﻿// Machina ~ IPDecoder.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Machina
 {
@@ -29,16 +28,16 @@ namespace Machina
     {
 
         // protocol to filter against
-        private IPProtocol _protocol;
+        private readonly IPProtocol _protocol;
         // source ip is in network byte order
-        private uint _sourceIP;
+        private readonly uint _sourceIP;
         // destination ip is in network byte order
-        private uint _destinationIP;
+        private readonly uint _destinationIP;
 
         /// <summary>
         /// Collection containing current unprocessed IP fragments
         /// </summary>
-        public List<byte[]> Fragments
+        public IList<byte[]> Fragments
         { get; }
             = new List<byte[]>();
 
@@ -85,7 +84,7 @@ namespace Machina
 
             if (buffer.Length < size)
             {
-                Trace.WriteLine("IPDecoder: Buffer length is less than specified size.  Size=[" + size.ToString() + "], Length=[" + buffer.Length + "]", "DEBUG-MACHINA");
+                Trace.WriteLine($"IPDecoder: Buffer length is less than specified size.  Size=[{size}], Length=[{buffer.Length}]", "DEBUG-MACHINA");
                 return;
             }
 
@@ -100,7 +99,7 @@ namespace Machina
                         // TODO: IP6 packets, and mixed IP4/IP6, need to be tested with real-world data.
                         if (offset + sizeof(IPv6Header) > size)
                         {
-                            Trace.WriteLine("IPDecoder: IP6 Packet too small for header. offset: " + offset.ToString() + ", size: " + size.ToString(), "DEBUG-MACHINA");
+                            Trace.WriteLine($"IPDecoder: IP6 Packet too small for header. offset: {offset}, size: {size}", "DEBUG-MACHINA");
                             return;
                         }
 
@@ -110,7 +109,7 @@ namespace Machina
                         if (header6.PayloadLength * 8 > buffer.Length - offset - sizeof(IPv6Header))
                         {
                             Trace.WriteLine("IPDecoder: IP6 Packet too small for payload. payload length: " +
-                                (header6.payload_length * 8).ToString() + ", Buffer: " + buffer.Length.ToString() + ", offset: " + offset.ToString(), "DEBUG-MACHINA");
+                                $"{header6.payload_length * 8}, Buffer: {buffer.Length}, offset: {offset}", "DEBUG-MACHINA");
                             return;
                         }
 
@@ -120,7 +119,7 @@ namespace Machina
                     }
                     else if (version != 4)
                     {
-                        Trace.WriteLine("IPDecoder: IP protocol version is neither 4 nor 6. Version is " + version.ToString(), "DEBUG-MACHINA");
+                        Trace.WriteLine($"IPDecoder: IP protocol version is neither 4 nor 6. Version is {version}", "DEBUG-MACHINA");
                         return;
                     }
 
@@ -137,12 +136,12 @@ namespace Machina
                         return;
                     if (packetLength > 65535)
                     {
-                        Trace.WriteLine("IPDecoder: Invalid packet length [" + packetLength.ToString() + "].", "DEBUG-MACHINA");
+                        Trace.WriteLine($"IPDecoder: Invalid packet length [{packetLength}].", "DEBUG-MACHINA");
                         return;
                     }
                     if (packetLength > buffer.Length - offset)
                     {
-                        Trace.WriteLine("IPDecoder: buffer too small to hold complete packet.  Packet length is [" + packetLength.ToString() + "], remaining buffer is [" + (buffer.Length - offset).ToString() + "].", "DEBUG-MACHINA");
+                        Trace.WriteLine($"IPDecoder: buffer too small to hold complete packet.  Packet length is [{packetLength}], remaining buffer is [{buffer.Length - offset}].", "DEBUG-MACHINA");
                         return;
                     }
 
@@ -181,13 +180,10 @@ namespace Machina
             if (Fragments.Count == 0)
                 return null;
 
-            List<byte[]> nextFragments;
-
             // optimize single packet processing
-            if (Fragments.Count == 1) 
-                nextFragments = Fragments;
-            else
-                nextFragments = Fragments.OrderBy(x =>
+            IList<byte[]> nextFragments = Fragments.Count == 1
+                ? Fragments
+                : Fragments.OrderBy(x =>
                                     Utility.ntohs(BitConverter.ToUInt16(x, 4))) // identification
                                     .ThenBy(x =>
                                     Utility.ntohs(BitConverter.ToUInt16(x, 6)) & 0x1fff) // fragment offset
@@ -214,16 +210,12 @@ namespace Machina
                     // skip for now if the offset is incorrect, the correct packet may come soon.
                     if (ip4Header.FragmentOffset == fragmentOffset)
                     {
-
-                        int fragmentDataSize;
-
                         // correction for fragmented packet
                         // note: ip4Header.length may be zero if using hardwre offloading to network card.
-                        if (ip4Header.Length == 0 && ip4Header.Id != 0)
-                            fragmentDataSize = nextFragments[i].Length - ip4Header.HeaderLength;
-                        else
-                            fragmentDataSize = ip4Header.Length - ip4Header.HeaderLength;
-                        
+                        int fragmentDataSize = ip4Header.Length == 0 && ip4Header.Id != 0
+                            ? nextFragments[i].Length - ip4Header.HeaderLength
+                            : ip4Header.Length - ip4Header.HeaderLength;
+
                         // resize payload array
                         if (payload == null)
                             payload = new byte[fragmentDataSize];
@@ -242,7 +234,7 @@ namespace Machina
                         fragmentOffset += (ushort)fragmentDataSize;
 
                         // return payload if this is the final fragment
-                        if ((ip4Header.Flags & (byte)IPFlags.MF) == 0)
+                        if ((ip4Header.Flags & (byte)IPFragment.MF) == 0)
                         {
                             // purge current fragments 
                             if (Fragments.Count == 1) // optimize single packet processing
@@ -252,12 +244,10 @@ namespace Machina
                                 // remove in reverse order to prevent IEnumerable issues.
                                 for (int j = Fragments.Count - 1; j >= 0; j--)
                                 {
-                                    if (Utility.ntohs((ushort)BitConverter.ToUInt16(Fragments[j], 4)) == currentId)
+                                    if (Utility.ntohs(BitConverter.ToUInt16(Fragments[j], 4)) == currentId)
                                         Fragments.RemoveAt(j);
                                     else if (Utility.ntohs(BitConverter.ToUInt16(Fragments[j], 4)) < currentId - 99)
                                     {
-                                        //Trace.WriteLine("IP: Old fragment purged.  Current ID: [" + currentId.ToString("X4") + "], Old ID: + [" +
-                                            //IPAddress.NetworkToHostOrder((short)BitConverter.ToUInt16(Fragments[j], 4)) + "] " + Utility.ByteArrayToHexString(Fragments[j], 0, 50));
                                         Fragments.RemoveAt(j);
                                     }
                                 }

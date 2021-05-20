@@ -1,19 +1,17 @@
-﻿// Machina ~ ProcessTCPInfo.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -32,9 +30,10 @@ namespace Machina
         #region WIN32 TCP Table
         // DLLImport
         [DllImport("iphlpapi.dll", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int GetExtendedTcpTable(IntPtr pTcpTable, ref int dwOutBufLen, bool bOrder, UInt32 /*ulong*/ dwFamily, TCP_TABLE_CLASS dwClass, UInt32 /*ulong*/ dwReserved);
+        private static extern int GetExtendedTcpTable(IntPtr pTcpTable, ref int dwOutBufLen, bool bOrder, uint /*ulong*/ dwFamily, TCP_TABLE_CLASS dwClass, uint /*ulong*/ dwReserved);
 
         // TCP Table Enum
+#pragma warning disable CA1707 // Identifiers should not contain underscores
         private enum TCP_TABLE_CLASS
         {
             TCP_TABLE_BASIC_LISTENER,
@@ -54,29 +53,36 @@ namespace Machina
         private struct MIB_TCPROW_EX
         {
             public TcpState dwState;
-            public UInt32 dwLocalAddr;
+            public uint dwLocalAddr;
             public int dwLocalPort;
-            public UInt32 dwRemoteAddr;
+            public uint dwRemoteAddr;
             public int dwRemotePort;
-            public int dwProcessId;
+            public uint dwProcessId;
         }
-        private const Int32 AF_INET = 2;
+        private const int AF_INET = 2;
 
 #pragma warning restore 0649
+#pragma warning restore CA1707 // Identifiers should not contain underscores
         #endregion
 
         /// <summary>
         /// Process ID of the process to return network connection information about
         /// </summary>
         public uint ProcessID
-        { get; set; } = 0;
+        { get; set; }
+
+        /// <summary>
+        /// Process ID of the process to return network connection information about
+        /// </summary>
+        public ICollection<uint> ProcessIDList
+        { get; set; } = new List<uint>();
 
         /// <summary>
         /// Window text of the process to return network connection information about
         /// </summary>
         public string ProcessWindowName
         { get; set; } = "";
-        
+
         /// <summary>
         /// Window class of the process to return network connection information about
         /// </summary>
@@ -84,41 +90,33 @@ namespace Machina
         { get; set; } = "";
 
 
-        private uint _currentProcessID = 0;
-
-        [DllImport("user32.dll", EntryPoint = "FindWindow")]
+        [DllImport("user32.dll", EntryPoint = "FindWindow", CharSet = CharSet.Unicode)]
         private static extern IntPtr FindWindow(string sClass, string sWindow);
-        [DllImport("user32.dll", EntryPoint = "FindWindowEx")]
-        private static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className,  string windowTitle);
+        [DllImport("user32.dll", EntryPoint = "FindWindowEx", CharSet = CharSet.Unicode)]
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
+        private static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, string windowTitle);
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
         /// <summary>
-        /// This returns the process id of the first window with the specified window name.
-        /// </summary>
-        /// <param name="windowName">name of the window to look for</param> 
-        /// <returns>Process ID</returns>
-        public uint GetProcessIDByWindowName(string windowName)
-        {
-            uint processID;
-            IntPtr hWindow = FindWindow(null, windowName);
-            GetWindowThreadProcessId(hWindow, out processID);
-
-            return processID;
-        }
-        
-        /// <summary>
-        /// This returns the process id of the first window with the specified window class.
+        /// This returns the process id of all windows with the specified window name or class.
         /// </summary>
         /// <param name="windowClass">class of the window to look for</param> 
-        /// <returns>Process ID</returns>
-        public uint GetProcessIDByWindowClass(string windowClass)
+        /// <param name="windowName">name of the window to look for</param> 
+        /// <returns>Process ID List</returns>
+        public static IList<uint> GetProcessIDByWindow(string windowClass, string windowName)
         {
-            uint processID;
-            IntPtr hWindow = FindWindowEx(IntPtr.Zero, IntPtr.Zero, windowClass, null);
-            GetWindowThreadProcessId(hWindow, out processID);
+            List<uint> processIDList = new List<uint>();
+            IntPtr hWindow = IntPtr.Zero;
 
-            return processID;
+            while ((hWindow = FindWindowEx(IntPtr.Zero, hWindow, windowClass, windowName)) != IntPtr.Zero)
+            {
+                uint hResult = GetWindowThreadProcessId(hWindow, out uint processID);
+                if (hResult == 0 && processID > 0)
+                    processIDList.Add(processID);
+            }
+            return processIDList;
         }
 
         /// <summary>
@@ -126,16 +124,21 @@ namespace Machina
         ///   and updates the connections collection.
         /// </summary>
         /// <param name="connections">List containing prior connections that needs to be maintained</param>
-        public unsafe void UpdateTCPIPConnections(List<TCPConnection> connections)
+        public unsafe void UpdateTCPIPConnections(IList<TCPConnection> connections)
         {
-            if (ProcessID > 0)
-                _currentProcessID = ProcessID;
-            else if(!string.IsNullOrWhiteSpace(ProcessWindowClass)) // i prefer it first since it's language irrelevant, ascii only and constant until the window being destroyed.
-                _currentProcessID = GetProcessIDByWindowClass(ProcessWindowClass);
-            else
-                _currentProcessID = GetProcessIDByWindowName(ProcessWindowName);         
+            List<uint> _processFilterList = new List<uint>();
+            _processFilterList.Clear();
 
-            if (_currentProcessID == 0)
+            if (ProcessIDList.Count > 0)
+                _processFilterList.AddRange(ProcessIDList);
+            else if (ProcessID > 0)
+                _processFilterList.Add(ProcessID);
+            else if (!string.IsNullOrWhiteSpace(ProcessWindowClass)) // i prefer it first since it's language irrelevant, ascii only and constant until the window being destroyed.
+                _processFilterList.AddRange(GetProcessIDByWindow(ProcessWindowClass, null));
+            else if (!string.IsNullOrWhiteSpace(ProcessWindowName))
+                _processFilterList.AddRange(GetProcessIDByWindow(null, ProcessWindowName));
+
+            if (_processFilterList.Count == 0)
             {
                 if (connections.Count > 0)
                 {
@@ -178,14 +181,14 @@ namespace Machina
                 {
                     //retrieving numbers of entries
                     tcpTableCount = *(int*)ptrTCPTable;
-                    tmpPtr = ptrTCPTable + sizeof(Int32);
+                    tmpPtr = ptrTCPTable + sizeof(int);
 
                     for (int i = 0; i <= tcpTableCount - 1; i++)
                     {
                         MIB_TCPROW_EX entry = *(MIB_TCPROW_EX*)tmpPtr;
 
                         // Process if ProcessID matches
-                        if (entry.dwProcessId == _currentProcessID)
+                        if (_processFilterList.Contains(entry.dwProcessId))
                         {
                             bool bFound = false;
                             for (int j = 0; j < connections.Count; j++)
@@ -203,17 +206,18 @@ namespace Machina
 
                             if (!bFound && entry.dwLocalAddr != 0)
                             {
-                                var connection = new TCPConnection()
+                                TCPConnection connection = new TCPConnection()
                                 {
                                     LocalIP = entry.dwLocalAddr,
                                     RemoteIP = entry.dwRemoteAddr,
                                     LocalPort = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwLocalPort),
-                                    RemotePort = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwRemotePort)
+                                    RemotePort = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwRemotePort),
+                                    ProcessId = entry.dwProcessId
                                 };
 
                                 connections.Add(connection);
 
-                                Trace.WriteLine("ProcessTCPInfo: New connection detected for Process [" + _currentProcessID.ToString() + "]: " + connection.ToString(), "DEBUG-MACHINA");
+                                Trace.WriteLine($"ProcessTCPInfo: New connection detected for Process [{entry.dwProcessId}]: {connection}", "DEBUG-MACHINA");
                             }
                         }
 
@@ -224,14 +228,14 @@ namespace Machina
                     for (int i = connections.Count - 1; i >= 0; i--)
                     {
                         bool bFound = false;
-                        tmpPtr = ptrTCPTable + sizeof(Int32);
+                        tmpPtr = ptrTCPTable + sizeof(int);
 
                         for (int j = 0; j <= tcpTableCount - 1; j++)
                         {
                             MIB_TCPROW_EX entry = *(MIB_TCPROW_EX*)tmpPtr;
 
                             // Process if ProcessID matches
-                            if (entry.dwProcessId == _currentProcessID)
+                            if (_processFilterList.Contains(entry.dwProcessId))
                             {
                                 if (connections[i].LocalIP == entry.dwLocalAddr &&
                                     connections[i].RemoteIP == entry.dwRemoteAddr &&
@@ -248,14 +252,14 @@ namespace Machina
                         }
                         if (!bFound)
                         {
-                            Trace.WriteLine("ProcessTCPInfo: Removed connection " + connections[i].ToString(), "DEBUG-MACHINA");
+                            Trace.WriteLine($"ProcessTCPInfo: Removed connection {connections[i]}", "DEBUG-MACHINA");
                             connections.RemoveAt(i);
                         }
                     }
                 }
                 else
                 {
-                    Trace.WriteLine("ProcessTCPInfo: Unable to retrieve TCP table. Return code: " + ret.ToString(), "DEBUG-MACHINA");
+                    Trace.WriteLine($"ProcessTCPInfo: Unable to retrieve TCP table. Return code: {ret}", "DEBUG-MACHINA");
                     throw new System.ComponentModel.Win32Exception(ret);
                 }
             }

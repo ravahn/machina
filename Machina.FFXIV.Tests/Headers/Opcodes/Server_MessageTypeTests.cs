@@ -1,10 +1,19 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Machina.FFXIV.Headers.Opcodes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.FFXIV.Headers.Opcodes.Tests
 {
@@ -12,16 +21,16 @@ namespace Machina.FFXIV.Headers.Opcodes.Tests
     public class Server_MessageTypeTests
     {
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        public static void ClassInitialize(TestContext _1)
         {
-            OpcodeManager.Instance.SetRegion(GameRegionEnum.Global);
+            OpcodeManager.Instance.SetRegion(GameRegion.Global);
         }
         [TestMethod()]
         public void Server_MessageType_Equals()
         {
-            var sut = Server_MessageType.Ability1;
+            Server_MessageType sut = Server_MessageType.Ability1;
 
-            var result = sut.Equals(Server_MessageType.Ability1);
+            bool result = sut.Equals(Server_MessageType.Ability1);
 
             Assert.IsTrue(result);
         }
@@ -29,9 +38,9 @@ namespace Machina.FFXIV.Headers.Opcodes.Tests
         [TestMethod()]
         public void Server_MessageType_NotEquals()
         {
-            var sut = Server_MessageType.Ability1;
+            Server_MessageType sut = Server_MessageType.Ability1;
 
-            var result = sut.Equals(Server_MessageType.Ability8);
+            bool result = sut.Equals(Server_MessageType.Ability8);
 
             Assert.IsFalse(result);
         }
@@ -39,9 +48,9 @@ namespace Machina.FFXIV.Headers.Opcodes.Tests
         [TestMethod()]
         public void Server_MessageType_TypeCastToFromUShort()
         {
-            var sut = Server_MessageType.Ability1;
-            var test = (ushort)sut;
-            var result = sut.Equals((Server_MessageType)test);
+            Server_MessageType sut = Server_MessageType.Ability1;
+            ushort test = sut;
+            bool result = sut.Equals((Server_MessageType)test);
 
             Assert.IsTrue(result);
         }

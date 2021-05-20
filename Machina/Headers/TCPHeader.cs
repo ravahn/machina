@@ -1,25 +1,25 @@
-﻿// Machina ~ TCPHeader.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
-
+using System;
 using System.Runtime.InteropServices;
 
 namespace Machina
 {
-    public enum TCPFlags
+    [Flags]
+    public enum TCPOptions
     {
         FIN = 0x01,
         SYN = 0x02,
@@ -54,21 +54,13 @@ namespace Machina
         [FieldOffset(18)]
         public ushort urgent;
 
-        public ushort SourcePort
-        { get { return Utility.ntohs(source_port); } }
-        public ushort DestinationPort
-        { get { return Utility.ntohs(destination_port); } }
-        public uint SequenceNumber
-        { get { return Utility.ntohl(sequence_number); } }
-        public byte DataOffset
-        { get { return (byte)((dataoffset_ns >> 4) * 4); } }
-        public uint AckNumber
-        { get { return Utility.ntohl(ack_number); } }
-        public uint WindowSize
-        { get { return Utility.ntohs(windowsize); } }
-        public uint Checksum
-        { get { return Utility.ntohs(checksum); } }
-        public uint Urgent
-        { get { return Utility.ntohs(urgent); } }
+        public ushort SourcePort => Utility.ntohs(source_port);
+        public ushort DestinationPort => Utility.ntohs(destination_port);
+        public uint SequenceNumber => Utility.ntohl(sequence_number);
+        public byte DataOffset => (byte)((dataoffset_ns >> 4) * 4);
+        public uint AckNumber => Utility.ntohl(ack_number);
+        public uint WindowSize => Utility.ntohs(windowsize);
+        public uint Checksum => Utility.ntohs(checksum);
+        public uint Urgent => Utility.ntohs(urgent);
     }
 }
