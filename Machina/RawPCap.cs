@@ -94,7 +94,7 @@ namespace Machina
         /// <param name="alldevsp">a 'struct pcap_if_t' pointer, which will be properly allocated inside this function. When the function returns, it is set to point to the first element of the interface list; each element of the list is of type 'struct pcap_if_t'</param>
         /// <param name="errbuff">a pointer to a user-allocated buffer (of size PCAP_ERRBUF_SIZE) that will contain the error message (in case there is one).</param>
         /// <returns>-1 is returned on failure, in which case errbuf is filled in with an appropriate error message; 0 is returned on success.</returns>
-        [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int pcap_findalldevs(ref IntPtr alldevsp, StringBuilder errbuff);
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Machina
         /// <param name="auth">a pointer to a 'struct pcap_rmtauth' that keeps the information required to authenticate the user on a remote machine. In case this is not a remote capture, this pointer can be set to NULL.</param>
         /// <param name="errbuff">a pointer to a user-allocated buffer which will contain the error in case this function fails</param>
         /// <returns>A pointer to a 'pcap_t' which can be used as a parameter to the following calls (pcap_compile() and so on) and that specifies an opened WinPcap session. In case of problems, it returns NULL and the 'errbuf' variable keeps the error message.</returns>
-        [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern IntPtr pcap_open(string source, int snaplen, int flags, int read_timeout, IntPtr auth, StringBuilder errbuff);
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Machina
         /// <param name="optimize">optimize controls whether optimization on the resulting code is performed</param>
         /// <param name="netmask"> netmask specifies the IPv4 netmask of the network on which packets are being captured; it is used only when checking for IPv4 broadcast addresses in the filter program. If the netmask of the network on which packets are being captured isn't known to the program, or if packets are being captured on the Linux "any" pseudo-interface that can capture on more than one network, a value of 0 can be supplied; tests for IPv4 broadcast addreses won't be done correctly, but all other tests in the filter program will be OK.</param>
         /// <returns>A return of -1 indicates an error in which case pcap_geterr() may be used to display the error text.</returns>
-        [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern int pcap_compile(IntPtr p, IntPtr fp, string str, int optimize, uint netmask);
 
         /// <summary>
