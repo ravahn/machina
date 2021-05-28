@@ -6,12 +6,12 @@ Ability8|295
 Ability16|25e
 Ability24|299
 Ability32|a7
-ActorCast|30f
+ActorCast|228
 AddStatusEffect|93
 ActorControl142|30f
 ActorControl143|200
 ActorControl144|387
-UpdateHpMpTp|301
+UpdateHpMpTp|1e8
 PlayerSpawn|8b
 NpcSpawn|e0
 NpcSpawn2|17a
