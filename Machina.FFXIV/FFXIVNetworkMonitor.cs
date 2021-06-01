@@ -15,7 +15,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Net;
+using Machina.Infrastructure;
 
 namespace Machina.FFXIV
 {
@@ -23,18 +24,19 @@ namespace Machina.FFXIV
     /// FFXIVNetworkMonitor is configured through the following properties after it is constructed:
     ///   MonitorType: Specifies whether it should use a winsock raw socket, or use WinPCap (requires separate kernel driver installation).  Default is a raw socket.
     ///   ProcessID: (optional) Specifies the process ID to record traffic from
+    ///   ProcessIDList: Specifies a collection of process IDs to record traffic from
     ///     
     /// This class uses the Machina.TCPNetworkMonitor class to find and monitor the communication from Final Fantasy XIV.  It decodes the data thaat adheres to the
     ///   FFXIV network packet format and calls the message delegate when data is received.
     /// </summary>
-    public class FFXIVNetworkMonitor
+    public class FFXIVNetworkMonitor : IDisposable
     {
 
         /// <summary>
         /// Specifies the type of monitor to use - Raw socket or WinPCap
         /// </summary>
-        public TCPNetworkMonitor.NetworkMonitorType MonitorType
-        { get; set; } = TCPNetworkMonitor.NetworkMonitorType.RawSocket;
+        public NetworkMonitorType MonitorType
+        { get; set; } = NetworkMonitorType.RawSocket;
 
         /// <summary>
         /// Specifies the Process ID that is generating or receiving the traffic.  Either ProcessID, ProcessIDList, or WindowName must be specified.
@@ -48,35 +50,17 @@ namespace Machina.FFXIV
         /// <summary>
         /// Specifies the local IP address to override the detected IP
         /// </summary>
-        public string LocalIP
-        { get; set; } = "";
+        public IPAddress LocalIP
+        { get; set; } = IPAddress.None;
 
         /// <summary>
         /// Specifies whether to use Winsock/WinPcap server IP filtering instead of filtering in code
         ///   This has a small chance of losing data when new TCP sockets connect, but significantly reduces data processing overhead.
         /// </summary>
-        public bool UseSocketFilter
+        public bool UseRemoteIpFilter
         { get; set; }
 
         #region Message Delegates section
-        [Obsolete("To be replaced MessageReceivedEventHandler")]
-        public delegate void MessageReceivedDelegate(string connection, long epoch, byte[] message);
-
-        /// <summary>
-        /// Specifies the delegate that is called when data is received and successfully decoded.
-        /// </summary>
-        [Obsolete("To be replaced MessageReceivedEventHandler")]
-        public MessageReceivedDelegate MessageReceived = null;
-
-        [Obsolete("To be replaced MessageSentEventHandler")]
-        public delegate void MessageSentDelegate(string connection, long epoch, byte[] message);
-
-        [Obsolete("To be replaced MessageSentEventHandler")]
-        public MessageSentDelegate MessageSent = null;
-
-        #endregion
-
-        #region Message Delegates2 section
         public delegate void MessageReceived2(TCPConnection connection, long epoch, byte[] message);
 
         /// <summary>
@@ -87,7 +71,6 @@ namespace Machina.FFXIV
         public void OnMessageReceived(TCPConnection connection, long epoch, byte[] message)
         {
             MessageReceivedEventHandler?.Invoke(connection, epoch, message);
-            MessageReceived?.Invoke(connection.ID, epoch, message);
         }
 
         public delegate void MessageSent2(TCPConnection connection, long epoch, byte[] message);
@@ -97,12 +80,13 @@ namespace Machina.FFXIV
         public void OnMessageSent(TCPConnection connection, long epoch, byte[] message)
         {
             MessageSentEventHandler?.Invoke(connection, epoch, message);
-            MessageSent?.Invoke(connection.ID, epoch, message);
         }
 
         #endregion
 
         private TCPNetworkMonitor _monitor;
+        private bool _disposedValue;
+
         private readonly Dictionary<string, FFXIVBundleDecoder> _sentDecoders = new Dictionary<string, FFXIVBundleDecoder>();
         private readonly Dictionary<string, FFXIVBundleDecoder> _receivedDecoders = new Dictionary<string, FFXIVBundleDecoder>();
 
@@ -117,20 +101,17 @@ namespace Machina.FFXIV
                 _monitor = null;
             }
 
-            if (MessageReceived == null && MessageReceivedEventHandler == null)
-                throw new ArgumentException("MessageReceived or MessageReceive2 delegate must be specified.");
-
-            if (MessageReceived != null)
-                Trace.WriteLine($"FFXIVNetworkMonitor: Warning - MessageReceived will soon be retired.  Please update Machina reference to use MessageReceived2.", "DEBUG-MACHINA");
+            if (MessageReceivedEventHandler == null)
+                throw new ArgumentException("MessageReceived delegate must be specified.");
 
             _monitor = new TCPNetworkMonitor();
-            _monitor.ProcessID = ProcessID;
-            _monitor.ProcessIDList = ProcessIDList;
-            if (_monitor.ProcessID == 0)
-                _monitor.WindowName = "FINAL FANTASY XIV";
-            _monitor.MonitorType = MonitorType;
-            _monitor.LocalIP = LocalIP;
-            _monitor.UseSocketFilter = UseSocketFilter;
+            _monitor.Config.ProcessID = ProcessID;
+            _monitor.Config.ProcessIDList = ProcessIDList;
+            if (_monitor.Config.ProcessID == 0)
+                _monitor.Config.WindowName = "FINAL FANTASY XIV";
+            _monitor.Config.MonitorType = MonitorType;
+            _monitor.Config.LocalIP = LocalIP;
+            _monitor.Config.UseRemoteIpFilter = UseRemoteIpFilter;
 
             _monitor.DataSentEventHandler = (TCPConnection connection, byte[] data) => ProcessSentMessage(connection, data);
             _monitor.DataReceivedEventHandler = (TCPConnection connection, byte[] data) => ProcessReceivedMessage(connection, data);
@@ -143,11 +124,10 @@ namespace Machina.FFXIV
         /// </summary>
         public void Stop()
         {
-            _monitor.DataSent = null;
-            _monitor.DataReceived = null;
             _monitor.DataSentEventHandler = null;
             _monitor.DataReceivedEventHandler = null;
-            _monitor?.Stop();
+            _monitor.Stop();
+            _monitor.Dispose();
             _monitor = null;
 
             _sentDecoders.Clear();
@@ -179,6 +159,25 @@ namespace Machina.FFXIV
                 OnMessageReceived(connection, message.Item1, message.Item2);
             }
 
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    _monitor?.Dispose();
+                }
+                _disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

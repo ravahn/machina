@@ -13,20 +13,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-using System.Runtime.InteropServices;
+using System.Buffers;
 
-namespace Machina.Headers
+namespace Machina.Infrastructure
 {
-    [StructLayout(LayoutKind.Explicit)]
-    public struct UDPHeader
+    public static class BufferCache
     {
-        [FieldOffset(0)]
-        public ushort source_port;
-        [FieldOffset(2)]
-        public ushort destination_port;
-        [FieldOffset(4)]
-        public ushort length;
-        [FieldOffset(6)]
-        public ushort checksum;
+        private static readonly int BUFFER_LENGTH = (1024 * 64) + 1;
+
+        public static byte[] AllocateBuffer()
+        {
+            return ArrayPool<byte>.Shared.Rent(BUFFER_LENGTH);
+        }
+
+        public static void ReleaseBuffer(byte[] buffer)
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 }

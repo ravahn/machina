@@ -19,7 +19,7 @@ using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 
-namespace Machina
+namespace Machina.Infrastructure
 {
     /// <summary>
     /// Manages access to the TCP table and assists with tracking when the connections change per-process
@@ -62,7 +62,6 @@ namespace Machina
         private const int AF_INET = 2;
 
 #pragma warning restore 0649
-#pragma warning restore CA1707 // Identifiers should not contain underscores
         #endregion
 
         /// <summary>
@@ -112,8 +111,8 @@ namespace Machina
 
             while ((hWindow = FindWindowEx(IntPtr.Zero, hWindow, windowClass, windowName)) != IntPtr.Zero)
             {
-                uint hResult = GetWindowThreadProcessId(hWindow, out uint processID);
-                if (hResult == 0 && processID > 0)
+                _ = GetWindowThreadProcessId(hWindow, out uint processID);
+                if (processID > 0)
                     processIDList.Add(processID);
             }
             return processIDList;

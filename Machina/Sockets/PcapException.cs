@@ -13,20 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-using System.Runtime.InteropServices;
+using System;
 
-namespace Machina.Headers
+namespace Machina.Sockets
 {
-    [StructLayout(LayoutKind.Explicit)]
-    public struct UDPHeader
+    public class PcapException : ApplicationException
     {
-        [FieldOffset(0)]
-        public ushort source_port;
-        [FieldOffset(2)]
-        public ushort destination_port;
-        [FieldOffset(4)]
-        public ushort length;
-        [FieldOffset(6)]
-        public ushort checksum;
+        public PcapException(string message) : base(message)
+        {
+        }
+        public PcapException(string message, Exception ex) : base(message, ex)
+        {
+        }
     }
 }

@@ -24,12 +24,14 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Machina.Infrastructure;
+using Machina.Sockets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests
 {
-    [TestClass()]
-    public class RawPCapTests
+    [TestClass]
+    public class RawCaptureSocketTests
     {
         [TestCleanup]
         public void TestCleanup()
@@ -38,19 +40,18 @@ namespace Machina.Tests
         }
 
         /// <summary>
-        /// This tests retrieving two separate payloads using WinPCap.
-        ///   Note: it requires a custom WinPCap driver to be installed.
+        /// This tests retrieving data twice from the standard win32 local raw socket
+        ///   It requires administrative permissions to execute, and requires that any
+        ///   firewalls permit the test runner process to access data.
         /// </summary>
         [TestMethod()]
-        public void RawPCap_GetDataTwiceTest()
+        public void RawSocket_GetDataTwiceTest()
         {
-            string ip = Utility.GetNetworkInterfaceIPs().FirstOrDefault();
-            Assert.IsTrue(!string.IsNullOrEmpty(ip), "Unable to locate a network interface to test WinPCap capture.");
+            string ip = InterfaceHelper.GetNetworkInterfaceIPs().FirstOrDefault();
+            Assert.IsTrue(!string.IsNullOrEmpty(ip), "Unable to locate a network interface to test RawSocket.");
 
-            uint ipLong = Utility.IPStringToUint(ip);
-
-            RawPCap sut = new RawPCap();
-            sut.Create(ipLong);
+            RawCaptureSocket sut = new RawCaptureSocket();
+            uint ipLong = ConversionUtility.IPStringToUint(ip);
 
             // start an async download
             System.Net.WebClient client = new System.Net.WebClient();
@@ -60,12 +61,13 @@ namespace Machina.Tests
 
             try
             {
+                sut.StartCapture(ipLong);
                 t.Wait();
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i < 10000; i++)
                 {
 
-                    int size = sut.Receive(out byte[] buffer);
-                    if (size > 0)
+                    CapturedData data = sut.Receive();
+                    if (data.Size > 0)
                         receivedCount++;
                     else
                     {
@@ -79,9 +81,11 @@ namespace Machina.Tests
             }
             finally
             {
-                sut.Destroy();
+                sut.StopCapture();
             }
             Assert.AreEqual(2, receivedCount);
         }
+
+
     }
 }

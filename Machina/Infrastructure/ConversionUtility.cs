@@ -14,26 +14,14 @@
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Text;
 
-namespace Machina
+namespace Machina.Infrastructure
 {
-    public class Utility
+    public class ConversionUtility
     {
-        public static string ByteArrayToHexString(byte[] data)
-        {
-            return ByteArrayToHexString(data, 0, data.Length);
-        }
-
-        public static string ByteArrayToHexString(byte[] data, int offset)
-        {
-            return ByteArrayToHexString(data, offset, data.Length);
-        }
 
         public static string ByteArrayToHexString(byte[] data, int offset, int size)
         {
@@ -111,24 +99,6 @@ namespace Machina
             return longIp;
         }
 
-        public static IList<string> GetNetworkInterfaceIPs()
-        {
-            List<string> ret = new List<string>();
-
-            foreach (NetworkInterface netInterface in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                if (netInterface.OperationalStatus != OperationalStatus.Up)
-                    continue;
-
-                IPInterfaceProperties ipProps = netInterface.GetIPProperties();
-                foreach (string ip in ipProps.UnicastAddresses.Select(x => x.Address.ToString() ?? ""))
-                    if (ip.Length <= 15 && ip.Contains('.')) // ipv4 addresses only
-                        if (!ret.Any(x => x == ip))
-                            ret.Add(ip);
-            }
-
-            return ret;
-        }
     }
 }
 

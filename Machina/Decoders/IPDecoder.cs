@@ -18,8 +18,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Machina.Headers;
+using Machina.Infrastructure;
 
-namespace Machina
+namespace Machina.Decoders
 {
     /// <summary>
     /// Manages reassembling IP fragments and decoding the IP header.
@@ -79,7 +81,7 @@ namespace Machina
         {
             int offset = 0;
 
-            if (buffer == null || buffer.Length == 0)
+            if (buffer == null || size == 0)
                 return;
 
             if (buffer.Length < size)
@@ -177,16 +179,16 @@ namespace Machina
         /// <returns>byte array containing the IP payload.</returns>
         public unsafe byte[] GetNextIPPayload()
         {
-            if (Fragments.Count == 0)
+            if (!Fragments.Any())
                 return null;
 
             // optimize single packet processing
             IList<byte[]> nextFragments = Fragments.Count == 1
                 ? Fragments
                 : Fragments.OrderBy(x =>
-                                    Utility.ntohs(BitConverter.ToUInt16(x, 4))) // identification
+                                    ConversionUtility.ntohs(BitConverter.ToUInt16(x, 4))) // identification
                                     .ThenBy(x =>
-                                    Utility.ntohs(BitConverter.ToUInt16(x, 6)) & 0x1fff) // fragment offset
+                                    ConversionUtility.ntohs(BitConverter.ToUInt16(x, 6)) & 0x1fff) // fragment offset
                                     .ToList();
 
             ushort currentId = 0;
@@ -244,9 +246,9 @@ namespace Machina
                                 // remove in reverse order to prevent IEnumerable issues.
                                 for (int j = Fragments.Count - 1; j >= 0; j--)
                                 {
-                                    if (Utility.ntohs(BitConverter.ToUInt16(Fragments[j], 4)) == currentId)
+                                    if (ConversionUtility.ntohs(BitConverter.ToUInt16(Fragments[j], 4)) == currentId)
                                         Fragments.RemoveAt(j);
-                                    else if (Utility.ntohs(BitConverter.ToUInt16(Fragments[j], 4)) < currentId - 99)
+                                    else if (ConversionUtility.ntohs(BitConverter.ToUInt16(Fragments[j], 4)) < currentId - 99)
                                     {
                                         Fragments.RemoveAt(j);
                                     }

@@ -14,6 +14,7 @@
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using Machina.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests
@@ -30,10 +31,11 @@ namespace Machina.Tests
             Assert.AreEqual(1, result.Count);
         }
 
+
         [TestMethod()]
         public void GetProcessIDByWindow_WindowClassTest()
         {
-            IList<uint> result = ProcessTCPInfo.GetProcessIDByWindow(null, "Program Manager");
+            IList<uint> result = ProcessTCPInfo.GetProcessIDByWindow("Progman", null);
 
             Assert.AreEqual(1, result.Count);
         }

@@ -44,7 +44,7 @@ dotnet_style_prefer_inferred_tuple_names = true:suggestion
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
 dotnet_style_prefer_auto_properties = true:silent
 dotnet_style_prefer_conditional_expression_over_assignment = true:silent
-dotnet_style_prefer_conditional_expression_over_return = true:silent
+dotnet_style_prefer_conditional_expression_over_return = false:silent
 ###############################
 # Naming Conventions          #
 ###############################
@@ -176,9 +176,14 @@ dotnet_diagnostic.CA1707.severity = silent
 # CA1708: Names should differ by more than case
 dotnet_diagnostic.CA1708.severity = silent
 
+# CA1838: Avoid StringBuilder parameters for P/Invokes
+dotnet_diagnostic.CA1838.severity = silent
+
 # IDE0011: use braces with 'if' statement
 dotnet_diagnostic.IDE0011.severity = silent
 
 # Default all design rules to info
 dotnet_analyzer_diagnostic.severity = suggestion
 
+# CA1822: Mark members as static
+dotnet_diagnostic.CA1822.severity = none

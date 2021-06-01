@@ -14,6 +14,7 @@
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Machina.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests
@@ -28,11 +29,11 @@ namespace Machina.Tests
         public void TCPNetworkMonitor_RawSocket_SendAndReceiveData()
         {
             TCPNetworkMonitor monitor = new TCPNetworkMonitor();
-            monitor.ProcessID = (uint)Process.GetCurrentProcess().Id;
-            monitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.RawSocket;
+            monitor.Config.ProcessID = (uint)Process.GetCurrentProcess().Id;
+            monitor.Config.MonitorType = NetworkMonitorType.RawSocket;
             monitor.DataReceivedEventHandler += (TCPConnection connection, byte[] data) => DataReceived();
             monitor.DataSentEventHandler += (TCPConnection connection, byte[] data) => DataSent();
-            monitor.UseSocketFilter = false;
+            monitor.Config.UseRemoteIpFilter = false;
 
             monitor.Start();
             // start a dummy async download

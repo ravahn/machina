@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>2.2.0.1</Version>
+    <Version>2.3.0.0</Version>
     <Authors>Ravahn</Authors>
     <PackageId>Machina</PackageId>
-    <AssemblyVersion>2.2.0.1</AssemblyVersion>
-    <FileVersion>2.2.0.1</FileVersion>
+    <AssemblyVersion>2.3.0.0</AssemblyVersion>
+    <FileVersion>2.3.0.0</FileVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>General-purpose library for raw network packet reading and reassembly</Description>
     <Copyright>Copyright © 2021 Ravahn</Copyright>
@@ -20,9 +20,7 @@
     <EnforceCodeStyleInBuild>TRUE</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="FirewallManager.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.1" />
   </ItemGroup>
 </Project>

@@ -15,6 +15,9 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Machina.Decoders;
+using Machina.Headers;
+using Machina.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests
@@ -325,10 +328,10 @@ namespace Machina.Tests
         {
             byte[] ret = new byte[data.Length + sizeof(TCPHeader)];
             TCPHeader header = new TCPHeader();
-            header.source_port = Utility.htons(source_port);
-            header.destination_port = Utility.htons(dest_port);
-            header.sequence_number = Utility.htonl(seq_no);
-            header.ack_number = Utility.htonl(ack_no);
+            header.source_port = ConversionUtility.htons(source_port);
+            header.destination_port = ConversionUtility.htons(dest_port);
+            header.sequence_number = ConversionUtility.htonl(seq_no);
+            header.ack_number = ConversionUtility.htonl(ack_no);
             header.dataoffset_ns = (byte)((sizeof(TCPHeader) / 4) << 4);
             header.flags = flags;
             header.windowsize = 0;

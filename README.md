@@ -9,15 +9,15 @@ It supports the following features:
 
 Because it is accessing network data, it does require running under elevated security privleges on the local machine.  It also requires configuring access through the local firewall, or disabling it completely, in order to read data.
 
-In order to simplify use of this library, the TCPNetworkMonitor class was added to poll the network data for a specific process and raise an event when new data arrives.  Use of this class can be found in the TCPNetworkMonitorTests class, but here is some sample code:
+In order to simplify use of this library, the TCPNetworkMonitor class polls the network data for a specific process and raises an event when new data arrives.  Use of this class can be found in the TCPNetworkMonitorTests class, but here is some sample code:
 
 
     public static void Main(string[] args)
     {
         TCPNetworkMonitor monitor = new TCPNetworkMonitor();
-        monitor.WindowName = "FINAL FANTASY XIV";
-        monitor.MonitorType = TCPNetworkMonitor.NetworkMonitorType.RawSocket;
-        monitor.DataReceived = (string connection, byte[] data) => DataReceived(connection, data);
+        monitor.Config.WindowName = "FINAL FANTASY XIV";
+        monitor.Config.MonitorType = NetworkMonitorType.RawSocket;
+        monitor.DataReceivedEventHandler += (TCPConnection connection, byte[] data) => DataReceived(connection, data);
         monitor.Start();
         // Run for 10 seconds
         System.Threading.Thread.Sleep(10000);
@@ -35,9 +35,9 @@ The import elements in the above code are:
 4) Process the data in the DataReceived() event handler
 5) Stop the monitor before exiting the process, to prevent unmanaged resources from leaking.  This mostly affects WinPCap.
 
-Prior to the above, be sure to either disable windows firewall, or add a rule for any exceutable using the above code to work through it.  And, the code must be executed as a local administrator.  To debug the above code, you will need to start Visual Studio using the 'Run as Administrator' option in Windows.
+Prior to the above, be sure to either disable windows firewall, or add a rule for any executable using the above code to work through it.  And, the code must be executed as a local administrator.  To debug the above code, you will need to start Visual Studio using the 'Run as Administrator' option in Windows.
 
-The public property UseSocketFilter, when set to true, will apply socket and winpcap filters on both source and target IP Addresses for the connections being monitored.  Note that this means that each connection to a new remote IP must be detected and listener started before data will be received.  It is likely that some network data will be lost between when the process initiates the connection, and when the Machina library begins to listen.  It should only be used if the initial data sent on the connection is not critical.  However, it has the benefit of significantly reducing the potential for data loss when there is excessive local network traffic.
+The public property UseRemoteIpFilter, when set to true, will apply socket and winpcap filters on both source and target IP Addresses for the connections being monitored.  Note that this means that each connection to a new remote IP must be detected and listener started before data will be received.  It is likely that some network data will be lost between when the process initiates the connection, and when the Machina library begins to listen.  It should only be used if the initial data sent on the connection is not critical.  However, it has the benefit of significantly reducing the potential for data loss when there is excessive local network traffic.
 
 # Machina.FFXIV
 Machina.FFXIV is an extension to the Machina library that decodes Final Fantasy XIV network data and makes it available to programs.  It uses the Machina library to locate the game traffic and decode the TCP/IP layer, and then decodes / decompresses the game data into individual game messages.  It processes both incoming and outgoing messages.

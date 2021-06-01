@@ -13,7 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-namespace Machina
+using System.Net;
+using Machina.Decoders;
+using Machina.Sockets;
+
+namespace Machina.Infrastructure
 {
     public class TCPConnection
     {
@@ -24,16 +28,17 @@ namespace Machina
 
         public uint ProcessId { get; set; }
 
-        public string ID
-        { get; set; }
+        public string ID => ToString();
 
-        public IPDecoder IPDecoderReceive
+        internal ICaptureSocket Socket { get; set; }
+
+        internal IPDecoder IPDecoderReceive
         { get; set; }
-        public IPDecoder IPDecoderSend
+        internal IPDecoder IPDecoderSend
         { get; set; }
-        public TCPDecoder TCPDecoderReceive
+        internal TCPDecoder TCPDecoderReceive
         { get; set; }
-        public TCPDecoder TCPDecoderSend
+        internal TCPDecoder TCPDecoderSend
         { get; set; }
 
         public override bool Equals(object obj)
@@ -54,8 +59,8 @@ namespace Machina
 
         public override string ToString()
         {
-            return $"{new System.Net.IPAddress(LocalIP)}:{LocalPort}=>" +
-                $"{new System.Net.IPAddress(RemoteIP)}:{RemotePort}({ProcessId})";
+            return $"{new IPAddress(LocalIP)}:{LocalPort}=>" +
+                $"{new IPAddress(RemoteIP)}:{RemotePort}({ProcessId})";
         }
     }
 

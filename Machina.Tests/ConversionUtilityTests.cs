@@ -22,12 +22,13 @@
 //along with this program.If not, see<http://www.gnu.org/licenses/>.
 
 using System;
+using Machina.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests
 {
     [TestClass()]
-    public class UtilityTests
+    public class ConversionUtilityTests
     {
         [TestCleanup]
         public void TestCleanup()
@@ -35,33 +36,12 @@ namespace Machina.Tests
             TestInfrastructure.Listener.Messages.Clear();
         }
 
-
-        [TestMethod()]
-        public void Utility_ByteArrayToHexStringTest()
-        {
-            byte[] data = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-
-            string result = Utility.ByteArrayToHexString(data);
-
-            Assert.AreEqual("0102030405060708090A", result);
-        }
-
-        [TestMethod()]
-        public void Utility_ByteArrayToHexStringTest_SkipBytes()
-        {
-            byte[] data = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-
-            string result = Utility.ByteArrayToHexString(data, 5);
-
-            Assert.AreEqual("060708090A", result);
-        }
-
         [TestMethod()]
         public void Utility_ByteArrayToHexStringTest_SkipBytesShortbuffer()
         {
             byte[] data = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-            string result = Utility.ByteArrayToHexString(data, 5, 4);
+            string result = ConversionUtility.ByteArrayToHexString(data, 5, 4);
 
             Assert.AreEqual("06070809", result);
         }
@@ -71,7 +51,7 @@ namespace Machina.Tests
         {
             string data = "0102030405060708090a0b0c0d0e0f1011121314";
 
-            byte[] result = Utility.HexStringToByteArray(data);
+            byte[] result = ConversionUtility.HexStringToByteArray(data);
 
             for (int i = 0; i < 20; i++)
                 Assert.AreEqual(i + 1, result[i]);
@@ -83,7 +63,7 @@ namespace Machina.Tests
             DateTime currentTime = DateTime.Now;
 
             long epoch = (long)currentTime.Subtract(DateTime.Parse("1/1/1970")).TotalMilliseconds;
-            DateTime result = Utility.EpochToDateTime(epoch);
+            DateTime result = ConversionUtility.EpochToDateTime(epoch);
 
             Assert.AreEqual(0, (long)currentTime.Subtract(result).TotalMilliseconds);
         }
@@ -93,7 +73,7 @@ namespace Machina.Tests
         {
             ushort data = 0x1234;
 
-            ushort result = Utility.ntohs(data);
+            ushort result = ConversionUtility.ntohs(data);
             Assert.AreEqual((ushort)0x3412, result);
         }
 
@@ -102,7 +82,7 @@ namespace Machina.Tests
         {
             uint data = 0x12345678;
 
-            uint result = Utility.ntohl(data);
+            uint result = ConversionUtility.ntohl(data);
             Assert.AreEqual((uint)0x78563412, result);
         }
 
@@ -111,7 +91,7 @@ namespace Machina.Tests
         {
             ulong data = 0x1122334455667788;
 
-            ulong result = Utility.ntohq(data);
+            ulong result = ConversionUtility.ntohq(data);
             Assert.AreEqual(0x8877665544332211, result);
         }
 
@@ -120,7 +100,7 @@ namespace Machina.Tests
         {
             ushort data = 0x1234;
 
-            ushort result = Utility.htons(data);
+            ushort result = ConversionUtility.htons(data);
             Assert.AreEqual((ushort)0x3412, result);
         }
 
@@ -129,7 +109,7 @@ namespace Machina.Tests
         {
             uint data = 0x12345678;
 
-            uint result = Utility.htonl(data);
+            uint result = ConversionUtility.htonl(data);
             Assert.AreEqual((uint)0x78563412, result);
         }
 
@@ -138,14 +118,14 @@ namespace Machina.Tests
         {
             ulong data = 0x1122334455667788;
 
-            ulong result = Utility.htonq(data);
+            ulong result = ConversionUtility.htonq(data);
             Assert.AreEqual(0x8877665544332211, result);
         }
 
         [TestMethod()]
         public void Utility_GetNetworkInterfacesTest()
         {
-            System.Collections.Generic.IList<string> result = Utility.GetNetworkInterfaceIPs();
+            System.Collections.Generic.IList<string> result = InterfaceHelper.GetNetworkInterfaceIPs();
 
             Assert.IsTrue(result.Contains("127.0.0.1"));
         }

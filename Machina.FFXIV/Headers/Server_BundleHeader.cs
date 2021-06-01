@@ -14,6 +14,7 @@
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System.Runtime.InteropServices;
+using Machina.Infrastructure;
 
 namespace Machina.FFXIV.Headers
 {
@@ -50,7 +51,7 @@ namespace Machina.FFXIV.Headers
         //public const int MinSize = 40;
 
         public ulong epoch =>
-            (((ulong)Utility.ntohl((uint)(int)(_epoch & 0xFFFFFFFF))) << 32) +
-                     Utility.ntohl((uint)(int)(_epoch >> 32));
+            (((ulong)ConversionUtility.ntohl((uint)(int)(_epoch & 0xFFFFFFFF))) << 32) +
+                     ConversionUtility.ntohl((uint)(int)(_epoch >> 32));
     }
 }

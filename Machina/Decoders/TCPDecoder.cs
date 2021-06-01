@@ -18,8 +18,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Machina.Headers;
+using Machina.Infrastructure;
 
-namespace Machina
+namespace Machina.Decoders
 {
     /// <summary>
     /// Manages reordering the TCP packets and reassembling the intact TCP stream
@@ -48,6 +50,7 @@ namespace Machina
 
         // source port is in network byte order
         private readonly ushort _sourcePort;
+
         // destination port is in network byte order
         private readonly ushort _destinationPort;
 
@@ -58,8 +61,8 @@ namespace Machina
         /// <param name="destinationPort">Destination port of desired network traffic, in network byte order</param>
         public TCPDecoder(ushort sourcePort, ushort destinationPort)
         {
-            _sourcePort = Utility.htons(sourcePort);
-            _destinationPort = Utility.htons(destinationPort);
+            _sourcePort = ConversionUtility.htons(sourcePort);
+            _destinationPort = ConversionUtility.htons(destinationPort);
         }
 
         /// <summary>
@@ -106,12 +109,12 @@ namespace Machina
             List<byte[]> packets = Packets.ToList();
             if (Packets.Count > 1)
             {
-                packets.Sort((x, y) => Utility.ntohl(BitConverter.ToUInt32(x, 4))
-                    .CompareTo(Utility.ntohl(BitConverter.ToUInt32(y, 4))));
+                packets.Sort((x, y) => ConversionUtility.ntohl(BitConverter.ToUInt32(x, 4))
+                    .CompareTo(ConversionUtility.ntohl(BitConverter.ToUInt32(y, 4))));
             }
-            foreach (byte[] packet in packets)
+            for (int i = 0; i < packets.Count; i++)
             {
-                fixed (byte* ptr = packet)
+                fixed (byte* ptr = packets[i])
                 {
                     TCPHeader header = *(TCPHeader*)ptr;
 
@@ -145,27 +148,27 @@ namespace Machina
                             packetOffset = _NextSequence - header.SequenceNumber;
 
                         // do not process this packet if it was previously fully processed, or has no data.
-                        if (packetOffset >= packet.Length - header.DataOffset)
+                        if (packetOffset >= packets[i].Length - header.DataOffset)
                         {
                             // this packet will get removed once we exit the loop.
-                            Trace.WriteLine($"TCPDecoder: packet data already processed, expected sequence [{_NextSequence}], received [{header.SequenceNumber}], size [{packet.Length - header.DataOffset}].  Data: {Utility.ByteArrayToHexString(packet, 0, 50)}", "DEBUG-MACHINA");
+                            Trace.WriteLine($"TCPDecoder: packet data already processed, expected sequence [{_NextSequence}], received [{header.SequenceNumber}], size [{packets[i].Length - header.DataOffset}].  Data: {ConversionUtility.ByteArrayToHexString(packets[i], 0, 50)}", "DEBUG-MACHINA");
                             continue;
                         }
 
                         if (buffer == null)
                         {
-                            buffer = new byte[packet.Length - header.DataOffset - packetOffset];
-                            Array.Copy(packet, header.DataOffset + packetOffset, buffer, 0, packet.Length - header.DataOffset - packetOffset);
+                            buffer = new byte[packets[i].Length - header.DataOffset - packetOffset];
+                            Array.Copy(packets[i], header.DataOffset + packetOffset, buffer, 0, packets[i].Length - header.DataOffset - packetOffset);
                         }
                         else
                         {
                             int oldSize = buffer.Length;
-                            Array.Resize(ref buffer, buffer.Length + (packet.Length - header.DataOffset - (int)packetOffset));
-                            Array.Copy(packet, header.DataOffset + packetOffset, buffer, oldSize, packet.Length - header.DataOffset - packetOffset);
+                            Array.Resize(ref buffer, buffer.Length + (packets[i].Length - header.DataOffset - (int)packetOffset));
+                            Array.Copy(packets[i], header.DataOffset + packetOffset, buffer, oldSize, packets[i].Length - header.DataOffset - packetOffset);
                         }
 
                         // NOTE: do not need to correct for packetOffset here.
-                        _NextSequence = header.SequenceNumber + (uint)packet.Length - header.DataOffset;
+                        _NextSequence = header.SequenceNumber + (uint)packets[i].Length - header.DataOffset;
 
                         // if PUSH flag is set, return data immedately.
                         // Note: data in the TCP stream can be processed without the PSH flag set, the application must interpret the stream data.
@@ -180,7 +183,7 @@ namespace Machina
             // remove any earlier packets from the primary array
             for (int i = Packets.Count - 1; i >= 0; i--)
             {
-                if (Utility.ntohl(BitConverter.ToUInt32(Packets[i], 4)) < _NextSequence)
+                if (ConversionUtility.ntohl(BitConverter.ToUInt32(Packets[i], 4)) < _NextSequence)
                     Packets.RemoveAt(i);
             }
 
@@ -192,9 +195,8 @@ namespace Machina
 
                     for (int i = Packets.Count - 1; i >= 0; i--)
                     {
-                        // todo: need to explore this logic, can we recover and get next highest sequence?
                         Trace.WriteLine($"TCPDecoder: Missing Sequence # [{_NextSequence}], Dropping packet with sequence # [" +
-                            $"{Utility.ntohl(BitConverter.ToUInt32(Packets[i], 4))}].", "DEBUG-MACHINA");
+                            $"{ConversionUtility.ntohl(BitConverter.ToUInt32(Packets[i], 4))}].", "DEBUG-MACHINA");
                         Packets.RemoveAt(i);
                     }
                     _NextSequence = 0;

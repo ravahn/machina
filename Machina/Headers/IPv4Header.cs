@@ -14,8 +14,9 @@
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System.Runtime.InteropServices;
+using Machina.Infrastructure;
 
-namespace Machina
+namespace Machina.Headers
 {
     public enum IPProtocol : byte
     {
@@ -68,12 +69,12 @@ namespace Machina
         /// <summary>
         /// total packet length, including data payload, in host byte order
         /// </summary>
-        public ushort Length => Utility.ntohs(packet_length);
+        public ushort Length => ConversionUtility.ntohs(packet_length);
 
         /// <summary>
         /// IP packet identifier in host byte order
         /// </summary>
-        public ushort Id => Utility.ntohs(identification);
+        public ushort Id => ConversionUtility.ntohs(identification);
 
         /// <summary>
         /// IP flags
@@ -83,7 +84,7 @@ namespace Machina
         /// <summary>
         /// IP Fragment offset in host byte order
         /// </summary>
-        public ushort FragmentOffset => (ushort)(Utility.ntohs(flags_fragmentoffset) << 3);
+        public ushort FragmentOffset => (ushort)(ConversionUtility.ntohs(flags_fragmentoffset) << 3);
 
     }
 }

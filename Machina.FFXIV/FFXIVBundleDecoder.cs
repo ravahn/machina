@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO.Compression;
 using Machina.FFXIV.Headers;
+using Machina.Infrastructure;
 
 namespace Machina.FFXIV
 {
@@ -74,7 +75,7 @@ namespace Machina.FFXIV
                             header.magic2 != 0 && header.magic3 != 0)
                         {
                             if (LastMessageTimestamp != DateTime.MinValue)
-                                Trace.WriteLine("FFXIVBundleDecoder: Invalid magic # in header:" + Utility.ByteArrayToHexString(_bundleBuffer, offset, 36), "DEBUG-MACHINA");
+                                Trace.WriteLine("FFXIVBundleDecoder: Invalid magic # in header:" + ConversionUtility.ByteArrayToHexString(_bundleBuffer, offset, 36), "DEBUG-MACHINA");
 
                             offset = ResetStream(offset);
                             continue;
@@ -113,13 +114,13 @@ namespace Machina.FFXIV
                                 Array.Copy(message, message_offset, data, 0, data.Length);
 
                                 Messages.Enqueue(new Tuple<long, byte[]>(
-                                    (long)Utility.ntohq(header.epoch), data));
+                                    (long)ConversionUtility.ntohq(header.epoch), data));
 
                                 message_offset += message_length;
                                 if (message_offset > messageBufferSize)
                                 {
                                     Trace.WriteLine($"FFXIVBundleDecoder: Bad message offset - offset={message_offset}, bufferSize={messageBufferSize}, " +
-                                        $"data: {Utility.ByteArrayToHexString(data, 0, 50)}", "DEBUG-MACHINA");
+                                        $"data: {ConversionUtility.ByteArrayToHexString(data, 0, 50)}", "DEBUG-MACHINA");
 
                                     _allocated = 0;
                                     return;

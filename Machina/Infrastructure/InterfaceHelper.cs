@@ -13,26 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
-
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Text;
 
-namespace Machina.Tests
+namespace Machina.Infrastructure
 {
-    internal class Helper
+    public static class InterfaceHelper
     {
+
         public static string GetLocalIPv4(NetworkInterfaceType type = NetworkInterfaceType.Ethernet)
         {
             // Repurposed from: http://stackoverflow.com/a/28621250/2685650.
@@ -69,23 +60,26 @@ namespace Machina.Tests
             return ret;
         }
 
-        public static string ByteArrayToHexString(byte[] data)
+
+        public static IList<string> GetNetworkInterfaceIPs()
         {
-            StringBuilder sb = new StringBuilder(data.Length * 2);
+            List<string> ret = new List<string>();
 
-            for (int i = 0; i < data.Length; i++)
-                _ = sb.Append(data[i].ToString("X2"));
-            return sb.ToString();
-        }
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 
-        public static byte[] StringToByteArray(string data)
-        {
-            data = data.Replace(Environment.NewLine, "");
-            byte[] ret = new byte[data.Length / 2];
-
-            for (int i = 0; i < data.Length; i += 2)
+            for (int i = 0; i < interfaces.Length; i++)
             {
-                ret[i / 2] = Convert.ToByte(data.Substring(i, 2), 16);
+                if (interfaces[i].OperationalStatus != OperationalStatus.Up)
+                    continue;
+
+                IPInterfaceProperties ipProps = interfaces[i].GetIPProperties();
+                for (int j = 0; j < ipProps.UnicastAddresses.Count; j++)
+                {
+                    string ip = ipProps.UnicastAddresses[j]?.Address?.ToString() ?? "";
+                    if (ip.Length <= 15 && ip.Contains('.')) // ipv4 addresses only
+                        if (!ret.Any(x => x == ip))
+                            ret.Add(ip);
+                }
             }
 
             return ret;

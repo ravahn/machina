@@ -25,18 +25,6 @@ namespace Machina.FFXIV.Headers.Chinese
         MountName = 0x0d
     };
 
-    /*
-    public struct EffectEntry
-    {
-        byte effectType;
-        byte hitSeverity;
-        byte param;
-        sbyte bonusPercent;
-        byte valueMultiplier;
-        byte flag;
-        UInt16 value;
-    }*/
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Server_ActionEffectHeader
     {

@@ -15,8 +15,9 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Machina.Infrastructure;
 
-namespace Machina
+namespace Machina.Headers
 {
     [Flags]
     public enum TCPOptions
@@ -54,13 +55,13 @@ namespace Machina
         [FieldOffset(18)]
         public ushort urgent;
 
-        public ushort SourcePort => Utility.ntohs(source_port);
-        public ushort DestinationPort => Utility.ntohs(destination_port);
-        public uint SequenceNumber => Utility.ntohl(sequence_number);
+        public ushort SourcePort => ConversionUtility.ntohs(source_port);
+        public ushort DestinationPort => ConversionUtility.ntohs(destination_port);
+        public uint SequenceNumber => ConversionUtility.ntohl(sequence_number);
         public byte DataOffset => (byte)((dataoffset_ns >> 4) * 4);
-        public uint AckNumber => Utility.ntohl(ack_number);
-        public uint WindowSize => Utility.ntohs(windowsize);
-        public uint Checksum => Utility.ntohs(checksum);
-        public uint Urgent => Utility.ntohs(urgent);
+        public uint AckNumber => ConversionUtility.ntohl(ack_number);
+        public uint WindowSize => ConversionUtility.ntohs(windowsize);
+        public uint Checksum => ConversionUtility.ntohs(checksum);
+        public uint Urgent => ConversionUtility.ntohs(urgent);
     }
 }

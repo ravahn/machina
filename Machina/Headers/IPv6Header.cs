@@ -14,8 +14,9 @@
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System.Runtime.InteropServices;
+using Machina.Infrastructure;
 
-namespace Machina
+namespace Machina.Headers
 {
     [StructLayout(LayoutKind.Explicit)]
     public struct IPv6Header
@@ -45,6 +46,6 @@ namespace Machina
 
         public byte Version => (byte)(version_ltc >> 4);
 
-        public ushort PayloadLength => Utility.ntohs(payload_length);
+        public ushort PayloadLength => ConversionUtility.ntohs(payload_length);
     }
 }
