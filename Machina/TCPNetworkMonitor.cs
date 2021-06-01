@@ -103,7 +103,8 @@ namespace Machina
             {
                 if (!_monitorTask.Wait(100) || _monitorTask.Status == TaskStatus.Running)
                     Trace.Write("TCPNetworkMonitor: Task cannot be stopped.", "DEBUG-MACHINA");
-                _monitorTask.Dispose();
+                else
+                    _monitorTask.Dispose();
                 _monitorTask = null;
             }
 

@@ -65,7 +65,7 @@ namespace Machina.Sockets
                 StringBuilder errorBuffer = new StringBuilder(PCAP_ERRBUF_SIZE);
 
                 // flags=0 turns off promiscous mode, which is not needed or desired.
-                _activeDevice.Handle = pcap_open(device.Name, 65536, 0, 500, IntPtr.Zero, errorBuffer);
+                _activeDevice.Handle = pcap_open(device.Name, 65536, PCAP_OPENFLAG_MAX_RESPONSIVENESS, 100, IntPtr.Zero, errorBuffer);
                 if (_activeDevice.Handle == IntPtr.Zero)
                     throw new PcapException($"PCapCaptureSocket: Cannot open pcap interface [{device.Name}].  Error: {errorBuffer}");
 
@@ -114,10 +114,12 @@ namespace Machina.Sockets
 
                 // stop pcap capture thread
                 if (_monitorTask != null)
+                {
                     if (!_monitorTask.Wait(100) || _monitorTask.Status == TaskStatus.Running)
                         Trace.Write("PCapCaptureSocket: Task cannot be stopped.", "DEBUG-MACHINA");
-
-                _monitorTask?.Dispose();
+                    else
+                        _monitorTask.Dispose();
+                }
                 _monitorTask = null;
                 _tokenSource?.Dispose();
                 _tokenSource = null;
@@ -175,7 +177,7 @@ namespace Machina.Sockets
 
                     // note: buffer returned by pcap_next_ex is static and owned by pcap library, does not need to be freed.
                     int status = pcap_next_ex(_activeDevice.Handle, ref packetHeaderPtr, ref packetDataPtr);
-                    if (status == 0) // 500ms timeout
+                    if (status == 0) // 100ms timeout
                         continue;
                     else if (status == -1) // error
                     {

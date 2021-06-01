@@ -70,6 +70,7 @@ namespace Machina.Sockets
 
         internal const int PCAP_ERRBUF_SIZE = 256;
         internal const int PCAP_OPENFLAG_PROMISCUOUS = 1;
+        internal const int PCAP_OPENFLAG_MAX_RESPONSIVENESS = 16;
         internal const int KERNEL_BUFFER_SIZE = 1024 * 1024 * 1; // 1MB
 
         // supported Data Link types, from bpf.h
