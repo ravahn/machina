@@ -150,7 +150,6 @@ namespace Machina
                 while ((data = connection.Socket.Receive()).Size > 0)
                 {
                     connection.IPDecoderSend.FilterAndStoreData(data.Buffer, data.Size);
-                    BufferCache.ReleaseBuffer(data.Buffer);
 
                     while ((tcpbuffer = connection.IPDecoderSend.GetNextIPPayload()) != null)
                     {
@@ -166,6 +165,8 @@ namespace Machina
                         while ((payloadBuffer = connection.TCPDecoderReceive.GetNextTCPDatagram()) != null)
                             OnDataReceived(connection, payloadBuffer);
                     }
+
+                    BufferCache.ReleaseBuffer(data.Buffer);
                 }
             }
         }
