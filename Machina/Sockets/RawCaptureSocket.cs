@@ -32,6 +32,8 @@ namespace Machina.Sockets
 
         private bool _disposedValue;
 
+        private static readonly bool _isWindows = IsWindows();
+
         public void StartCapture(uint localAddress, uint remoteAddress = 0)
         {
             lock (_lockObject)
@@ -79,14 +81,12 @@ namespace Machina.Sockets
 
         private Socket CreateRawSocket(uint localAddress, uint remoteAddress)
         {
-            bool isWindows = IsWindows();
-
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, isWindows ? ProtocolType.IP : ProtocolType.Tcp);
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, _isWindows ? ProtocolType.IP : ProtocolType.Tcp);
             socket.Bind(new IPEndPoint(localAddress, 0));
 
             socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);
 
-            if (isWindows)
+            if (_isWindows)
             {
                 byte[] trueBytes = new byte[4] { 3, 0, 0, 0 }; // 3 == RCVALL_IPLEVEL, so it only intercepts the target interface
                 byte[] outBytes = new byte[4];
@@ -99,7 +99,7 @@ namespace Machina.Sockets
             return socket;
         }
 
-        private bool IsWindows()
+        private static bool IsWindows()
         {
             const string WINE_ENV_VAR = "FORCE_MACHINA_RAW_SOCKET_WINE_COMPAT";
 
