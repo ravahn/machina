@@ -252,6 +252,7 @@ namespace Machina.Infrastructure
                         if (!bFound)
                         {
                             Trace.WriteLine($"ProcessTCPInfo: Removed connection {connections[i]}", "DEBUG-MACHINA");
+                            connections[i].Socket.StopCapture();
                             connections.RemoveAt(i);
                         }
                     }
