@@ -23,7 +23,7 @@ In order to simplify use of this library, the TCPNetworkMonitor class polls the 
         System.Threading.Thread.Sleep(10000);
         monitor.Stop();
     }
-    private static void DataReceived(string connection, byte[] data)
+    private static void DataReceived(TCPConnection connection, byte[] data)
     {
         // Process Data
     }
@@ -33,11 +33,11 @@ The import elements in the above code are:
 2) Hook the monitor up to a data received event
 3) Start the monitor - this kicks off a long-running Task
 4) Process the data in the DataReceived() event handler
-5) Stop the monitor before exiting the process, to prevent unmanaged resources from leaking.  This mostly affects WinPCap.
+5) Stop the monitor before exiting the process, to prevent unmanaged resources from leaking.
 
-Prior to the above, be sure to either disable windows firewall, or add a rule for any executable using the above code to work through it.  And, the code must be executed as a local administrator.  To debug the above code, you will need to start Visual Studio using the 'Run as Administrator' option in Windows.
+Prior to the above, be sure to either disable windows defender firewall, or add a rule for any executable using the above code to work through it.  Raw sockets require running as a local administrator to capture data, but the PCap driver does not.  To debug the above code, you will need to start Visual Studio using the 'Run as Administrator' option in Windows.
 
-The public property UseRemoteIpFilter, when set to true, will apply socket and winpcap filters on both source and target IP Addresses for the connections being monitored.  Note that this means that each connection to a new remote IP must be detected and listener started before data will be received.  It is likely that some network data will be lost between when the process initiates the connection, and when the Machina library begins to listen.  It should only be used if the initial data sent on the connection is not critical.  However, it has the benefit of significantly reducing the potential for data loss when there is excessive local network traffic.
+The public property UseRemoteIpFilter, when set to true, will apply socket and winpcap filters on both source and target IP Addresses for the connections being monitored.  This means that each connection to a new remote IP must be detected and listener started before data will be received.  It is likely that some network data will be lost between when the process initiates the connection, and when the Machina library begins to listen.  It should only be used if the initial data sent on the connection is not critical.  However, it has the benefit of significantly reducing the potential for data loss when there is excessive local network traffic, for example when streaming or when doing bulk file transfers over the network.
 
 # Machina.FFXIV
 Machina.FFXIV is an extension to the Machina library that decodes Final Fantasy XIV network data and makes it available to programs.  It uses the Machina library to locate the game traffic and decode the TCP/IP layer, and then decodes / decompresses the game data into individual game messages.  It processes both incoming and outgoing messages.
@@ -45,17 +45,17 @@ Machina.FFXIV is an extension to the Machina library that decodes Final Fantasy 
     public static void Main(string[] args)
     {
         FFXIVNetworkMonitor monitor = new FFXIVNetworkMonitor();
-        monitor.MessageReceived = (string connection, long epoch, byte[] message) => MessageReceived(connection, epoch, message);
+        monitor.MessageReceived = (TCPConnection connection, long epoch, byte[] message) => MessageReceived(connection, epoch, message);
         monitor.Start();
         // Run for 10 seconds
         System.Threading.Thread.Sleep(10000);
         monitor.Stop();
     }
-    private static void MessageReceived(string connection, long epoch, byte[] message)
+    private static void MessageReceived(TCPConnection connection, long epoch, byte[] message)
     {
         // Process Message
     }
 
 An optional Process ID and network monitor type can be specified as properties, to configure per the end-user's machine requirements.
 
-An optional property UseSocketFilter can be set, which is passed through to the TCPNetworkMonitor's property with the same name.  This is generally fine for FFXIV, since the TCP connection does not frequently change.
+An optional property UseRemoteIpFilter can be set, which is passed through to the TCPNetworkMonitor's property with the same name.  This is generally fine for FFXIV, since the remote server IP does not frequently change.
