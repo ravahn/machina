@@ -1,25 +1,24 @@
-﻿// Machina.Tests ~ IPDecoderTests.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net;
 using System.Runtime.InteropServices;
-using Machina;
+using Machina.Decoders;
+using Machina.Headers;
+using Machina.Infrastructure;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests
 {
@@ -37,17 +36,17 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_FilterAndStoreData_OneIP4Packet()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data = ConstructIP4Packet(
                 4, 1111, 0, 0, IPProtocol.TCP,
                 sourceIP,
                 destinationIP,
-                new byte[] { 1,2,3,4,5,6,7,8,9,10}
+                new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
             );
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
 
@@ -59,12 +58,12 @@ namespace Machina.Tests
         public void IPDecoder_FilterAndStoreData_OneIP6Packet()
         {
             byte[] data = ConstructIP6Packet(
-                6, 0, 0,  
+                6, 0, 0,
                 0, 0, 0, 0,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
             );
 
-            var sut = new IPDecoder(1, 1, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(1, 1, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
 
@@ -75,8 +74,8 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_FilterAndStoreData_InvalidVersionPacket()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data = ConstructIP4Packet(
                 2,  // invalid ip version 2
@@ -86,7 +85,7 @@ namespace Machina.Tests
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
             );
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
 
@@ -101,8 +100,8 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_FilterAndStoreData_IP4PacketHardwareOffload()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data = ConstructIP4Packet(
                 4, 1111, 0, 0, IPProtocol.TCP,
@@ -112,7 +111,7 @@ namespace Machina.Tests
                 true
             );
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
 
@@ -125,9 +124,9 @@ namespace Machina.Tests
         /// </summary>
         [TestMethod]
         public void IPDecoder_FilterAndStoreData_FilterNonTCP()
-        {           
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+        {
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data = ConstructIP4Packet(
                 4, 1111, 0, 0, IPProtocol.UDP,
@@ -136,7 +135,7 @@ namespace Machina.Tests
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
             );
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
 
@@ -148,8 +147,8 @@ namespace Machina.Tests
         public void IPDecoder_FilterAndStoreData_IP4PacketLengthTooLong()
         {
             // this tests failed processing if the packet length is longer than the buffer 
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data = ConstructIP4Packet(
                 4, 1111, 0, 0, IPProtocol.TCP,
@@ -161,7 +160,7 @@ namespace Machina.Tests
             // override packet length
             data[2] = 0xff;
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
 
@@ -175,8 +174,8 @@ namespace Machina.Tests
         {
             // this does not fail processing if the packet length is longer than the buffer 
             //  this happens for ex. with winpcap.
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data = ConstructIP4Packet(
                 4, 1111, 0, 0, IPProtocol.TCP,
@@ -188,7 +187,7 @@ namespace Machina.Tests
             // extend length of buffer
             Array.Resize(ref data, data.Length + 5);
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
 
@@ -200,8 +199,8 @@ namespace Machina.Tests
         public void IPDecoder_FilterAndStoreData_MultipleIP4Packets()
         {
             // this tests failed processing if the packet length is longer than the buffer 
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data1 = ConstructIP4Packet(
                 4, 1111, 0, 0, IPProtocol.TCP,
@@ -221,7 +220,7 @@ namespace Machina.Tests
             Array.Resize(ref data1, data1.Length + data2.Length);
             Array.Copy(data2, 0, data1, originalSize, data2.Length);
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
 
@@ -247,11 +246,11 @@ namespace Machina.Tests
             Array.Resize(ref data1, data1.Length + data2.Length);
             Array.Copy(data2, 0, data1, originalSize, data2.Length);
 
-            var sut = new IPDecoder(1, 1, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(1, 1, IPProtocol.TCP);
             sut.FilterAndStoreData(data1, data1.Length);
 
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data3 = ConstructIP4Packet(
                 4, 1111, 0, 0, IPProtocol.TCP,
@@ -294,7 +293,7 @@ namespace Machina.Tests
             Array.Resize(ref data1, data1.Length + data2.Length);
             Array.Copy(data2, 0, data1, originalSize, data2.Length);
 
-            var sut = new IPDecoder(1, 1, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(1, 1, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
 
@@ -305,8 +304,8 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_GetNextIPPayload_SinglePacket()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data = ConstructIP4Packet(
                 4, 1111, 0, 0, IPProtocol.TCP,
@@ -315,7 +314,7 @@ namespace Machina.Tests
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
             );
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
             Assert.IsTrue(sut.Fragments.Count == 1);
@@ -324,7 +323,7 @@ namespace Machina.Tests
             byte[] ret = sut.GetNextIPPayload();
             Assert.AreEqual(10, ret.Length);
             for (int i = 0; i < 10; i++)
-                Assert.AreEqual(i+1, ret[i]);
+                Assert.AreEqual(i + 1, ret[i]);
             Assert.AreEqual(0, sut.Fragments.Count);
             Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
         }
@@ -332,8 +331,8 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_GetNextIPPayload_SinglePacketHWAccel()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data = ConstructIP4Packet(
                 4, 1111, 0, 0, IPProtocol.TCP,
@@ -343,7 +342,7 @@ namespace Machina.Tests
                 true
             );
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
             Assert.AreEqual(1, sut.Fragments.Count);
@@ -362,8 +361,8 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_GetNextIPPayload_OutOfOrderPackets()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data1 = ConstructIP4Packet(
                 4, 1112, 0, 0, IPProtocol.TCP,
@@ -382,7 +381,7 @@ namespace Machina.Tests
             int originalSize = data1.Length;
             Array.Resize(ref data1, data1.Length + data2.Length);
             Array.Copy(data2, 0, data1, originalSize, data2.Length);
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
             Assert.AreEqual(2, sut.Fragments.Count);
@@ -391,11 +390,11 @@ namespace Machina.Tests
             byte[] ret = sut.GetNextIPPayload();
             Assert.AreEqual(10, ret.Length);
             for (int i = 0; i < 10; i++)
-                Assert.AreEqual(i+11, ret[i]);
+                Assert.AreEqual(i + 11, ret[i]);
             ret = sut.GetNextIPPayload();
             Assert.AreEqual(10, ret.Length);
             for (int i = 0; i < 10; i++)
-                Assert.AreEqual(i+1, ret[i]);
+                Assert.AreEqual(i + 1, ret[i]);
 
             Assert.AreEqual(0, sut.Fragments.Count);
             Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
@@ -404,11 +403,11 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_GetNextIPPayload_TwoPacketFragment()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data1 = ConstructIP4Packet(
-                4, 1111, (byte)IPFlags.MF, 0, IPProtocol.TCP,
+                4, 1111, (byte)IPFragment.MF, 0, IPProtocol.TCP,
                 sourceIP,
                 destinationIP,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }
@@ -424,7 +423,7 @@ namespace Machina.Tests
             int originalSize = data1.Length;
             Array.Resize(ref data1, data1.Length + data2.Length);
             Array.Copy(data2, 0, data1, originalSize, data2.Length);
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
             Assert.AreEqual(2, sut.Fragments.Count);
@@ -442,14 +441,14 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_GetNextIPPayload_SingleFragmentTimeout()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data1 = ConstructIP4Packet(
-                4, 1111, (byte)IPFlags.MF, 0, IPProtocol.TCP,
+                4, 1111, (byte)IPFragment.MF, 0, IPProtocol.TCP,
                 sourceIP,
                 destinationIP,
-                new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+                new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }
             );
 
             byte[] data2 = ConstructIP4Packet(
@@ -459,7 +458,7 @@ namespace Machina.Tests
                 new byte[] { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 }
             );
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
             Assert.AreEqual(1, sut.Fragments.Count);
@@ -487,11 +486,11 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_GetNextIPPayload_OneFragmentOnePacket()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data1 = ConstructIP4Packet(
-                4, 1111, (byte)IPFlags.MF, 0, IPProtocol.TCP,
+                4, 1111, (byte)IPFragment.MF, 0, IPProtocol.TCP,
                 sourceIP,
                 destinationIP,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }
@@ -504,7 +503,7 @@ namespace Machina.Tests
                 new byte[] { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 }
             );
 
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
             Assert.AreEqual(1, sut.Fragments.Count);
@@ -540,11 +539,11 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_GetNextIPPayload_OneFragmentTwoPackets()
         {
-            uint sourceIP = (uint)IPAddress.Parse("1.2.3.4").Address;
-            uint destinationIP = (uint)IPAddress.Parse("2.3.4.5").Address;
+            uint sourceIP = ConversionUtility.IPStringToUint("1.2.3.4");
+            uint destinationIP = ConversionUtility.IPStringToUint("2.3.4.5");
 
             byte[] data1 = ConstructIP4Packet(
-                4, 1111, (byte)IPFlags.MF, 0, IPProtocol.TCP,
+                4, 1111, (byte)IPFragment.MF, 0, IPProtocol.TCP,
                 sourceIP,
                 destinationIP,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }
@@ -558,12 +557,12 @@ namespace Machina.Tests
             );
 
             byte[] data3 = ConstructIP4Packet(
-                4, 1113, (byte)IPFlags.MF, 0, IPProtocol.TCP,
+                4, 1113, (byte)IPFragment.MF, 0, IPProtocol.TCP,
                 sourceIP,
                 destinationIP,
                 new byte[] { 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 }
             );
-            var sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
+            IPDecoder sut = new IPDecoder(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
             Assert.AreEqual(1, sut.Fragments.Count);
@@ -596,12 +595,12 @@ namespace Machina.Tests
         [TestMethod]
         public void IPDecoder_DecodeFragmentedICMP()
         {
-            var packet1 = Utility.HexStringToByteArray("450005DC3201200080010000C0A8010617C01E2E0800AE740001003D6162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F7071727374757677");
-            var packet2 = Utility.HexStringToByteArray("4500001C320100B980010000C0A8010617C01E2E6162636465666768");
+            byte[] packet1 = ConversionUtility.HexStringToByteArray("450005DC3201200080010000C0A8010617C01E2E0800AE740001003D6162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F70717273747576776162636465666768696A6B6C6D6E6F7071727374757677");
+            byte[] packet2 = ConversionUtility.HexStringToByteArray("4500001C320100B980010000C0A8010617C01E2E6162636465666768");
 
             IPDecoder decoder = new IPDecoder(
-                (uint)IPAddress.Parse("192.168.1.6").Address,
-                (uint)IPAddress.Parse("23.192.30.46").Address,
+                ConversionUtility.IPStringToUint("192.168.1.6"),
+                ConversionUtility.IPStringToUint("23.192.30.46"),
                 IPProtocol.ICMP);
 
             decoder.FilterAndStoreData(packet1, packet1.Length);
@@ -635,10 +634,10 @@ namespace Machina.Tests
             header.version_ihl = (byte)((ipversion << 4) + (sizeof(IPv4Header) / 4));
             header.tos_ecn = 0;
             if (!bHardware)
-                header.packet_length = Utility.htons((ushort)ret.Length);
-            header.identification = Utility.htons(id);
+                header.packet_length = ConversionUtility.htons((ushort)ret.Length);
+            header.identification = ConversionUtility.htons(id);
             //header.flags_fragmentoffset = (ushort)(flags + Utility.htons((ushort)(fragmentoffset << 3)));
-            header.flags_fragmentoffset = (ushort)((flags << 4) + (Utility.htons(fragmentoffset) >> 3));
+            header.flags_fragmentoffset = (ushort)((flags << 4) + (ConversionUtility.htons(fragmentoffset) >> 3));
             header.ttl = 0;
             header.protocol = protocol;
             header.checksum = 0;
@@ -674,23 +673,23 @@ namespace Machina.Tests
             byte[] data
             )
         {
-            int size = (data?.Length ?? 0);
+            int size = data?.Length ?? 0;
             if (size % 8 != 0)
                 size += 8 - (size % 8);
             byte[] ret = new byte[size + sizeof(IPv6Header)];
 
             IPv6Header header = new IPv6Header();
-            ushort temp = Utility.htons((ushort)((ipversion << 4)+ trafficclass));
+            ushort temp = ConversionUtility.htons((ushort)((ipversion << 4) + trafficclass));
             header.version_ltc = (byte)(temp >> 8);
-            header.htc_lfl = (byte)((temp & 0xff) + (flowlabel >>8));
+            header.htc_lfl = (byte)((temp & 0xff) + (flowlabel >> 8));
             header.flow_label = (ushort)(flowlabel & 0xff);
-            header.payload_length = Utility.htons((ushort)(size / 8));
+            header.payload_length = ConversionUtility.htons((ushort)(size / 8));
             header.next_header = 0;
             header.hop_limit = 60;
-            header.source_address1 = Utility.htonq(source_address1);
-            header.source_address2 = Utility.htonq(source_address2);
-            header.dest_address1 = Utility.htonq(destination_address1);
-            header.dest_address2 = Utility.htonq(destination_address2);
+            header.source_address1 = ConversionUtility.htonq(source_address1);
+            header.source_address2 = ConversionUtility.htonq(source_address2);
+            header.dest_address1 = ConversionUtility.htonq(destination_address1);
+            header.dest_address2 = ConversionUtility.htonq(destination_address2);
 
             // todo: what about custom headers?
 

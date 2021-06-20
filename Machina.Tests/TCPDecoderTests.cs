@@ -1,26 +1,24 @@
-﻿// Machina.Tests ~ TCPDecoderTests.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
-
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Runtime.InteropServices;
-
-using Machina;
+using Machina.Decoders;
+using Machina.Headers;
+using Machina.Infrastructure;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests
 {
@@ -43,10 +41,10 @@ namespace Machina.Tests
                 source_port, dest_port,
                 1111,
                 1121,
-                (byte)TCPFlags.PSH,
+                (byte)TCPOptions.PSH,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 
-            var sut = new TCPDecoder(source_port, dest_port);
+            TCPDecoder sut = new TCPDecoder(source_port, dest_port);
 
             sut.FilterAndStoreData(packet);
 
@@ -64,10 +62,10 @@ namespace Machina.Tests
                 source_port, dest_port,
                 1111,
                 1121,
-                (byte)TCPFlags.PSH,
+                (byte)TCPOptions.PSH,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 
-            var sut = new TCPDecoder(source_port, dest_port);
+            TCPDecoder sut = new TCPDecoder(source_port, dest_port);
 
             sut.FilterAndStoreData(packet);
             Assert.AreEqual(1, sut.Packets.Count);
@@ -94,7 +92,7 @@ namespace Machina.Tests
                 0,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 
-            var sut = new TCPDecoder(source_port, dest_port);
+            TCPDecoder sut = new TCPDecoder(source_port, dest_port);
 
             sut.FilterAndStoreData(packet);
             Assert.AreEqual(1, sut.Packets.Count);
@@ -114,17 +112,17 @@ namespace Machina.Tests
                 source_port, dest_port,
                 1111,
                 1121,
-                (byte)TCPFlags.PSH,
+                (byte)TCPOptions.PSH,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 
             byte[] packet2 = ConstructTCPPacket(
                 source_port, dest_port,
                 1121,
                 1131,
-                (byte)TCPFlags.PSH,
+                (byte)TCPOptions.PSH,
                 new byte[] { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 });
 
-            var sut = new TCPDecoder(source_port, dest_port);
+            TCPDecoder sut = new TCPDecoder(source_port, dest_port);
 
             sut.FilterAndStoreData(packet);
             sut.FilterAndStoreData(packet2);
@@ -162,10 +160,10 @@ namespace Machina.Tests
                 source_port, dest_port,
                 1121,
                 1131,
-                (byte)TCPFlags.PSH,
+                (byte)TCPOptions.PSH,
                 new byte[] { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 });
 
-            var sut = new TCPDecoder(source_port, dest_port);
+            TCPDecoder sut = new TCPDecoder(source_port, dest_port);
 
             sut.FilterAndStoreData(packet);
             sut.FilterAndStoreData(packet2);
@@ -196,7 +194,7 @@ namespace Machina.Tests
                 source_port, dest_port,
                 1121,
                 1131,
-                (byte)TCPFlags.PSH,
+                (byte)TCPOptions.PSH,
                 new byte[] { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 });
 
 
@@ -207,7 +205,7 @@ namespace Machina.Tests
                 0,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 
-            var sut = new TCPDecoder(source_port, dest_port);
+            TCPDecoder sut = new TCPDecoder(source_port, dest_port);
 
             sut.FilterAndStoreData(packet0);
             Assert.AreEqual(1, sut.Packets.Count);
@@ -245,17 +243,17 @@ namespace Machina.Tests
                 source_port, dest_port,
                 1111,
                 1121,
-                (byte)TCPFlags.PSH,
+                (byte)TCPOptions.PSH,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 
             byte[] packet2 = ConstructTCPPacket(
                 source_port, dest_port,
                 1131,
                 1141,
-                (byte)TCPFlags.PSH,
+                (byte)TCPOptions.PSH,
                 new byte[] { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 });
 
-            var sut = new TCPDecoder(source_port, dest_port);
+            TCPDecoder sut = new TCPDecoder(source_port, dest_port);
 
             sut.FilterAndStoreData(packet1);
             Assert.AreEqual(1, sut.Packets.Count);
@@ -284,19 +282,19 @@ namespace Machina.Tests
                 source_port, dest_port,
                 1110, // note: SYN packet will reset position to identifier+1.
                 1121,
-                (byte)TCPFlags.SYN,
-                new byte[] { } );
+                (byte)TCPOptions.SYN,
+                new byte[] { });
 
             byte[] packet2 = ConstructTCPPacket(
                 source_port, dest_port,
                 1111,
                 1121,
-                (byte)TCPFlags.PSH,
+                (byte)TCPOptions.PSH,
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 
 
 
-            var sut = new TCPDecoder(source_port, dest_port);
+            TCPDecoder sut = new TCPDecoder(source_port, dest_port);
 
             sut.FilterAndStoreData(packet1);
             Assert.AreEqual(1, sut.Packets.Count);
@@ -330,10 +328,10 @@ namespace Machina.Tests
         {
             byte[] ret = new byte[data.Length + sizeof(TCPHeader)];
             TCPHeader header = new TCPHeader();
-            header.source_port = Utility.htons(source_port);
-            header.destination_port = Utility.htons(dest_port);
-            header.sequence_number = Utility.htonl(seq_no);
-            header.ack_number = Utility.htonl(ack_no);
+            header.source_port = ConversionUtility.htons(source_port);
+            header.destination_port = ConversionUtility.htons(dest_port);
+            header.sequence_number = ConversionUtility.htonl(seq_no);
+            header.ack_number = ConversionUtility.htonl(ack_no);
             header.dataoffset_ns = (byte)((sizeof(TCPHeader) / 4) << 4);
             header.flags = flags;
             header.windowsize = 0;

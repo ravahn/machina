@@ -1,23 +1,22 @@
-﻿// Machina ~ IP4Header.cs
-// 
-// Copyright © 2017 Ravahn - All Rights Reserved
-// 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//GNU General Public License for more details.
-
-//You should have received a copy of the GNU General Public License
-//along with this program.If not, see<http://www.gnu.org/licenses/>.
+﻿// Copyright © 2021 Ravahn - All Rights Reserved
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY. without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System.Runtime.InteropServices;
+using Machina.Infrastructure;
 
-namespace Machina
+namespace Machina.Headers
 {
     public enum IPProtocol : byte
     {
@@ -26,7 +25,7 @@ namespace Machina
         UDP = 17
     };
 
-    public enum IPFlags : byte
+    public enum IPFragment : byte
     {
         Reserved = 1, // must be zero
         MF = 2, // Must Fragment
@@ -60,38 +59,32 @@ namespace Machina
         /// <summary>
         /// IP version number 
         /// </summary>
-        public byte Version
-        { get { return (byte)(version_ihl >> 4); } }
+        public byte Version => (byte)(version_ihl >> 4);
 
         /// <summary>
         /// IP Header length
         /// </summary>
-        public byte HeaderLength
-        { get { return (byte)((version_ihl & 0x0f) * 4); } }
+        public byte HeaderLength => (byte)((version_ihl & 0x0f) * 4);
 
         /// <summary>
         /// total packet length, including data payload, in host byte order
         /// </summary>
-        public ushort Length
-        { get { return Utility.ntohs(packet_length); } }
+        public ushort Length => ConversionUtility.ntohs(packet_length);
 
         /// <summary>
         /// IP packet identifier in host byte order
         /// </summary>
-        public ushort Id
-        { get { return Utility.ntohs(identification); } }
+        public ushort Id => ConversionUtility.ntohs(identification);
 
         /// <summary>
         /// IP flags
         /// </summary>
-        public byte Flags
-        { get { return (byte)((flags_fragmentoffset & 0xe0) >> 4); } }
+        public byte Flags => (byte)((flags_fragmentoffset & 0xe0) >> 4);
 
         /// <summary>
         /// IP Fragment offset in host byte order
         /// </summary>
-        public ushort FragmentOffset
-        { get { return (ushort)(Utility.ntohs(flags_fragmentoffset) << 3); } }
+        public ushort FragmentOffset => (ushort)(ConversionUtility.ntohs(flags_fragmentoffset) << 3);
 
     }
 }
