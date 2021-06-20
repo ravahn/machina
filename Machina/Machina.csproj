@@ -14,13 +14,32 @@
     <NeutralLanguage>en</NeutralLanguage>
     <Description>General-purpose library for raw network packet reading and reassembly</Description>
     <Copyright>Copyright © 2021 Ravahn</Copyright>
-    <PackageLicenseUrl>https://github.com/ravahn/machina/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>TRUE</EnforceCodeStyleInBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/ravahn/machina</RepositoryUrl>
+    <PackageTags>raw socket winpcap tcpip c# packet sniffer</PackageTags>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Ravahn.Machina.Keyfile.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Ravahn.Machina.Keyfile.snk" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Release (&#xD;&#xA;  if EXIST c:\projects\packages (&#xD;&#xA;    xcopy /i /y $(TargetDir)..\Machina.*.nupkg c:\projects\packages&#xD;&#xA; )&#xD;&#xA;)" />
+  </Target>
 </Project>

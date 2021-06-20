@@ -16,11 +16,20 @@
     <NeutralLanguage>en</NeutralLanguage>
     <Description>Extension to Machina network library to support decoding of Final Fantasy XIV network data</Description>
     <Copyright>Copyright © 2021 Ravahn</Copyright>
-    <PackageLicenseUrl>https://github.com/ravahn/machina/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/ravahn/machina</RepositoryUrl>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Ravahn.Machina.Keyfile.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Ravahn.Machina.Keyfile.snk" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
@@ -31,5 +40,16 @@
   <ItemGroup>
     <ProjectReference Include="..\Machina\Machina.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Release (&#xD;&#xA;  if EXIST c:\projects\packages (&#xD;&#xA;    xcopy /i /y $(TargetDir)..\Machina.FFXIV.*.nupkg c:\projects\packages&#xD;&#xA;  )&#xD;&#xA;)" />
+  </Target>
 
 </Project>
