@@ -2,6 +2,8 @@
 
 Machina is a library that allows developers to read network data from the windows networking subsystem and reassemble it into usable information.
 
+Community discussion is available on the [ACT_FFXIV_Plugin Discord server](https://discord.gg/H48N2vZ) in the #machina-discussion channel.
+
 It supports the following features:
 * Simple raw socket for data capture or optional WinPcap driver support
 * IP Fragmentation reassembly
