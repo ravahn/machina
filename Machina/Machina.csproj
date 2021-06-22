@@ -39,7 +39,4 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if $(ConfigurationName) == Release (&#xD;&#xA;  if EXIST c:\projects\packages (&#xD;&#xA;    xcopy /i /y $(TargetDir)..\Machina.*.nupkg c:\projects\packages&#xD;&#xA; )&#xD;&#xA;)" />
-  </Target>
 </Project>

@@ -8,11 +8,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>2.3.0.1</Version>
+    <Version>2.3.0.2</Version>
     <Authors>Ravahn</Authors>
     <PackageId>Machina.FFXIV</PackageId>
-    <AssemblyVersion>2.3.0.1</AssemblyVersion>
-    <FileVersion>2.3.0.1</FileVersion>
+    <AssemblyVersion>2.3.0.2</AssemblyVersion>
+    <FileVersion>2.3.0.2</FileVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>Extension to Machina network library to support decoding of Final Fantasy XIV network data</Description>
     <Copyright>Copyright © 2021 Ravahn</Copyright>
@@ -47,9 +47,5 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if $(ConfigurationName) == Release (&#xD;&#xA;  if EXIST c:\projects\packages (&#xD;&#xA;    xcopy /i /y $(TargetDir)..\Machina.FFXIV.*.nupkg c:\projects\packages&#xD;&#xA;  )&#xD;&#xA;)" />
-  </Target>
 
 </Project>
