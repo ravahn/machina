@@ -18,7 +18,7 @@ using System;
 namespace Machina.FFXIV.Headers.Korean
 {
     [Flags]
-    public enum WaymarkType : uint
+    public enum WaymarkType : byte
     {
         A = 0x1,
         B = 0x2,
