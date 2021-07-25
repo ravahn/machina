@@ -30,7 +30,7 @@ In order to simplify use of this library, the TCPNetworkMonitor class polls the 
         // Process Data
     }
 
-The import elements in the above code are:
+The important elements in the above code are:
 1) Configure the monitor class with the correct window name or process ID
 2) Hook the monitor up to a data received event
 3) Start the monitor - this kicks off a long-running Task
