@@ -20,3 +20,4 @@ ActorSetPos|174
 ActorGauge|3E0
 PresetWaymark|135
 Waymark|2EF
+SystemLogMessage|0000|-
