@@ -78,6 +78,7 @@ namespace Machina.Sockets
         internal const int DLT_NULL = 0; // 4-byte header
 
         internal const int AF_INET = 2; // Address Family IPv4
+        internal const int AF_INET_BSD = 528; // Address Family IPv4 for BSD kernels
 
         /// <summary>
         /// Construct a list of network devices that can be opened with pcap_open_live(). 

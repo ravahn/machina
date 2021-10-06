@@ -60,7 +60,7 @@ namespace Machina.Sockets
                         if (address.addr != IntPtr.Zero)
                         {
                             sockaddr_in sockaddress = *(sockaddr_in*)address.addr;
-                            if (sockaddress.sin_family == AF_INET)
+                            if (sockaddress.sin_family == AF_INET || sockaddress.sin_family == AF_INET_BSD)
                                 device.Addresses.Add(sockaddress.sin_addr);
                         }
 
