@@ -8,11 +8,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>2.3.0.9</Version>
+    <Version>2.3.1.0</Version>
     <Authors>Ravahn</Authors>
     <PackageId>Machina.FFXIV</PackageId>
-    <AssemblyVersion>2.3.0.9</AssemblyVersion>
-    <FileVersion>2.3.0.9</FileVersion>
+    <AssemblyVersion>2.3.1.0</AssemblyVersion>
+    <FileVersion>2.3.1.0</FileVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>Extension to Machina network library to support decoding of Final Fantasy XIV network data</Description>
     <Copyright>Copyright © 2021 Ravahn</Copyright>
