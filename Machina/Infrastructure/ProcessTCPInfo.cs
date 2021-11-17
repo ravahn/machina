@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 
@@ -87,6 +88,12 @@ namespace Machina.Infrastructure
         /// </summary>
         public string ProcessWindowClass
         { get; set; } = "";
+
+        /// <summary>
+        /// Sets the local IP address of the network interface to monitor.
+        /// </summary>
+        public IPAddress LocalIP
+        { get; set; } = IPAddress.None;
 
 
         [DllImport("user32.dll", EntryPoint = "FindWindow", CharSet = CharSet.Unicode)]

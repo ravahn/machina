@@ -23,36 +23,94 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Machina.Infrastructure;
+using static Machina.Infrastructure.TCPNetworkMonitorConfig;
 using static Machina.Sockets.PcapInterop;
 
 namespace Machina.Sockets
 {
     public class PCapCaptureSocket : ICaptureSocket
     {
+        private readonly string _source;
+        private readonly string _file;
+        private pcap_rmtauth _auth;
         private readonly ConcurrentQueue<Tuple<byte[], int>> _pendingBuffers = new ConcurrentQueue<Tuple<byte[], int>>();
         private PcapDeviceState _activeDevice;
         private Task _monitorTask;
         private CancellationTokenSource _tokenSource;
         private bool _disposedValue;
 
+        public PCapCaptureSocket() : this(new RPCapConf())
+        {
+        }
+
+        public PCapCaptureSocket(RPCapConf config)
+        {
+            _auth = new pcap_rmtauth();
+            _auth.username = config.username;
+            _auth.password = config.password;
+            _auth.type = string.IsNullOrEmpty(config.username) ? RPCAP_RMTAUTH_NULL : RPCAP_RMTAUTH_PWD;
+            _file = config.file;
+            _source = CreateSrcStr(config.host, config.port);
+            Trace.WriteLine($"PCapCaptureSocket: Capture source was set to [{_source}].", "DEBUG-MACHINA");
+        }
+
+        private string CreateSrcStr(string host, int port)
+        {
+            if (!string.IsNullOrEmpty(_file))
+                return new StringBuilder($"file://{System.IO.Path.GetDirectoryName(_file)}", PCAP_BUF_SIZE).ToString();
+            StringBuilder source = new StringBuilder("rpcap://", PCAP_BUF_SIZE);
+            if (string.IsNullOrEmpty(host))
+                return source.ToString();
+            source.Append(host.Contains(":") ? $"[{host}]" : host);
+            source.Append(port > 0 ? $":{port}/" : ":2002/");
+            return source.ToString();
+        }
+
+        private PcapDevice GetDevice(uint localAddress)
+        {
+            System.Collections.Generic.IList<PcapDevice> devices = PcapDevice.GetAllDevices(_source, ref _auth);
+            PcapDevice device;
+
+            if (_source.StartsWith("file://"))
+            {
+                device = devices.FirstOrDefault(x => x.Name.Contains(_file));
+                if (string.IsNullOrWhiteSpace(device?.Name))
+                {
+                    Trace.WriteLine($"PCapCaptureSocket: File [{_file}] does not exist or is not in a valid pcap format.", "DEBUG-MACHINA");
+                    return null;
+                }
+                return device;
+            }
+
+            device = devices.FirstOrDefault(x => x.Addresses.Contains(localAddress));
+
+            if (string.IsNullOrWhiteSpace(device?.Name))
+            {
+                Trace.WriteLine($"PCapCaptureSocket: IP [{new IPAddress(localAddress)}] selected but unable to find corresponding local WinPCap device.", "DEBUG-MACHINA");
+                device = devices.FirstOrDefault();
+                if (string.IsNullOrWhiteSpace(device?.Name))
+                {
+                    Trace.WriteLine($"PCapCaptureSocket: Cannot find any WinPCap devices.", "DEBUG-MACHINA");
+                    return null;
+                }
+                Trace.WriteLine($"PCapCaptureSocket: Using pcap interface [{device.Name}] as fallback.", "DEBUG-MACHINA");
+            }
+            return device;
+        }
+
         public void StartCapture(uint localAddress, uint remoteAddress = 0)
         {
             StopCapture();
 
-            PcapDevice device = PcapDevice.GetAllDevices().FirstOrDefault(x =>
-                x.Addresses.Contains(localAddress));
-
-            if (string.IsNullOrWhiteSpace(device?.Name))
-            {
-                Trace.WriteLine($"PCapCaptureSocket: IP [{new IPAddress(localAddress)} selected but unable to find corresponding WinPCap device.", "DEBUG-MACHINA");
+            PcapDevice device = GetDevice(localAddress);
+            if (device == null)
                 return;
-            }
 
             string filterText = "ip and tcp";
             if (remoteAddress > 0)
                 filterText += " and host " + new IPAddress(remoteAddress).ToString();
 
-            IntPtr filter = Marshal.AllocHGlobal(12);
+            bpf_program filter = new bpf_program();
 
             try
             {
@@ -65,7 +123,7 @@ namespace Machina.Sockets
                 StringBuilder errorBuffer = new StringBuilder(PCAP_ERRBUF_SIZE);
 
                 // flags=0 turns off promiscous mode, which is not needed or desired.
-                _activeDevice.Handle = pcap_open(device.Name, 65536, PCAP_OPENFLAG_MAX_RESPONSIVENESS, 100, IntPtr.Zero, errorBuffer);
+                _activeDevice.Handle = pcap_open(device.Name, 65536, PCAP_OPENFLAG_MAX_RESPONSIVENESS | PCAP_OPENFLAG_NOCAPTURE_RPCAP, 100, ref _auth, errorBuffer);
                 if (_activeDevice.Handle == IntPtr.Zero)
                     throw new PcapException($"PCapCaptureSocket: Cannot open pcap interface [{device.Name}].  Error: {errorBuffer}");
 
@@ -75,15 +133,15 @@ namespace Machina.Sockets
                     throw new PcapException($"PCapCaptureSocket: Interface [{device.Description}] does not appear to support Ethernet.");
 
                 // create filter
-                if (pcap_compile(_activeDevice.Handle, filter, filterText, 1, 0) != 0)
+                if (pcap_compile(_activeDevice.Handle, ref filter, filterText, 1, 0) != 0)
                     throw new PcapException("PCapCaptureSocket: Unable to create TCP packet filter.");
 
                 // apply filter
-                if (pcap_setfilter(_activeDevice.Handle, filter) != 0)
+                if (pcap_setfilter(_activeDevice.Handle, ref filter) != 0)
                     throw new PcapException("PCapCaptureSocket: Unable to apply TCP packet filter.");
 
                 // free filter memory
-                pcap_freecode(filter);
+                pcap_freecode(ref filter);
 
                 // Start monitoring task
                 _tokenSource = new CancellationTokenSource();
@@ -98,11 +156,6 @@ namespace Machina.Sockets
                 _activeDevice = null;
 
                 throw new PcapException($"PCapCaptureSocket: Unable to open winpcap device [{device.Name}].", ex);
-            }
-            finally
-            {
-                // free memory
-                Marshal.FreeHGlobal(filter);
             }
         }
 
@@ -183,7 +236,16 @@ namespace Machina.Sockets
                     {
                         string error = Marshal.PtrToStringAnsi(pcap_geterr(_activeDevice.Handle));
                         if (!bExceptionLogged)
-                            Trace.WriteLine($"PCapCaptureSocket: Error during pcap_loop. {error}", "DEBUG-MACHINA");
+                            Trace.WriteLine($"PCapCaptureSocket: Error from pcap_next_ex. {error}", "DEBUG-MACHINA");
+
+                        bExceptionLogged = true;
+
+                        Task.Delay(100, token).Wait(token);
+                    }
+                    else if (status == -2) // no more packets in savefile
+                    {
+                        if (!bExceptionLogged)
+                            Trace.WriteLine($"PCapCaptureSocket: pcap_next_ex has reached the end of {_activeDevice.Device.Name}.", "DEBUG-MACHINA");
 
                         bExceptionLogged = true;
 
