@@ -23,6 +23,7 @@ namespace Machina.FFXIV.Headers
     {
         public static readonly Server_MessageType StatusEffectList = Opcodes.OpcodeManager.Instance.CurrentOpcodes["StatusEffectList"];
         public static readonly Server_MessageType StatusEffectList2 = Opcodes.OpcodeManager.Instance.CurrentOpcodes["StatusEffectList2"];
+        public static readonly Server_MessageType StatusEffectList3 = Opcodes.OpcodeManager.Instance.CurrentOpcodes["StatusEffectList3"];
         public static readonly Server_MessageType BossStatusEffectList = Opcodes.OpcodeManager.Instance.CurrentOpcodes["BossStatusEffectList"];
         public static readonly Server_MessageType Ability1 = Opcodes.OpcodeManager.Instance.CurrentOpcodes["Ability1"];
         public static readonly Server_MessageType Ability8 = Opcodes.OpcodeManager.Instance.CurrentOpcodes["Ability8"];

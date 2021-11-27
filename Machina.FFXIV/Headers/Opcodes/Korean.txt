@@ -1,5 +1,6 @@
 ﻿StatusEffectList|1A9
 StatusEffectList2|2A4
+StatusEffectList3|0000
 BossStatusEffectList|0000|-
 Ability1|34F
 Ability8|2BD

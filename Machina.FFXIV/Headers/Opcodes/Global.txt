@@ -1,5 +1,6 @@
 ﻿StatusEffectList|074
 StatusEffectList2|2aa
+StatusEffectList3|25d
 BossStatusEffectList|223
 Ability1|3ca
 Ability8|3c4
