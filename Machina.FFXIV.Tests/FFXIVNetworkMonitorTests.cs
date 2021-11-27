@@ -25,20 +25,25 @@ namespace Machina.FFXIV.Tests
         public void FFXIVNetworkMonitor_ReceiveGameData()
         {
             bool dataReceived = false;
+            bool dataSent = false;
 
             FFXIVNetworkMonitor sut = new FFXIVNetworkMonitor();
             sut.MessageReceivedEventHandler = (TCPConnection connection, long epoch, byte[] data) =>
                 { dataReceived = true; };
+            sut.MessageSentEventHandler = (TCPConnection connection, long epoch, byte[] data) =>
+                { dataSent = true; };
             sut.Start();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 500; i++)
             {
-                if (dataReceived)
+                if (dataReceived && dataSent)
                     break;
                 System.Threading.Thread.Sleep(10);
             }
             sut.Stop();
 
             Assert.IsTrue(dataReceived);
+            Assert.IsTrue(dataSent);
+
         }
     }
 }
