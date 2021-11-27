@@ -68,9 +68,22 @@ namespace Machina.Sockets
             public IntPtr bf_insns;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct pcap_rmtauth
+        {
+            public int type;
+            public string username;
+            public string password;
+        }
+
+        internal const int PCAP_BUF_SIZE = 1024;
         internal const int PCAP_ERRBUF_SIZE = 256;
         internal const int PCAP_OPENFLAG_PROMISCUOUS = 1;
+        internal const int PCAP_OPENFLAG_NOCAPTURE_RPCAP = 4;
         internal const int PCAP_OPENFLAG_MAX_RESPONSIVENESS = 16;
+        internal const int RPCAP_RMTAUTH_NULL = 0;
+        internal const int RPCAP_RMTAUTH_PWD = 1;
+
         internal const int KERNEL_BUFFER_SIZE = 1024 * 1024 * 1; // 1MB
 
         // supported Data Link types, from bpf.h
@@ -81,15 +94,17 @@ namespace Machina.Sockets
         internal const int AF_INET_BSD = 528; // Address Family IPv4 for BSD kernels
 
         /// <summary>
-        /// Construct a list of network devices that can be opened with pcap_open_live(). 
+        /// Create a list of network devices that can be opened with pcap_open().
         /// </summary>
+        /// <param name="source">a char* buffer that keeps the 'source localtion', according to the new WinPcap syntax. This source will be examined looking for adapters (local or remote) (e.g. source can be 'rpcap://' for local adapters or 'rpcap://host:port' for adapters on a remote host) or pcap files (e.g. source can be 'file://c:/myfolder/'). The strings that must be prepended to the 'source' in order to define if we want local/remote adapters or files is defined in the new Source Specification Syntax.</param>
+        /// <param name="auth">a pointer to a pcap_rmtauth structure. This pointer keeps the information required to authenticate the RPCAP connection to the remote host. This parameter is not meaningful in case of a query to the local host: in that case it can be NULL.</param>
         /// <param name="alldevsp">a 'struct pcap_if_t' pointer, which will be properly allocated inside this function. When the function returns, it is set to point to the first element of the interface list; each element of the list is of type 'struct pcap_if_t'</param>
         /// <param name="errbuff">a pointer to a user-allocated buffer (of size PCAP_ERRBUF_SIZE) that will contain the error message (in case there is one).</param>
         /// <returns>-1 is returned on failure, in which case errbuf is filled in with an appropriate error message; 0 is returned on success.</returns>
 #pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
         [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 #pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
-        internal static extern int pcap_findalldevs(ref IntPtr alldevsp, StringBuilder errbuff);
+        internal static extern int pcap_findalldevs_ex(string source, ref pcap_rmtauth auth, ref IntPtr alldevsp, StringBuilder errbuff);
 
         /// <summary>
         /// Free an interface list returned by pcap_findalldevs(). 
@@ -111,7 +126,7 @@ namespace Machina.Sockets
 #pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
         [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 #pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
-        internal static extern IntPtr pcap_open(string source, int snaplen, int flags, int read_timeout, IntPtr auth, StringBuilder errbuff);
+        internal static extern IntPtr pcap_open(string source, int snaplen, int flags, int read_timeout, ref pcap_rmtauth auth, StringBuilder errbuff);
 
         /// <summary>
         /// Return the link layer of an adapter. 
@@ -142,7 +157,7 @@ namespace Machina.Sockets
 #pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
         [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 #pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
-        internal static extern int pcap_compile(IntPtr p, IntPtr fp, string str, int optimize, uint netmask);
+        internal static extern int pcap_compile(IntPtr p, ref bpf_program fp, string str, int optimize, uint netmask);
 
         /// <summary>
         /// Associate a filter to a capture. 
@@ -151,7 +166,7 @@ namespace Machina.Sockets
         /// <param name="fp">fp is a pointer to a bpf_program struct, usually the result of a call to pcap_compile()</param>
         /// <returns>-1 is returned on failure, in which case pcap_geterr() may be used to display the error text; 0 is returned on success.</returns>
         [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int pcap_setfilter(IntPtr p, IntPtr fp);
+        internal static extern int pcap_setfilter(IntPtr p, ref bpf_program fp);
 
 
         /// <summary>
@@ -159,7 +174,7 @@ namespace Machina.Sockets
         /// </summary>
         /// <param name="fp">bpf_program struct generated by pcap_compile()</param>
         [DllImport("wpcap.dll", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void pcap_freecode(IntPtr fp);
+        internal static extern void pcap_freecode(ref bpf_program fp);
 
         /// <summary>
         /// Read a packet from an interface or from an offline capture.

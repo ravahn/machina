@@ -40,16 +40,14 @@ namespace Machina
             _processTCPInfo.ProcessIDList = Config.ProcessIDList;
             _processTCPInfo.ProcessWindowName = Config.WindowName;
             _processTCPInfo.ProcessWindowClass = Config.WindowClass;
+            _processTCPInfo.LocalIP = Config.LocalIP;
 
             // todo: do not pass in current connections?
             // get any active game connections
             _processTCPInfo.UpdateTCPIPConnections(Connections);
-            if (Connections.Count == 0)
-                return;
 
-            for (int i = 0; i < Connections.Count; i++)
+            foreach (TCPConnection connection in Connections)
             {
-                TCPConnection connection = Connections[i];
                 if (connection.Socket == null)
                 {
                     // Set up decoders for data sent from local machine
@@ -62,10 +60,10 @@ namespace Machina
 
                     // set up socket
                     connection.Socket = Config.MonitorType == NetworkMonitorType.WinPCap ?
-                        new PCapCaptureSocket() :
+                        new PCapCaptureSocket(Config.RPCap) :
                         (ICaptureSocket)new RawCaptureSocket();
 
-                    connection.Socket.StartCapture(Connections[i].LocalIP, Config.UseRemoteIpFilter ? Connections[i].RemoteIP : 0);
+                    connection.Socket.StartCapture(connection.LocalIP, Config.UseRemoteIpFilter ? connection.RemoteIP : 0);
                 }
             }
         }
