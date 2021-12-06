@@ -8,10 +8,11 @@ Ability16|0C4
 Ability24|0AA
 Ability32|22D
 ActorCast|221
-AddStatusEffect|15B
-ActorControl142|1CC
-ActorControl143|0D6
-ActorControl144|126
+EffectResult|15B
+EffectResultBasic|000
+ActorControl|1CC
+ActorControlSelf|0D6
+ActorControlTarget|126
 UpdateHpMpTp|1EF
 PlayerSpawn|10F
 NpcSpawn|2EB

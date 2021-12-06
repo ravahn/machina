@@ -15,10 +15,11 @@
 
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers.Chinese
+
+namespace Machina.FFXIV.Headers.Korean
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_StatusEffectAddEntry
+    public struct Server_EffectResultEntry
     {
         public byte EffectIndex;
         public byte unknown1;
@@ -30,7 +31,7 @@ namespace Machina.FFXIV.Headers.Chinese
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Server_AddStatusEffect
+    public unsafe struct Server_EffectResult
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
         public uint RelatedActionSequence;
@@ -39,12 +40,11 @@ namespace Machina.FFXIV.Headers.Chinese
         public uint MaxHP;
         public ushort CurrentMP;
         public ushort Unknown3;
-        public ushort MaxMP;
-        public ushort Unknown4;
+        //public UInt16 MaxMP;
+        //public UInt16 Unknown4;
         public byte DamageShield;
         public byte EffectCount;
         public ushort Unknown6;
         public fixed byte Effects[4 * 4 * 4];
-        public uint Unknown7;
     }
 }

@@ -31,10 +31,11 @@ namespace Machina.FFXIV.Headers
         public static readonly Server_MessageType Ability24 = Opcodes.OpcodeManager.Instance.CurrentOpcodes["Ability24"];
         public static readonly Server_MessageType Ability32 = Opcodes.OpcodeManager.Instance.CurrentOpcodes["Ability32"];
         public static readonly Server_MessageType ActorCast = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorCast"];
-        public static readonly Server_MessageType AddStatusEffect = Opcodes.OpcodeManager.Instance.CurrentOpcodes["AddStatusEffect"];
-        public static readonly Server_MessageType ActorControl142 = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorControl142"];
-        public static readonly Server_MessageType ActorControl143 = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorControl143"];
-        public static readonly Server_MessageType ActorControl144 = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorControl144"];
+        public static readonly Server_MessageType EffectResult = Opcodes.OpcodeManager.Instance.CurrentOpcodes["EffectResult"];
+        public static readonly Server_MessageType EffectResultBasic = Opcodes.OpcodeManager.Instance.CurrentOpcodes["EffectResultBasic"];
+        public static readonly Server_MessageType ActorControl = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorControl"];
+        public static readonly Server_MessageType ActorControlSelf = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorControlSelf"];
+        public static readonly Server_MessageType ActorControlTarget = Opcodes.OpcodeManager.Instance.CurrentOpcodes["ActorControlTarget"];
         public static readonly Server_MessageType UpdateHpMpTp = Opcodes.OpcodeManager.Instance.CurrentOpcodes["UpdateHpMpTp"];
         public static readonly Server_MessageType PlayerSpawn = Opcodes.OpcodeManager.Instance.CurrentOpcodes["PlayerSpawn"];
         public static readonly Server_MessageType NpcSpawn = Opcodes.OpcodeManager.Instance.CurrentOpcodes["NpcSpawn"];

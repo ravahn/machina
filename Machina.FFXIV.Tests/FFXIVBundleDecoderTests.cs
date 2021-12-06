@@ -30,7 +30,6 @@ namespace Machina.FFXIV.Tests
             TestInfrastructure.Listener.Messages.Clear();
         }
 
-
         [TestMethod]
         public void FFXIVBundle_StoreData_OneBundle_OneMessage()
         {

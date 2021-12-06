@@ -34,7 +34,7 @@ namespace Machina.FFXIV.Headers
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_ActorControl142
+    public struct Server_ActorControl
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
         public Server_ActorControlCategory category;
@@ -47,7 +47,7 @@ namespace Machina.FFXIV.Headers
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_ActorControl143
+    public struct Server_ActorControlSelf
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
         public Server_ActorControlCategory category;
@@ -62,7 +62,7 @@ namespace Machina.FFXIV.Headers
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_ActorControl144
+    public struct Server_ActorControlTarget
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
         public Server_ActorControlCategory category;

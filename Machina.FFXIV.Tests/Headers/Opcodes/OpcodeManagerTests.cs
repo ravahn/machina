@@ -36,7 +36,7 @@ namespace Machina.FFXIV.Headers.Opcodes.Tests
             sut.SetRegion(GameRegion.Korean);
 
             Assert.AreEqual(GameRegion.Korean, sut.GameRegion);
-            Assert.IsTrue(sut.CurrentOpcodes["ActorControl142"] > 0);
+            Assert.IsTrue(sut.CurrentOpcodes["ActorControl"] > 0);
         }
     }
 }
