@@ -133,13 +133,12 @@ namespace Machina.Infrastructure
         public unsafe void UpdateTCPIPConnections(IList<TCPConnection> connections)
         {
             List<uint> _processFilterList = new List<uint>();
-            _processFilterList.Clear();
 
             if (ProcessIDList.Count > 0)
                 _processFilterList.AddRange(ProcessIDList);
             else if (ProcessID > 0)
                 _processFilterList.Add(ProcessID);
-            else if (!string.IsNullOrWhiteSpace(ProcessWindowClass)) // i prefer it first since it's language irrelevant, ascii only and constant until the window being destroyed.
+            else if (!string.IsNullOrWhiteSpace(ProcessWindowClass)) // prefer it first since it is language independent, ascii only, and constent until the window is destroyed.
                 _processFilterList.AddRange(GetProcessIDByWindow(ProcessWindowClass, null));
             else if (!string.IsNullOrWhiteSpace(ProcessWindowName))
                 _processFilterList.AddRange(GetProcessIDByWindow(null, ProcessWindowName));
@@ -148,8 +147,14 @@ namespace Machina.Infrastructure
             {
                 if (connections.Count > 0)
                 {
-                    Trace.WriteLine("ProcessTCPInfo: Process has exited, closing all connections.", "DEBUG-MACHINA");
-
+                    Trace.WriteLine($"ProcessTCPInfo: Process not found, closing {connections.Count} connections.", "DEBUG-MACHINA");
+                    for (int i = 0; i < connections.Count; i++)
+                    {
+                        Trace.WriteLine($"ProcessTCPInfo: Removing connection {connections[i]}", "DEBUG-MACHINA");
+                        connections[i].Socket?.StopCapture();
+                        connections[i].Socket?.Dispose();
+                        connections[i].Socket = null;
+                    }
                     connections.Clear();
                 }
 
@@ -201,8 +206,8 @@ namespace Machina.Infrastructure
                             {
                                 if (connections[j].LocalIP == entry.dwLocalAddr &&
                                     connections[j].RemoteIP == entry.dwRemoteAddr &&
-                                    connections[j].LocalPort == (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwLocalPort) &&
-                                    connections[j].RemotePort == (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwRemotePort)
+                                    connections[j].LocalPort == (ushort)IPAddress.NetworkToHostOrder((short)entry.dwLocalPort) &&
+                                    connections[j].RemotePort == (ushort)IPAddress.NetworkToHostOrder((short)entry.dwRemotePort)
                                     )
                                 {
                                     bFound = true;
@@ -216,8 +221,8 @@ namespace Machina.Infrastructure
                                 {
                                     LocalIP = entry.dwLocalAddr,
                                     RemoteIP = entry.dwRemoteAddr,
-                                    LocalPort = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwLocalPort),
-                                    RemotePort = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwRemotePort),
+                                    LocalPort = (ushort)IPAddress.NetworkToHostOrder((short)entry.dwLocalPort),
+                                    RemotePort = (ushort)IPAddress.NetworkToHostOrder((short)entry.dwRemotePort),
                                     ProcessId = entry.dwProcessId
                                 };
 
@@ -233,7 +238,7 @@ namespace Machina.Infrastructure
 
                     for (int i = connections.Count - 1; i >= 0; i--)
                     {
-                        bool bFound = false;
+                        bool found = false;
                         tmpPtr = ptrTCPTable + sizeof(int);
 
                         for (int j = 0; j <= tcpTableCount - 1; j++)
@@ -245,21 +250,23 @@ namespace Machina.Infrastructure
                             {
                                 if (connections[i].LocalIP == entry.dwLocalAddr &&
                                     connections[i].RemoteIP == entry.dwRemoteAddr &&
-                                    connections[i].LocalPort == (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwLocalPort) &&
-                                    connections[i].RemotePort == (ushort)System.Net.IPAddress.NetworkToHostOrder((short)entry.dwRemotePort)
+                                    connections[i].LocalPort == (ushort)IPAddress.NetworkToHostOrder((short)entry.dwLocalPort) &&
+                                    connections[i].RemotePort == (ushort)IPAddress.NetworkToHostOrder((short)entry.dwRemotePort)
                                     )
                                 {
-                                    bFound = true;
+                                    found = true;
                                     break;
                                 }
                             }
                             // increment pointer
                             tmpPtr += sizeof(MIB_TCPROW_EX);
                         }
-                        if (!bFound)
+                        if (!found)
                         {
-                            Trace.WriteLine($"ProcessTCPInfo: Removed connection {connections[i]}", "DEBUG-MACHINA");
-                            connections[i].Socket.StopCapture();
+                            Trace.WriteLine($"ProcessTCPInfo: Removing connection {connections[i]}", "DEBUG-MACHINA");
+                            connections[i].Socket?.StopCapture();
+                            connections[i].Socket?.Dispose();
+                            connections[i].Socket = null;
                             connections.RemoveAt(i);
                         }
                     }

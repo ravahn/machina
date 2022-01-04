@@ -24,6 +24,8 @@ namespace Machina.Sockets
 {
     public class RawCaptureSocket : ICaptureSocket
     {
+        private readonly int BUFFER_SIZE = (1024 * 64) + 1;
+
         private readonly object _lockObject = new object();
         private Socket _socket;
 
@@ -42,7 +44,7 @@ namespace Machina.Sockets
                 _socket = CreateRawSocket(localAddress, remoteAddress);
 
                 // set buffer
-                _currentBuffer = BufferCache.AllocateBuffer();
+                _currentBuffer = new byte[BUFFER_SIZE];
 
                 // start receiving data asynchronously
                 _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
@@ -132,7 +134,7 @@ namespace Machina.Sockets
 
                     int received = _socket.EndReceive(ar);
                     if (received > 0)
-                        _currentBuffer = BufferCache.AllocateBuffer();
+                        _currentBuffer = new byte[BUFFER_SIZE];
 
                     _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
 
@@ -154,12 +156,13 @@ namespace Machina.Sockets
         {
             if (_currentBuffer != null)
             {
-                BufferCache.ReleaseBuffer(_currentBuffer);
                 _currentBuffer = null;
             }
 
-            while (_pendingBuffers.TryDequeue(out Tuple<byte[], int> next))
-                BufferCache.ReleaseBuffer(next.Item1);
+            while (_pendingBuffers.TryDequeue(out Tuple<byte[], int> _))
+            {
+
+            }
         }
 
         #region IDisposable

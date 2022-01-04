@@ -16,7 +16,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Machina.FFXIV.Tests
+namespace Machina.FFXIV.Tests.Utility
 {
     public class MemoryTraceListener : TraceListener
     {

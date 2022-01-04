@@ -16,7 +16,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Machina.Tests
+namespace Machina.Tests.Utility
 {
     public class MemoryTraceListener : TraceListener
     {

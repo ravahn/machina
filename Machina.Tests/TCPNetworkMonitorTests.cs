@@ -16,6 +16,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Machina.Infrastructure;
+using Machina.Tests.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests

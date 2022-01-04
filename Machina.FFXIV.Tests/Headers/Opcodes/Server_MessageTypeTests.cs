@@ -13,9 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
+using Machina.FFXIV.Headers;
+using Machina.FFXIV.Headers.Opcodes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Machina.FFXIV.Headers.Opcodes.Tests
+namespace Machina.FFXIV.Tests.Headers.Opcodes
 {
     [TestClass()]
     public class Server_MessageTypeTests

@@ -16,7 +16,7 @@
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Machina.FFXIV.Tests
+namespace Machina.FFXIV.Tests.Utility
 {
     [TestClass]
     public class TestInfrastructure

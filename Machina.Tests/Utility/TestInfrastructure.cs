@@ -16,7 +16,7 @@
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Machina.Tests
+namespace Machina.Tests.Utility
 {
     [TestClass]
     public class TestInfrastructure

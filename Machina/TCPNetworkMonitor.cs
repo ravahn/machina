@@ -32,10 +32,11 @@ namespace Machina
     ///     ProcessIDList: Specifies a collection of process IDs to record traffic from, to support collecting data from multiple processes at the same time
     ///     WindowName: Specifies the window name to record traffic from, where process ID is unavailable
     ///     WindowClass: Specifies the window class to record traffic from, where process ID is unavailable
-    ///     UseRemoteIPFilter: boolean that specifies whether to start data capture as connections are detected within the target process (new behavior), or monitor
+    ///     UseRemoteIpFilter: boolean that specifies whether to start data capture as connections are detected within the target process (new behavior), or monitor
     ///       the primary interface for the process and capture all data sent/received on that interface - and filter it.  The new behavior may cause some data to be lost 
     ///       on connection startup, but significantly reduces the filtering overhead caused by other traffic on the network interface.
-    ///       
+    ///     RPCap: specifies configuration properties to engage RPcap uri-based network parameters
+    ///     
     ///   In addition to the configuration properties, two public delegates are exposed
     ///     DataReceivedEventHandler: Delegate that is called when data is received and successfully decoded through IP and TCP decoders.  Note that a connection identifier is 
     ///       supplied to distinguish between multiple connections.
@@ -77,6 +78,7 @@ namespace Machina
         private CancellationTokenSource _tokenSource;
 
         private bool _disposedValue;
+        private DateTime _lastLoopError = DateTime.MinValue;
 
         /// <summary>
         /// Validates the parameters and starts the monitor.
@@ -120,9 +122,23 @@ namespace Machina
             {
                 while (!token.IsCancellationRequested)
                 {
-                    _connectionManager.Refresh();
+                    try
+                    {
+                        _connectionManager.Refresh();
 
-                    ProcessNetworkData();
+                        ProcessNetworkData();
+
+                    }
+                    catch (OperationCanceledException)
+                    {
+
+                    }
+                    catch (Exception ex)
+                    {
+                        if (DateTime.UtcNow.Subtract(_lastLoopError).TotalSeconds > 5)
+                            Trace.WriteLine("TCPNetworkMonitor Error in ProcessDataLoop inner code: " + ex.ToString(), "DEBUG-MACHINA");
+                        _lastLoopError = DateTime.UtcNow;
+                    }
 
                     Task.Delay(30, token).Wait(token);
                 }
@@ -133,7 +149,7 @@ namespace Machina
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("TCPNetworkMonitor Error: " + ex.ToString(), "DEBUG-MACHINA");
+                Trace.WriteLine("TCPNetworkMonitor Error in ProcessDataLoop: " + ex.ToString(), "DEBUG-MACHINA");
             }
         }
 
@@ -165,8 +181,6 @@ namespace Machina
                         while ((payloadBuffer = connection.TCPDecoderReceive.GetNextTCPDatagram()) != null)
                             OnDataReceived(connection, payloadBuffer);
                     }
-
-                    BufferCache.ReleaseBuffer(data.Buffer);
                 }
             }
         }

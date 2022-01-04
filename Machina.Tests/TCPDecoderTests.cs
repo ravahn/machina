@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using Machina.Decoders;
 using Machina.Headers;
 using Machina.Infrastructure;
+using Machina.Tests.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machina.Tests

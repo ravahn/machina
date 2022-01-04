@@ -15,6 +15,7 @@
 
 using System;
 using Machina.Decoders;
+using Machina.FFXIV.Tests.Utility;
 using Machina.Headers;
 using Machina.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

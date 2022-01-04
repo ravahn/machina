@@ -21,7 +21,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Machina.FFXIV.Tests
+namespace Machina.FFXIV.Tests.Utility
 {
     internal class Helper
     {
