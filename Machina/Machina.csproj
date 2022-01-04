@@ -6,14 +6,14 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>2.3.0.6</Version>
+    <Version>2.3.0.7</Version>
     <Authors>Ravahn</Authors>
     <PackageId>Machina</PackageId>
-    <AssemblyVersion>2.3.0.6</AssemblyVersion>
-    <FileVersion>2.3.0.6</FileVersion>
+    <AssemblyVersion>2.3.0.7</AssemblyVersion>
+    <FileVersion>2.3.0.7</FileVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>General-purpose library for raw network packet reading and reassembly</Description>
-    <Copyright>Copyright © 2021 Ravahn</Copyright>
+    <Copyright>Copyright © 2022 Ravahn</Copyright>
     <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>TRUE</EnforceCodeStyleInBuild>
