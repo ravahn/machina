@@ -30,8 +30,8 @@ namespace Machina.FFXIV.Headers.Korean
         public uint MaxHP;
         public ushort CurrentMP;
         public ushort MaxMP;
-        public ushort Unknown1; // used to be TP
         public byte DamageShield;
+        public ushort Unknown1; // used to be TP
         public byte Unknown2;
         public fixed byte Effects[30 * 3 * 4];
         // 4 bytes padding at end?

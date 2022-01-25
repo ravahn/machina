@@ -30,8 +30,8 @@ namespace Machina.FFXIV.Headers.Korean
         public uint MaxHP;
         public ushort CurrentMP;
         public ushort MaxMP;
-        public ushort Unknown1;
         public byte DamageShield;
+        public ushort Unknown1;
         public byte Unknown2;
         public fixed byte Effects1[30 * 3 * 4];
         public uint Unknown3;
