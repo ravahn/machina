@@ -27,7 +27,7 @@ namespace Machina
     public class ConnectionManager : IDisposable
     {
         public TCPNetworkMonitorConfig Config { get; } = new TCPNetworkMonitorConfig();
-        public IList<TCPConnection> Connections { get; } = new List<TCPConnection>(2);
+        public IList<TCPConnection> Connections { get; } = new ConcurrentList<TCPConnection>(new List<TCPConnection>(2));
 
 
         private readonly ProcessTCPInfo _processTCPInfo = new ProcessTCPInfo();
