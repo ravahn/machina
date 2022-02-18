@@ -20,7 +20,7 @@ using System.Threading;
 
 namespace Machina.Infrastructure
 {
-    public sealed class ConcurrentList<T> : IList<T>, IDisposable
+    public sealed class ConcurrentList<T> : IList<T>
     {
         private bool disposedValue;
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
@@ -245,33 +245,12 @@ namespace Machina.Infrastructure
             }
         }
 
-        private void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _list.Clear();
-                }
-                if (_lock != null)
-                {
-                    _lock.Dispose();
-                }
-                disposedValue = true;
-            }
-        }
-
         ~ConcurrentList()
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            if (_lock != null)
+            {
+                _lock.Dispose();
+            }
         }
     }
 }
