@@ -88,6 +88,7 @@ namespace Machina.Sockets
 
         // supported Data Link types, from bpf.h
         internal const int DLT_EN10MB = 1; // 14-byte header (may also be a 4 byte 802.1Q vlan header!)
+        internal const int DLT_RAW = 12; // no header
         internal const int DLT_NULL = 0; // 4-byte header
 
         internal const int AF_INET = 2; // Address Family IPv4
