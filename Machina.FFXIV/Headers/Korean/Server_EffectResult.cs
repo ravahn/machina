@@ -34,6 +34,7 @@ namespace Machina.FFXIV.Headers.Korean
     public unsafe struct Server_EffectResult
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
+        public uint Unknown1;
         public uint RelatedActionSequence;
         public uint ActorID;
         public uint CurrentHP;

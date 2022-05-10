@@ -1,5 +1,5 @@
 ﻿StatusEffectList|d2
-StatusEffectList2|182
+StatusEffectList2|378
 StatusEffectList3|299
 BossStatusEffectList|2b4
 Ability1|398
