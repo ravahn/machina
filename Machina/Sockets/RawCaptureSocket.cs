@@ -141,16 +141,17 @@ namespace Machina.Sockets
                             byte[] minimedBuffer = new byte[received];
                             Array.Copy(_currentBuffer, 0, minimedBuffer, 0, received);
                             _pendingBuffers.Enqueue(new Tuple<byte[], int>(minimedBuffer, received));
+                            _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
                         }
                         else
                         {
-                            _pendingBuffers.Enqueue(new Tuple<byte[], int>(_currentBuffer, received));
-                            //Create a new buffer for receiving data
+                            //Store current buffer and create a new buffer for receiving data
+                            byte[] buffer = _currentBuffer;
                             _currentBuffer = new byte[BUFFER_SIZE];
+                            _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+                            _pendingBuffers.Enqueue(new Tuple<byte[], int>(buffer, received));
                         }
                     }
-                    _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-                }
             }
             catch (ObjectDisposedException)
             {
