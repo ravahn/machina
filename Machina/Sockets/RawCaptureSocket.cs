@@ -143,9 +143,9 @@ namespace Machina.Sockets
                         //Cut off useless buffer when is less than half of buffer size for saving memory
                         if (BUFFER_SIZE / 2 > received)
                         {
-                            byte[] minimedBuffer = new byte[received];
-                            Array.Copy(buffer, 0, minimedBuffer, 0, received);
-                            _pendingBuffers.Enqueue(new Tuple<byte[], int>(minimedBuffer, received));
+                            byte[] minimizedBuffer = new byte[received];
+                            Array.Copy(buffer, 0, minimizedBuffer, 0, received);
+                            _pendingBuffers.Enqueue(new Tuple<byte[], int>(minimizedBuffer, received));
                         }
                         else
                         {
