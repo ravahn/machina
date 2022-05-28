@@ -124,7 +124,6 @@ namespace Machina.Sockets
         private void OnReceive(IAsyncResult ar)
         {
             try
-            try
             {
                 lock (_lockObject)
                 {
