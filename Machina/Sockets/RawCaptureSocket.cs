@@ -124,6 +124,7 @@ namespace Machina.Sockets
         private void OnReceive(IAsyncResult ar)
         {
             try
+            try
             {
                 lock (_lockObject)
                 {
@@ -134,24 +135,33 @@ namespace Machina.Sockets
 
                     if (received > 0)
                     {
+                        //The buffer for store
+                        byte[] storeBuffer;
+
                         //Cut off useless buffer when is less than half of buffer size for saving memory
                         if (BUFFER_SIZE / 2 > received)
                         {
                             //Just copy the value from current buffer, and reuse current buffer for receiving data
-                            byte[] minimedBuffer = new byte[received];
-                            Array.Copy(_currentBuffer, 0, minimedBuffer, 0, received);
-                            _pendingBuffers.Enqueue(new Tuple<byte[], int>(minimedBuffer, received));
-                            _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+                            storeBuffer = new byte[received];
+                            Array.Copy(_currentBuffer, 0, storeBuffer, 0, received);
                         }
                         else
                         {
                             //Store current buffer and create a new buffer for receiving data
-                            byte[] buffer = _currentBuffer;
+                            storeBuffer = _currentBuffer;
                             _currentBuffer = new byte[BUFFER_SIZE];
-                            _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-                            _pendingBuffers.Enqueue(new Tuple<byte[], int>(buffer, received));
                         }
+                        //Continue to receive data with current buffer
+                        _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+                        //Store data to pending buffer
+                        _pendingBuffers.Enqueue(new Tuple<byte[], int>(storeBuffer, received));
                     }
+                    else
+                    {
+                        //No data received, just continue to receive data with current buffer
+                        _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+                    }
+                }
             }
             catch (ObjectDisposedException)
             {
