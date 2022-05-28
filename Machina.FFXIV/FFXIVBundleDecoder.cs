@@ -199,14 +199,14 @@ namespace Machina.FFXIV
             return offset;
         }
 
-        private static unsafe int GetNextMagicNumberPos(byte[] buffer, int offset)
+        private static unsafe int GetNextMagicNumberPos(byte[] buffer, int currentOffset)
         {
             fixed (byte* ptr = buffer)
             {
-                for (int i = 0; i < (buffer.Length - offset) / 4; i++)
+                for (int nextOffset = currentOffset + 1; nextOffset <= buffer.Length - 4; nextOffset++)
                 {
-                    if (((int*)(ptr + offset + i))[0] == 0x5252a041)
-                        return i;
+                    if (((int*)(ptr + nextOffset))[0] == 0x5252a041)
+                        return nextOffset;
                 }
             }
 
