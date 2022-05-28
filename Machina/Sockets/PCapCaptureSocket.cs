@@ -130,8 +130,8 @@ namespace Machina.Sockets
 
                 // check data link type
                 _activeDevice.LinkType = pcap_datalink(_activeDevice.Handle);
-                if (_activeDevice.LinkType != DLT_EN10MB && _activeDevice.LinkType != DLT_NULL)
-                    throw new PcapException($"PCapCaptureSocket: Interface [{device.Description}] does not appear to support Ethernet.");
+                if (_activeDevice.LinkType != DLT_EN10MB && _activeDevice.LinkType != DLT_RAW && _activeDevice.LinkType != DLT_NULL)
+                    throw new PcapException($"PCapCaptureSocket: Interface [{device.Description}] does not appear to support Ethernet or raw IP.");
 
                 // create filter
                 if (pcap_compile(_activeDevice.Handle, ref filter, filterText, 1, 0) != 0)
@@ -207,7 +207,7 @@ namespace Machina.Sockets
                     IntPtr packetDataPtr = IntPtr.Zero;
                     IntPtr packetHeaderPtr = IntPtr.Zero;
 
-                    int layer2Length = _activeDevice.LinkType == DLT_EN10MB ? 14 : 4; // 14 for ethernet, 4 for loopback
+                    int layer2Length = _activeDevice.LinkType == DLT_EN10MB ? 14 : _activeDevice.LinkType == DLT_RAW ? 0 : 4; // 14 for ethernet, 0 for raw IP, 4 for loopback
 
                     // note: buffer returned by pcap_next_ex is static and owned by pcap library, does not need to be freed.
                     int status = pcap_next_ex(_activeDevice.Handle, ref packetHeaderPtr, ref packetDataPtr);
