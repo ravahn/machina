@@ -186,27 +186,28 @@ namespace Machina.FFXIV
             return _decompressionBuffer;
         }
 
-        private unsafe int ResetStream(int offset)
+        private unsafe int ResetStream(int currentOffset)
         {
-            offset = GetNextMagicNumberPos(_bundleBuffer, offset);
-            if (offset == -1)
+            int nextOffset = GetNextMagicNumberPos(_bundleBuffer, currentOffset);
+            if (nextOffset == -1)
             {
                 //reset stream
                 _allocated = 0;
                 _bundleBuffer = null;
             }
 
-            return offset;
+            return nextOffset;
         }
 
-        private static unsafe int GetNextMagicNumberPos(byte[] buffer, int offset)
+        private static unsafe int GetNextMagicNumberPos(byte[] buffer, int currentOffset)
         {
             fixed (byte* ptr = buffer)
             {
-                for (int i = 0; i < (buffer.Length - offset) / 4; i++)
+                for (int nextOffset = currentOffset + 1; nextOffset < buffer.Length - 4; nextOffset++)
                 {
-                    if (((int*)(ptr + offset + i))[0] == 0x5252a041)
-                        return i;
+                    if (((int*)(ptr + nextOffset))[0] == 0x5252a041) {
+                        return nextOffset;
+                    }
                 }
             }
 
