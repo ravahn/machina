@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-using System.Diagnostics;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Machina.Infrastructure;
 using Machina.Tests.Utility;
@@ -24,14 +24,14 @@ namespace Machina.Tests
     [TestClass()]
     public class TCPNetworkMonitorTests
     {
-        private int dataReceivedCount = 0;
-        private int dataSentCount = 0;
+        private int dataReceivedCount;
+        private int dataSentCount;
 
         [TestMethod()]
         public void TCPNetworkMonitor_RawSocket_SendAndReceiveData()
         {
-            TCPNetworkMonitor monitor = new TCPNetworkMonitor();
-            monitor.Config.ProcessID = (uint)Process.GetCurrentProcess().Id;
+            TCPNetworkMonitor monitor = new();
+            monitor.Config.ProcessID = (uint)System.Environment.ProcessId;
             monitor.Config.MonitorType = NetworkMonitorType.RawSocket;
             monitor.DataReceivedEventHandler += (TCPConnection connection, byte[] data) => DataReceived();
             monitor.DataSentEventHandler += (TCPConnection connection, byte[] data) => DataSent();
@@ -39,11 +39,11 @@ namespace Machina.Tests
 
             monitor.Start();
             // start a dummy async download
-            System.Net.WebClient client = new System.Net.WebClient();
-            Task t = client.DownloadStringTaskAsync("http://www.google.com");
+            HttpClient client = new();
+            Task t = client.GetStringAsync("http://www.google.com");
             t.Wait();
 
-            t = client.DownloadStringTaskAsync("http://www.google.com");
+            t = client.GetStringAsync("http://www.google.com");
             t.Wait();
 
             for (int i = 0; i < 100; i++)

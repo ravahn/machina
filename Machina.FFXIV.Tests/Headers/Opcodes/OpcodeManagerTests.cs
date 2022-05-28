@@ -24,7 +24,7 @@ namespace Machina.FFXIV.Tests.Headers.Opcodes
         [TestMethod()]
         public void OpcodeManagerTest()
         {
-            OpcodeManager sut = new OpcodeManager();
+            OpcodeManager sut = new();
 
             Assert.IsNotNull(sut);
         }
@@ -32,7 +32,7 @@ namespace Machina.FFXIV.Tests.Headers.Opcodes
         [TestMethod()]
         public void SetRegionTest()
         {
-            OpcodeManager sut = new OpcodeManager();
+            OpcodeManager sut = new();
 
             sut.SetRegion(GameRegion.Korean);
 

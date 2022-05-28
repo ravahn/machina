@@ -20,6 +20,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using System.Globalization;
 
 namespace Machina.FFXIV.Tests.Utility
 {
@@ -55,7 +56,7 @@ namespace Machina.FFXIV.Tests.Utility
                 .SelectMany(x => x.UnicastAddresses)
                 .Select(x => x.Address)
                 .Where(x => x.IsIPv6LinkLocal == false)
-                .Where(x => (x.ToString() ?? "").Contains('.'))
+                .Where(x => (x.ToString() ?? "").Contains('.', StringComparison.Ordinal))
                 .ToArray();
 
             return ret;
@@ -63,16 +64,16 @@ namespace Machina.FFXIV.Tests.Utility
 
         public static string ByteArrayToHexString(byte[] data)
         {
-            StringBuilder sb = new StringBuilder(data.Length * 2);
+            StringBuilder sb = new(data.Length * 2);
 
             for (int i = 0; i < data.Length; i++)
-                _ = sb.Append(data[i].ToString("X2"));
+                _ = sb.Append(data[i].ToString("X2", CultureInfo.InvariantCulture));
             return sb.ToString();
         }
 
         public static byte[] StringToByteArray(string data)
         {
-            data = data.Replace(Environment.NewLine, "");
+            data = data.Replace(Environment.NewLine, "", StringComparison.Ordinal);
             byte[] ret = new byte[data.Length / 2];
 
             for (int i = 0; i < data.Length; i += 2)

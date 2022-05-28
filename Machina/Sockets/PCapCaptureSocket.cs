@@ -23,7 +23,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Machina.Infrastructure;
 using static Machina.Infrastructure.TCPNetworkMonitorConfig;
 using static Machina.Sockets.PcapInterop;
 

@@ -14,6 +14,7 @@
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Machina.Infrastructure;
@@ -43,12 +44,12 @@ namespace Machina.Tests
             string ip = InterfaceHelper.GetNetworkInterfaceIPs().FirstOrDefault();
             Assert.IsTrue(!string.IsNullOrEmpty(ip), "Unable to locate a network interface to test RawSocket.");
 
-            RawCaptureSocket sut = new RawCaptureSocket();
+            RawCaptureSocket sut = new();
             uint ipLong = ConversionUtility.IPStringToUint(ip);
 
             // start an async download
-            System.Net.WebClient client = new System.Net.WebClient();
-            Task t = client.DownloadStringTaskAsync("http://www.google.com");
+            HttpClient client = new();
+            Task t = client.GetStringAsync("http://www.google.com");
 
             int receivedCount = 0;
 

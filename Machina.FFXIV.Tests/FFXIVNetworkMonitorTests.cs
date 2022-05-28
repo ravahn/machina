@@ -27,7 +27,7 @@ namespace Machina.FFXIV.Tests
             bool dataReceived = false;
             bool dataSent = false;
 
-            FFXIVNetworkMonitor sut = new FFXIVNetworkMonitor();
+            FFXIVNetworkMonitor sut = new();
             sut.MessageReceivedEventHandler = (TCPConnection connection, long epoch, byte[] data) =>
                 { dataReceived = true; };
             sut.MessageSentEventHandler = (TCPConnection connection, long epoch, byte[] data) =>

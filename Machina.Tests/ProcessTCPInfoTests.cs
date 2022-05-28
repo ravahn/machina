@@ -43,9 +43,9 @@ namespace Machina.Tests
         [TestMethod()]
         public void UpdateTCPIPConnectionsTest()
         {
-            ProcessTCPInfo sut = new ProcessTCPInfo();
+            ProcessTCPInfo sut = new();
 
-            List<TCPConnection> connections = new List<TCPConnection>();
+            List<TCPConnection> connections = new();
 
             sut.ProcessWindowName = "Program Manager";
             sut.UpdateTCPIPConnections(connections);
