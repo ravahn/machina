@@ -139,7 +139,19 @@ namespace Machina.Sockets
                     _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
 
                     if (received > 0)
-                        _pendingBuffers.Enqueue(new Tuple<byte[], int>(buffer, received));
+                    {
+                        //Cut off useless buffer when is less than half of buffer size for saving memory
+                        if (BUFFER_SIZE / 2 > received)
+                        {
+                            byte[] minimedBuffer = new byte[received];
+                            Array.Copy(buffer, 0, minimedBuffer, 0, received);
+                            _pendingBuffers.Enqueue(new Tuple<byte[], int>(minimedBuffer, received));
+                        }
+                        else
+                        {
+                            _pendingBuffers.Enqueue(new Tuple<byte[], int>(buffer, received));
+                        }
+                    }
                 }
             }
             catch (ObjectDisposedException)
