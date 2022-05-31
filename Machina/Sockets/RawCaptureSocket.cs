@@ -129,16 +129,19 @@ namespace Machina.Sockets
                     if (_socket == null)
                         return;
 
+                    byte[] buffer = null;
+
                     int received = _socket.EndReceive(ar);
                     if (received > 0)
                     {
-                        byte[] buffer = new byte[received];
+                        buffer = new byte[received];
                         Array.Copy(_currentBuffer, 0, buffer, 0, received);
-
-                        _pendingBuffers.Enqueue(buffer);
                     }
 
                     _ = _socket.BeginReceive(_currentBuffer, 0, _currentBuffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+                    
+                    if (buffer != null)
+                        _pendingBuffers.Enqueue(buffer);
                 }
             }
             catch (ObjectDisposedException)
