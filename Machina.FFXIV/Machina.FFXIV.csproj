@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Machina.FFXIV.Oodle\Machina.FFXIV.Oodle.csproj" />
     <ProjectReference Include="..\Machina\Machina.csproj" />
   </ItemGroup>
 
