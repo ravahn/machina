@@ -96,11 +96,11 @@ namespace Machina.FFXIV
             _ffxivLibraryHandle = LoadLibrary(gamePath);
             if (_ffxivLibraryHandle == IntPtr.Zero)
             {
-                Trace.WriteLine($"FFXIVOodle_Native: Cannot load ffxiv_dx11 executable.", "DEBUG-MACHINA");
+                Trace.WriteLine($"FFXIVOodle_Native: Cannot load ffxiv_dx11 executable at path {gamePath}.", "DEBUG-MACHINA");
                 return;
             }
             else
-                Trace.WriteLine($"FFXIVOodle_Native: Loaded ffxiv_dx11 executable at offset {_ffxivLibraryHandle:X4}.", "DEBUG-MACHINA");
+                Trace.WriteLine($"FFXIVOodle_Native: Loaded ffxiv_dx11 executable into ACT memory from path {gamePath}.", "DEBUG-MACHINA");
 
             fnptrOodleMalloc = new OodleMalloc(AllocAlignedMemory);
             fnptrOodleFree = new OodleFree(FreeAlignedMemory);

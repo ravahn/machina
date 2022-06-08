@@ -183,7 +183,6 @@ namespace Machina.FFXIV
                     {
                         if (_oodle == null)
                         {
-                            FFXIVOodle_Native.Initialize(@"C:\Program Files (x86)\FINAL FANTASY XIV - A Realm Reborn\game\ffxiv_dx11.exe");
                             _oodle = new FFXIVOodle();
                             _oodle.Initialize();
                         }
