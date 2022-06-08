@@ -29,6 +29,8 @@ namespace Machina.FFXIV
         private readonly byte[] _decompressionBuffer = new byte[1024 * 128];
         private int _allocated;
 
+        private Oodle _oodle;
+
         public Queue<Tuple<long, byte[]>> Messages = new Queue<Tuple<long, byte[]>>(20);
 
         public DateTime LastMessageTimestamp
@@ -98,7 +100,7 @@ namespace Machina.FFXIV
                         continue;
                     }
 
-                    offset += header.length;
+                    offset += (int)header.length;
                     if (offset == _allocated)
                         _bundleBuffer = null;
                     if (messageBufferSize > 0)
@@ -144,43 +146,71 @@ namespace Machina.FFXIV
         {
             ffxivMessageSize = 0;
 
-            if (header.encoding == 0x0000 || header.encoding == 0x0001)
+            switch (header.compression)
             {
-                // uncompressed - copy to output buffer
-                ffxivMessageSize = header.length - sizeof(Server_BundleHeader);
-                for (int i = 0; i < ffxivMessageSize / 4; i++)
-                {
-                    // todo: use unsafe pointer operations
-                    uint value = BitConverter.ToUInt32(buffer, offset + (i * 4) + sizeof(Server_BundleHeader));
-                    Array.Copy(BitConverter.GetBytes(value), 0, _decompressionBuffer, i * 4, 4);
-                }
+                case CompressionType.None:
+                    // uncompressed - copy to output buffer
+                    ffxivMessageSize = (int)header.length - sizeof(Server_BundleHeader);
+                    for (int i = 0; i < ffxivMessageSize / 4; i++)
+                    {
+                        // todo: use unsafe pointer operations
+                        uint value = BitConverter.ToUInt32(buffer, offset + (i * 4) + sizeof(Server_BundleHeader));
+                        Array.Copy(BitConverter.GetBytes(value), 0, _decompressionBuffer, i * 4, 4);
+                    }
 
-                return _decompressionBuffer;
-            }
+                    break;
+                case CompressionType.Zlib:
+                    try
+                    {
+                        // inflate the packet using built-in .net function.  Note that the first two bytes of the data are skipped, since this 
+                        //  appears to be a standard zlib deflated buffer
+                        System.IO.MemoryStream ms = new System.IO.MemoryStream(buffer, offset + 42, (int)header.length - 42);
+                        using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
+                        {
+                            // todo: need more graceful way of determing decompressed size!
+                            ffxivMessageSize = ds.Read(_decompressionBuffer, 0, _decompressionBuffer.Length);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine("FFXIVBundleDecoder: Decompression error: " + ex.ToString(), "DEBUG-MACHINA");
+                        return null;
+                    }
 
-            if (header.encoding != 0x0101 && header.encoding != 0x0100)
-            {
-                if (!_encodingError)
-                    Trace.WriteLine($"FFXIVBundleDecoder: unknown encoding type: {header.encoding.ToString("X4", CultureInfo.InvariantCulture)}", "DEBUG-MACHINA");
-                _encodingError = true;
-                return null;
-            }
+                    break;
+                case CompressionType.Oodle:
+                    try
+                    {
+                        if (_oodle == null)
+                            _oodle = new Oodle();
 
-            try
-            {
-                // inflate the packet using built-in .net function.  Note that the first two bytes of the data are skipped, since this 
-                //  appears to be a standard zlib deflated buffer
-                System.IO.MemoryStream ms = new System.IO.MemoryStream(buffer, offset + 42, header.length - 42);
-                using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
-                {
-                    // todo: need more graceful way of determing decompressed size!
-                    ffxivMessageSize = ds.Read(_decompressionBuffer, 0, _decompressionBuffer.Length);
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("FFXIVBundleDecoder: Decompression error: " + ex.ToString(), "DEBUG-MACHINA");
-                return null;
+                        bool success = _oodle.Decompress(
+                            buffer,
+                            offset + sizeof(Server_BundleHeader),
+                            (int)header.length - sizeof(Server_BundleHeader),
+                            _decompressionBuffer,
+                            (int)header.uncompressed_length);
+                        if (success)
+                        {
+                            ffxivMessageSize = (int)header.uncompressed_length;
+                        }
+                        else
+                        {
+                            Trace.WriteLine("FFXIVBundleDecoder: Oogle Decompression failure.", "DEBUG-MACHINA");
+                            return null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine("FFXIVBundleDecoder: Oogle Decompression error: " + ex.ToString(), "DEBUG-MACHINA");
+                        return null;
+                    }
+                    break;
+                default:
+                    if (!_encodingError)
+                        Trace.WriteLine($"FFXIVBundleDecoder: unknown bundle: version - {header.version.ToString("X2", CultureInfo.InvariantCulture)}; compression - {header.compression}", "DEBUG-MACHINA");
+                    _encodingError = true;
+                    return null;
             }
 
             return _decompressionBuffer;
