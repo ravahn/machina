@@ -67,6 +67,9 @@ namespace Machina.FFXIV
         public TCPNetworkMonitorConfig.RPCapConf RPCap
         { get; set; } = new TCPNetworkMonitorConfig.RPCapConf();
 
+        public string FFXIVDX11ExecutablePath
+        { get; set; } = @"C:\Program Files (x86)\FINAL FANTASY XIV - A Realm Reborn\game\ffxiv_dx11.exe";
+
         #region Message Delegates section
         public delegate void MessageReceived2(TCPConnection connection, long epoch, byte[] message);
 
@@ -123,6 +126,9 @@ namespace Machina.FFXIV
 
             _monitor.DataSentEventHandler = (TCPConnection connection, byte[] data) => ProcessSentMessage(connection, data);
             _monitor.DataReceivedEventHandler = (TCPConnection connection, byte[] data) => ProcessReceivedMessage(connection, data);
+
+            // initialize Oodle static
+            FFXIVOodle_Native.Initialize(FFXIVDX11ExecutablePath);
 
             _monitor.Start();
         }

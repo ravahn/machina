@@ -57,6 +57,8 @@ namespace Machina.FFXIV
             State = new byte[stateSize];
             Shared = new byte[sharedSize];
             Window = new byte[WindowSize];
+
+            Initialize();
         }
 
         private void Initialize()
@@ -71,8 +73,7 @@ namespace Machina.FFXIV
 
         public unsafe bool Decompress(byte[] payload, int offset, int compressedLength, byte[] plaintext, int decompressedLength)
         {
-            Initialize();
-
+            OodleNative.OodleNetwork1_Shared_SetWindow(Shared, HashtableBits, Window, Window.Length);
             fixed (byte* pPayload = payload)
             {
                 if (!OodleNative.OodleNetwork1UDP_Decode(State, Shared, pPayload + offset, compressedLength, plaintext,
