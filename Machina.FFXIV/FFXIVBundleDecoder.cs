@@ -29,7 +29,7 @@ namespace Machina.FFXIV
         private readonly byte[] _decompressionBuffer = new byte[1024 * 128];
         private int _allocated;
 
-        private Oodle _oodle;
+        private FFXIVOodle _oodle;
 
         public Queue<Tuple<long, byte[]>> Messages = new Queue<Tuple<long, byte[]>>(20);
 
@@ -182,7 +182,11 @@ namespace Machina.FFXIV
                     try
                     {
                         if (_oodle == null)
-                            _oodle = new Oodle();
+                        {
+                            FFXIVOodle_Native.Initialize(@"C:\Program Files (x86)\FINAL FANTASY XIV - A Realm Reborn\game\ffxiv_dx11.exe");
+                            _oodle = new FFXIVOodle();
+                            _oodle.Initialize();
+                        }
 
                         bool success = _oodle.Decompress(
                             buffer,
@@ -196,13 +200,13 @@ namespace Machina.FFXIV
                         }
                         else
                         {
-                            Trace.WriteLine("FFXIVBundleDecoder: Oogle Decompression failure.", "DEBUG-MACHINA");
+                            Trace.WriteLine("FFXIVBundleDecoder: Oodle Decompression failure.", "DEBUG-MACHINA");
                             return null;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine("FFXIVBundleDecoder: Oogle Decompression error: " + ex.ToString(), "DEBUG-MACHINA");
+                        Trace.WriteLine("FFXIVBundleDecoder: Oodle Decompression error: " + ex.ToString(), "DEBUG-MACHINA");
                         return null;
                     }
                     break;
