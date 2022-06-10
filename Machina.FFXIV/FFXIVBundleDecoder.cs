@@ -29,7 +29,7 @@ namespace Machina.FFXIV
         private readonly byte[] _decompressionBuffer = new byte[1024 * 128];
         private int _allocated;
 
-        private FFXIVOodle _oodle;
+        private Oodle.Oodle _oodle;
 
         public Queue<Tuple<long, byte[]>> Messages = new Queue<Tuple<long, byte[]>>(20);
 
@@ -183,8 +183,7 @@ namespace Machina.FFXIV
                     {
                         if (_oodle == null)
                         {
-                            _oodle = new FFXIVOodle();
-                            _oodle.Initialize();
+                            _oodle = Oodle.OodleFactory.GetOodle();
                         }
 
                         bool success = _oodle.Decompress(
