@@ -45,7 +45,7 @@ namespace Machina.FFXIV.Oodle
             }
         }
 
-        public static Oodle GetOodle()
+        public static Oodle Create()
         {
             lock (_lock)
             {

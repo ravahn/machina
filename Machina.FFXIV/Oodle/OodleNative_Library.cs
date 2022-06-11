@@ -21,17 +21,6 @@ namespace Machina.FFXIV.Oodle
 {
     public class OodleNative_Library : IOodleNative
     {
-        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
-        private static extern IntPtr LoadLibraryW([MarshalAs(UnmanagedType.LPWStr)] string lpFileName);
-        [DllImport("kernel32", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool FreeLibrary(IntPtr hModule);
-        [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
-#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
-        // GetProcAddress only supports ansi strings
-        private static extern IntPtr GetProcAddress(IntPtr hModule, [MarshalAs(UnmanagedType.LPStr)] string procName);
-#pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
-
         private delegate int OodleNetwork1UDP_State_Size_Func();
         private delegate int OodleNetwork1_Shared_Size_Func(int htbits);
         private delegate void OodleNetwork1_Shared_SetWindow_Action(byte[] data, int htbits, byte[] window, int windowSize);
@@ -60,7 +49,7 @@ namespace Machina.FFXIV.Oodle
                     if (_libraryHandle != IntPtr.Zero)
                         return;
 
-                    _libraryHandle = LoadLibraryW(path);
+                    _libraryHandle = NativeMethods.LoadLibraryW(path);
                     if (_libraryHandle == IntPtr.Zero)
                     {
                         Trace.WriteLine($"{nameof(OodleNative_Library)}: Cannot load oodle library at path {path}.", "DEBUG-MACHINA");
@@ -69,27 +58,27 @@ namespace Machina.FFXIV.Oodle
                     else
                         Trace.WriteLine($"{nameof(OodleNative_Library)}: Loaded oodle library from path {path}.", "DEBUG-MACHINA");
 
-                    IntPtr address = GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_State_Size));
+                    IntPtr address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_State_Size));
                     _OodleNetwork1UDP_State_Size = (OodleNetwork1UDP_State_Size_Func)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1UDP_State_Size_Func));
 
-                    address = GetProcAddress(_libraryHandle, nameof(OodleNetwork1_Shared_Size));
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1_Shared_Size));
                     _OodleNetwork1_Shared_Size = (OodleNetwork1_Shared_Size_Func)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1_Shared_Size_Func));
 
-                    address = GetProcAddress(_libraryHandle, nameof(OodleNetwork1_Shared_SetWindow));
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1_Shared_SetWindow));
                     _OodleNetwork1_Shared_SetWindow = (OodleNetwork1_Shared_SetWindow_Action)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1_Shared_SetWindow_Action));
 
-                    address = GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Train));
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Train));
                     _OodleNetwork1UDP_Train = (OodleNetwork1UDP_Train_Action)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1UDP_Train_Action));
 
-                    address = GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Encode));
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Encode));
                     _OodleNetwork1UDP_Encode = (OodleNetwork1UDP_Encode_Func)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1UDP_Encode_Func));
 
-                    address = GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Decode));
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Decode));
                     _OodleNetwork1UDP_Decode = (OodleNetwork1UDP_Decode_Func)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1UDP_Decode_Func));
 
@@ -110,11 +99,13 @@ namespace Machina.FFXIV.Oodle
             {
                 lock (_librarylock)
                 {
+                    Initialized = false;
+
                     if (_libraryHandle != IntPtr.Zero)
                     {
-                        bool freed = FreeLibrary(_libraryHandle);
+                        bool freed = NativeMethods.FreeLibrary(_libraryHandle);
                         if (!freed)
-                            Trace.WriteLine($"{nameof(OodleNative_Library)}: {nameof(FreeLibrary)} failed.", "DEBUG-MACHINA");
+                            Trace.WriteLine($"{nameof(OodleNative_Library)}: {nameof(NativeMethods.FreeLibrary)} failed.", "DEBUG-MACHINA");
                         _libraryHandle = IntPtr.Zero;
                     }
 
@@ -124,8 +115,6 @@ namespace Machina.FFXIV.Oodle
                     _OodleNetwork1UDP_Train = null;
                     _OodleNetwork1UDP_Encode = null;
                     _OodleNetwork1UDP_Decode = null;
-
-                    Initialized = false;
                 }
             }
             catch (Exception ex)
@@ -136,32 +125,43 @@ namespace Machina.FFXIV.Oodle
 
         public int OodleNetwork1UDP_State_Size()
         {
-            return _OodleNetwork1UDP_State_Size?.Invoke() ?? 0;
+            if (!Initialized)
+                return 0;
+            return _OodleNetwork1UDP_State_Size.Invoke();
         }
 
         public int OodleNetwork1_Shared_Size(int htbits)
         {
-            return _OodleNetwork1_Shared_Size?.Invoke(htbits) ?? 0;
+            if (!Initialized)
+                return 0;
+
+            return _OodleNetwork1_Shared_Size.Invoke(htbits);
         }
 
         public void OodleNetwork1_Shared_SetWindow(byte[] data, int htbits, byte[] window, int windowSize)
         {
-            _OodleNetwork1_Shared_SetWindow?.Invoke(data, htbits, window, windowSize);
+            if (Initialized)
+                _OodleNetwork1_Shared_SetWindow.Invoke(data, htbits, window, windowSize);
         }
 
         public void OodleNetwork1UDP_Train(byte[] state, byte[] share, IntPtr training_packet_pointers, IntPtr training_packet_sizes, int num_training_packets)
         {
-            _OodleNetwork1UDP_Train?.Invoke(state, share, training_packet_pointers, training_packet_sizes, num_training_packets);
+            if (Initialized)
+                _OodleNetwork1UDP_Train.Invoke(state, share, training_packet_pointers, training_packet_sizes, num_training_packets);
         }
 
         public unsafe bool OodleNetwork1UDP_Decode(byte[] state, byte[] share, IntPtr compressed, int compressedSize, byte[] raw, int rawSize)
         {
-            return _OodleNetwork1UDP_Decode?.Invoke(state, share, (byte*)compressed, compressedSize, raw, rawSize) ?? false;
+            if (!Initialized)
+                return false;
+            return _OodleNetwork1UDP_Decode.Invoke(state, share, (byte*)compressed, compressedSize, raw, rawSize);
         }
         public bool OodleNetwork1UDP_Encode(byte[] state, byte[] share, byte[] raw, int rawSize, byte[] compressed)
         {
-            return _OodleNetwork1UDP_Encode?.Invoke(state, share, raw, rawSize, compressed) ?? false;
+            if (!Initialized)
+                return false;
 
+            return _OodleNetwork1UDP_Encode.Invoke(state, share, raw, rawSize, compressed);
         }
     }
 }

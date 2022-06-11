@@ -183,7 +183,7 @@ namespace Machina.FFXIV
                     {
                         if (_oodle == null)
                         {
-                            _oodle = Oodle.OodleFactory.GetOodle();
+                            _oodle = Oodle.OodleFactory.Create();
                         }
 
                         bool success = _oodle.Decompress(
