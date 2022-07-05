@@ -6,11 +6,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>2.3.1.0</Version>
+    <Version>2.3.1.1</Version>
     <Authors>Ravahn</Authors>
     <PackageId>Machina</PackageId>
-    <AssemblyVersion>2.3.1.0</AssemblyVersion>
-    <FileVersion>2.3.1.0</FileVersion>
+    <AssemblyVersion>2.3.1.1</AssemblyVersion>
+    <FileVersion>2.3.1.1</FileVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>General-purpose library for raw network packet reading and reassembly</Description>
     <Copyright>Copyright © 2022 Ravahn</Copyright>
