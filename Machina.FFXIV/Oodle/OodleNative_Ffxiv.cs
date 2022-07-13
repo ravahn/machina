@@ -68,25 +68,37 @@ namespace Machina.FFXIV.Oodle
 
         private IntPtr _libraryHandle = IntPtr.Zero;
         private readonly object _librarylock = new object();
+        private string _libraryTempPath = string.Empty;
 
         public bool Initialized { get; set; }
         public void Initialize(string path)
         {
+
             try
             {
+                if (!System.IO.File.Exists(path))
+                {
+                    Trace.WriteLine($"{nameof(OodleNative_Ffxiv)}: ffxiv_dx11 executable at path {path} does not exist.", "DEBUG-MACHINA");
+                    return;
+                }
+
                 lock (_librarylock)
                 {
                     if (_libraryHandle != IntPtr.Zero)
                         return;
 
-                    _libraryHandle = NativeMethods.LoadLibraryW(path);
+                    // Copy file to temp directory
+                    _libraryTempPath = System.IO.Path.GetTempFileName();
+                    System.IO.File.Copy(path, _libraryTempPath, true);
+
+                    _libraryHandle = NativeMethods.LoadLibraryW(_libraryTempPath);
                     if (_libraryHandle == IntPtr.Zero)
                     {
                         Trace.WriteLine($"{nameof(OodleNative_Ffxiv)}: Cannot load ffxiv_dx11 executable at path {path}.", "DEBUG-MACHINA");
                         return;
                     }
                     else
-                        Trace.WriteLine($"{nameof(OodleNative_Ffxiv)}: Loaded ffxiv_dx11 executable into ACT memory from path {path}.", "DEBUG-MACHINA");
+                        Trace.WriteLine($"{nameof(OodleNative_Ffxiv)}: Copied and loaded ffxiv_dx11 executable into ACT memory from path {path}.", "DEBUG-MACHINA");
 
                     _offsets = new SigScan().Read(_libraryHandle);
                     if (_offsets.Count != Enum.GetValues(typeof(SignatureType)).Length)
@@ -150,6 +162,19 @@ namespace Machina.FFXIV.Oodle
                             Trace.WriteLine($"{nameof(OodleNative_Ffxiv)}: {nameof(NativeMethods.FreeLibrary)} failed.", "DEBUG-MACHINA");
                         _libraryHandle = IntPtr.Zero;
                     }
+
+                    if (System.IO.File.Exists(_libraryTempPath))
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(_libraryTempPath);
+                        }
+                        catch
+                        {
+                            Trace.WriteLine($"{nameof(OodleNative_Ffxiv)}: {nameof(NativeMethods.FreeLibrary)} could not delete temp file.", "DEBUG-MACHINA");
+                        }
+                    }
+                    _libraryTempPath = string.Empty;
 
                     _OodleMalloc = null;
                     _OodleFree = null;
