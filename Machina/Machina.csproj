@@ -1,38 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup>
-    <Version>2.3.1.1</Version>
-    <Authors>Ravahn</Authors>
-    <PackageId>Machina</PackageId>
-    <AssemblyVersion>2.3.1.1</AssemblyVersion>
-    <FileVersion>2.3.1.1</FileVersion>
-    <NeutralLanguage>en</NeutralLanguage>
-    <Description>General-purpose library for raw network packet reading and reassembly</Description>
-    <Copyright>Copyright © 2022 Ravahn</Copyright>
-    <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <EnforceCodeStyleInBuild>TRUE</EnforceCodeStyleInBuild>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <RepositoryUrl>https://github.com/ravahn/machina</RepositoryUrl>
-    <PackageTags>raw socket winpcap tcpip c# packet sniffer</PackageTags>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Ravahn.Machina.Keyfile.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>false</DelaySign>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Ravahn.Machina.Keyfile.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\LICENSE.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <Configurations>Debug;Release;NuGet</Configurations>
+    </PropertyGroup>
+    <PropertyGroup>
+        <Version>2.3.1.2</Version>
+        <AssemblyVersion>2.3.1.2</AssemblyVersion>
+        <FileVersion>2.3.1.2</FileVersion>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <EnforceCodeStyleInBuild>TRUE</EnforceCodeStyleInBuild>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NuGet|AnyCPU' ">
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>Ravahn.Machina.Keyfile.snk</AssemblyOriginatorKeyFile>
+        <PackageId>Machina</PackageId>
+        <Authors>Ravahn</Authors>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <RepositoryUrl>https://github.com/ravahn/machina</RepositoryUrl>
+        <PackageTags>raw socket winpcap tcpip c# packet sniffer</PackageTags>
+        <DelaySign>false</DelaySign>
+        <NeutralLanguage>en</NeutralLanguage>
+        <Description>General-purpose library for raw network packet reading and reassembly</Description>
+        <Copyright>Copyright © 2022 Ravahn</Copyright>
+        <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Remove="Ravahn.Machina.Keyfile.snk" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\LICENSE.md">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
 </Project>

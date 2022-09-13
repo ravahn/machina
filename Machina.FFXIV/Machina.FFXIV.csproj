@@ -1,51 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <Configurations>Debug;Release;NuGet</Configurations>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <Version>2.3.4.8</Version>
+        <AssemblyVersion>2.3.4.8</AssemblyVersion>
+        <FileVersion>2.3.4.8</FileVersion>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NuGet|AnyCPU' ">
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>Ravahn.Machina.Keyfile.snk</AssemblyOriginatorKeyFile>
+        <PackageId>Machina.FFXIV</PackageId>
+        <DelaySign>false</DelaySign>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <Authors>Ravahn</Authors>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <RepositoryUrl>https://github.com/ravahn/machina</RepositoryUrl>
+        <NeutralLanguage>en</NeutralLanguage>
+        <Description>Extension to Machina network library to support decoding of Final Fantasy XIV network data</Description>
+        <Copyright>Copyright © 2022 Ravahn</Copyright>
+        <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
+    </PropertyGroup>
+ 
+    <ItemGroup>
+        <None Remove="Ravahn.Machina.Keyfile.snk" />
+    </ItemGroup>
 
-  <PropertyGroup>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup>
-    <Version>2.3.4.6</Version>
-    <Authors>Ravahn</Authors>
-    <PackageId>Machina.FFXIV</PackageId>
-    <AssemblyVersion>2.3.4.6</AssemblyVersion>
-    <FileVersion>2.3.4.6</FileVersion>
-    <NeutralLanguage>en</NeutralLanguage>
-    <Description>Extension to Machina network library to support decoding of Final Fantasy XIV network data</Description>
-    <Copyright>Copyright © 2022 Ravahn</Copyright>
-    <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <RepositoryUrl>https://github.com/ravahn/machina</RepositoryUrl>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Ravahn.Machina.Keyfile.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>false</DelaySign>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Ravahn.Machina.Keyfile.snk" />
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
+        <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
+        <EmbeddedResource Include="Headers\Opcodes\Korean.txt" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
-    <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
-    <EmbeddedResource Include="Headers\Opcodes\Korean.txt" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Machina\Machina.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Machina\Machina.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\LICENSE.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="..\LICENSE.md">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
 
 </Project>
