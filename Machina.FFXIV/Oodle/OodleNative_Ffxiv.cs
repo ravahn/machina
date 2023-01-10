@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using Machina.FFXIV.Memory;
 
@@ -88,7 +89,7 @@ namespace Machina.FFXIV.Oodle
                         return;
 
                     // Copy file to temp directory
-                    _libraryTempPath = System.IO.Path.GetTempFileName();
+                    _libraryTempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".exe");
                     System.IO.File.Copy(path, _libraryTempPath, true);
 
                     _libraryHandle = NativeMethods.LoadLibraryW(_libraryTempPath);
