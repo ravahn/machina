@@ -28,7 +28,7 @@ namespace Machina.FFXIV.Tests.Oodle
             _ = mockOodleNative.Setup(x => x.OodleNetwork1UDP_State_Size()).Returns(1);
             _ = mockOodleNative.Setup(x => x.OodleNetwork1_Shared_Size(Moq.It.IsAny<int>())).Returns(1);
 
-            FFXIV.Oodle.Oodle sut = new(mockOodleNative.Object);
+            FFXIV.Oodle.OodleUDPWrapper sut = new(mockOodleNative.Object);
 
             Assert.IsNotNull(sut);
         }
@@ -42,7 +42,7 @@ namespace Machina.FFXIV.Tests.Oodle
             _ = mockOodleNative.Setup(x => x.OodleNetwork1UDP_Decode(Moq.It.IsAny<byte[]>(), Moq.It.IsAny<byte[]>(),
                 Moq.It.IsAny<IntPtr>(), Moq.It.IsAny<int>(), Moq.It.IsAny<byte[]>(), Moq.It.IsAny<int>())).Returns(true);
 
-            FFXIV.Oodle.Oodle sut = new(mockOodleNative.Object);
+            FFXIV.Oodle.OodleUDPWrapper sut = new(mockOodleNative.Object);
 
             bool result = sut.Decompress(null, 0, 0, null, 0);
 

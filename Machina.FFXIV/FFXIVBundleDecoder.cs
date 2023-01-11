@@ -29,7 +29,7 @@ namespace Machina.FFXIV
         private readonly byte[] _decompressionBuffer = new byte[1024 * 128];
         private int _allocated;
 
-        private Oodle.Oodle _oodle;
+        private Oodle.IOodleWrapper _oodle;
 
         public Queue<Tuple<long, byte[]>> Messages = new Queue<Tuple<long, byte[]>>(20);
 
@@ -121,8 +121,11 @@ namespace Machina.FFXIV
                                 message_offset += message_length;
                                 if (message_offset > messageBufferSize)
                                 {
-                                    Trace.WriteLine($"FFXIVBundleDecoder: Bad message offset - offset={message_offset}, bufferSize={messageBufferSize}, " +
-                                        $"data: {ConversionUtility.ByteArrayToHexString(data, 0, 50)}", "DEBUG-MACHINA");
+                                    if (_oodle == null)
+                                    {
+                                        Trace.WriteLine($"FFXIVBundleDecoder: Bad message offset - offset={message_offset}, bufferSize={messageBufferSize}, " +
+                                            $"data: {ConversionUtility.ByteArrayToHexString(data, 0, 50)}", "DEBUG-MACHINA");
+                                    }
 
                                     _allocated = 0;
                                     return;

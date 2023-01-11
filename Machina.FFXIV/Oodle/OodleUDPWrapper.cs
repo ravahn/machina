@@ -17,7 +17,7 @@ using System;
 
 namespace Machina.FFXIV.Oodle
 {
-    public class Oodle
+    public class OodleUDPWrapper : IOodleWrapper
     {
         private const byte HashtableBits = 19;
         private const int WindowSize = 0x16000;
@@ -28,7 +28,7 @@ namespace Machina.FFXIV.Oodle
 
         private readonly IOodleNative _oodleNative;
 
-        public Oodle(IOodleNative native)
+        public OodleUDPWrapper(IOodleNative native)
         {
             _oodleNative = native;
 
@@ -47,7 +47,7 @@ namespace Machina.FFXIV.Oodle
         {
             fixed (byte* pPayload = payload)
             {
-                if (!_oodleNative.OodleNetwork1UDP_Decode(_state, _shared, new IntPtr(pPayload + offset),
+                if (!_oodleNative.OodleNetwork1UDP_Decode(_state, _shared, new IntPtr(pPayload + offset), 
                     compressedLength, plaintext, decompressedLength))
                     return false;
             }

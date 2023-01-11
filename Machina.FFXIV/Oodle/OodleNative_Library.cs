@@ -22,18 +22,26 @@ namespace Machina.FFXIV.Oodle
     public class OodleNative_Library : IOodleNative
     {
         private delegate int OodleNetwork1UDP_State_Size_Func();
+        private delegate int OodleNetwork1TCP_State_Size_Func();
         private delegate int OodleNetwork1_Shared_Size_Func(int htbits);
         private delegate void OodleNetwork1_Shared_SetWindow_Action(byte[] data, int htbits, byte[] window, int windowSize);
         private delegate void OodleNetwork1UDP_Train_Action(byte[] state, byte[] shared, IntPtr training_packet_pointers, IntPtr training_packet_sizes, int num_training_packets);
+        private delegate void OodleNetwork1TCP_Train_Action(byte[] state, byte[] shared, IntPtr training_packet_pointers, IntPtr training_packet_sizes, int num_training_packets);
         private unsafe delegate bool OodleNetwork1UDP_Decode_Func(byte[] state, byte[] shared, byte* compressed, int compressedSize, byte[] raw, int rawSize);
+        private unsafe delegate bool OodleNetwork1TCP_Decode_Func(byte[] state, byte[] shared, byte* compressed, int compressedSize, byte[] raw, int rawSize);
         private delegate bool OodleNetwork1UDP_Encode_Func(byte[] state, byte[] shared, byte[] raw, int rawSize, byte[] compressed);
+        private delegate bool OodleNetwork1TCP_Encode_Func(byte[] state, byte[] shared, byte[] raw, int rawSize, byte[] compressed);
 
         private OodleNetwork1UDP_State_Size_Func _OodleNetwork1UDP_State_Size;
+        private OodleNetwork1TCP_State_Size_Func _OodleNetwork1TCP_State_Size;
         private OodleNetwork1_Shared_Size_Func _OodleNetwork1_Shared_Size;
         private OodleNetwork1_Shared_SetWindow_Action _OodleNetwork1_Shared_SetWindow;
         private OodleNetwork1UDP_Train_Action _OodleNetwork1UDP_Train;
-        private OodleNetwork1UDP_Encode_Func _OodleNetwork1UDP_Encode;
+        private OodleNetwork1TCP_Train_Action _OodleNetwork1TCP_Train;
         private OodleNetwork1UDP_Decode_Func _OodleNetwork1UDP_Decode;
+        private OodleNetwork1TCP_Decode_Func _OodleNetwork1TCP_Decode;
+        private OodleNetwork1UDP_Encode_Func _OodleNetwork1UDP_Encode;
+        private OodleNetwork1TCP_Encode_Func _OodleNetwork1TCP_Encode;
 
         private IntPtr _libraryHandle = IntPtr.Zero;
         private readonly object _librarylock = new object();
@@ -62,6 +70,10 @@ namespace Machina.FFXIV.Oodle
                     _OodleNetwork1UDP_State_Size = (OodleNetwork1UDP_State_Size_Func)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1UDP_State_Size_Func));
 
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1TCP_State_Size));
+                    _OodleNetwork1TCP_State_Size = (OodleNetwork1TCP_State_Size_Func)Marshal.GetDelegateForFunctionPointer(
+                        address, typeof(OodleNetwork1TCP_State_Size_Func));
+
                     address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1_Shared_Size));
                     _OodleNetwork1_Shared_Size = (OodleNetwork1_Shared_Size_Func)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1_Shared_Size_Func));
@@ -74,13 +86,25 @@ namespace Machina.FFXIV.Oodle
                     _OodleNetwork1UDP_Train = (OodleNetwork1UDP_Train_Action)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1UDP_Train_Action));
 
-                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Encode));
-                    _OodleNetwork1UDP_Encode = (OodleNetwork1UDP_Encode_Func)Marshal.GetDelegateForFunctionPointer(
-                        address, typeof(OodleNetwork1UDP_Encode_Func));
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1TCP_Train));
+                    _OodleNetwork1TCP_Train = (OodleNetwork1TCP_Train_Action)Marshal.GetDelegateForFunctionPointer(
+                        address, typeof(OodleNetwork1TCP_Train_Action));
 
                     address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Decode));
                     _OodleNetwork1UDP_Decode = (OodleNetwork1UDP_Decode_Func)Marshal.GetDelegateForFunctionPointer(
                         address, typeof(OodleNetwork1UDP_Decode_Func));
+
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1TCP_Decode));
+                    _OodleNetwork1TCP_Decode = (OodleNetwork1TCP_Decode_Func)Marshal.GetDelegateForFunctionPointer(
+                        address, typeof(OodleNetwork1TCP_Decode_Func));
+
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Encode));
+                    _OodleNetwork1UDP_Encode = (OodleNetwork1UDP_Encode_Func)Marshal.GetDelegateForFunctionPointer(
+                        address, typeof(OodleNetwork1UDP_Encode_Func));
+
+                    address = NativeMethods.GetProcAddress(_libraryHandle, nameof(OodleNetwork1UDP_Encode));
+                    _OodleNetwork1TCP_Encode = (OodleNetwork1TCP_Encode_Func)Marshal.GetDelegateForFunctionPointer(
+                        address, typeof(OodleNetwork1TCP_Encode_Func));
 
                     Initialized = true;
                 }
@@ -110,11 +134,15 @@ namespace Machina.FFXIV.Oodle
                     }
 
                     _OodleNetwork1UDP_State_Size = null;
+                    _OodleNetwork1TCP_State_Size = null;
                     _OodleNetwork1_Shared_Size = null;
                     _OodleNetwork1_Shared_SetWindow = null;
                     _OodleNetwork1UDP_Train = null;
-                    _OodleNetwork1UDP_Encode = null;
+                    _OodleNetwork1TCP_Train = null;
                     _OodleNetwork1UDP_Decode = null;
+                    _OodleNetwork1TCP_Decode = null;
+                    _OodleNetwork1UDP_Encode = null;
+                    _OodleNetwork1TCP_Encode = null;
                 }
             }
             catch (Exception ex)
@@ -128,6 +156,13 @@ namespace Machina.FFXIV.Oodle
             if (!Initialized)
                 return 0;
             return _OodleNetwork1UDP_State_Size.Invoke();
+        }
+
+        public int OodleNetwork1TCP_State_Size()
+        {
+            if (!Initialized)
+                return 0;
+            return _OodleNetwork1TCP_State_Size.Invoke();
         }
 
         public int OodleNetwork1_Shared_Size(int htbits)
@@ -150,18 +185,39 @@ namespace Machina.FFXIV.Oodle
                 _OodleNetwork1UDP_Train.Invoke(state, share, training_packet_pointers, training_packet_sizes, num_training_packets);
         }
 
+        public void OodleNetwork1TCP_Train(byte[] state, byte[] share, IntPtr training_packet_pointers, IntPtr training_packet_sizes, int num_training_packets)
+        {
+            if (Initialized)
+                _OodleNetwork1TCP_Train.Invoke(state, share, training_packet_pointers, training_packet_sizes, num_training_packets);
+        }
+
         public unsafe bool OodleNetwork1UDP_Decode(byte[] state, byte[] share, IntPtr compressed, int compressedSize, byte[] raw, int rawSize)
         {
             if (!Initialized)
                 return false;
             return _OodleNetwork1UDP_Decode.Invoke(state, share, (byte*)compressed, compressedSize, raw, rawSize);
         }
+
+        public unsafe bool OodleNetwork1TCP_Decode(byte[] state, byte[] share, IntPtr compressed, int compressedSize, byte[] raw, int rawSize)
+        {
+            if (!Initialized)
+                return false;
+            return _OodleNetwork1TCP_Decode.Invoke(state, share, (byte*)compressed, compressedSize, raw, rawSize);
+        }
+
         public bool OodleNetwork1UDP_Encode(byte[] state, byte[] share, byte[] raw, int rawSize, byte[] compressed)
         {
             if (!Initialized)
                 return false;
 
             return _OodleNetwork1UDP_Encode.Invoke(state, share, raw, rawSize, compressed);
+        }
+        public bool OodleNetwork1TCP_Encode(byte[] state, byte[] share, byte[] raw, int rawSize, byte[] compressed)
+        {
+            if (!Initialized)
+                return false;
+
+            return _OodleNetwork1TCP_Encode.Invoke(state, share, raw, rawSize, compressed);
         }
     }
 }

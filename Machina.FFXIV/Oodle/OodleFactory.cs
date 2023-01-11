@@ -18,14 +18,18 @@ namespace Machina.FFXIV.Oodle
     public static class OodleFactory
     {
         private static IOodleNative _oodleNative;
+        private static OodleImplementation _oodleImplementation;
+
         private static readonly object _lock = new object();
 
         public static void SetImplementation(OodleImplementation implementation, string path)
         {
             lock (_lock)
             {
+                _oodleImplementation = implementation;
+
                 // Note: Do not re-initialize if not changing implementation type.
-                if (implementation == OodleImplementation.Library)
+                if (implementation == OodleImplementation.LibraryTcp || implementation == OodleImplementation.LibraryUdp)
                 {
                     if (!(_oodleNative is OodleNative_Library))
                         _oodleNative?.UnInitialize();
@@ -45,13 +49,17 @@ namespace Machina.FFXIV.Oodle
             }
         }
 
-        public static Oodle Create()
+        public static IOodleWrapper Create()
         {
             lock (_lock)
             {
                 if (_oodleNative is null)
                     return null;
-                return new Oodle(_oodleNative);
+
+                if (_oodleImplementation == OodleImplementation.FfxivTcp || _oodleImplementation == OodleImplementation.LibraryTcp)
+                    return new OodleTCPWrapper(_oodleNative);
+                else
+                    return new OodleUDPWrapper(_oodleNative);
             }
         }
     }

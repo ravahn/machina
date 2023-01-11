@@ -23,10 +23,14 @@ namespace Machina.FFXIV.Oodle
         void UnInitialize();
 
         int OodleNetwork1UDP_State_Size();
+        int OodleNetwork1TCP_State_Size();
         int OodleNetwork1_Shared_Size(int htbits);
         void OodleNetwork1_Shared_SetWindow(byte[] data, int htbits, byte[] window, int windowSize);
         void OodleNetwork1UDP_Train(byte[] state, byte[] share, IntPtr training_packet_pointers, IntPtr training_packet_sizes, int num_training_packets);
+        void OodleNetwork1TCP_Train(byte[] state, byte[] share, IntPtr training_packet_pointers, IntPtr training_packet_sizes, int num_training_packets);
         unsafe bool OodleNetwork1UDP_Decode(byte[] state, byte[] share, IntPtr compressed, int compressedSize, byte[] raw, int rawSize);
+        unsafe bool OodleNetwork1TCP_Decode(byte[] state, byte[] share, IntPtr compressed, int compressedSize, byte[] raw, int rawSize);
         bool OodleNetwork1UDP_Encode(byte[] state, byte[] share, byte[] raw, int rawSize, byte[] compressed);
+        bool OodleNetwork1TCP_Encode(byte[] state, byte[] share, byte[] raw, int rawSize, byte[] compressed);
     }
 }

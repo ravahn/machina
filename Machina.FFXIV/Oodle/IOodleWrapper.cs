@@ -15,11 +15,8 @@
 
 namespace Machina.FFXIV.Oodle
 {
-    public enum OodleImplementation
+    public interface IOodleWrapper
     {
-        FfxivUdp = 1,
-        LibraryUdp = 2,
-        FfxivTcp = 3,
-        LibraryTcp = 4
+        unsafe bool Decompress(byte[] payload, int offset, int compressedLength, byte[] plaintext, int decompressedLength);
     }
 }
