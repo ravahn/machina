@@ -19,8 +19,8 @@ namespace Machina.FFXIV.Headers
 {
     public enum Server_ActorControlCategory : ushort
     {
-        DoT = 0x17,
         HoT = 0x603,
+        DoT = 0x604,
         CancelAbility = 0x0f,
         Death = 0x06,
         TargetIcon = 0x22,
