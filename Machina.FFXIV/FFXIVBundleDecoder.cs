@@ -93,9 +93,21 @@ namespace Machina.FFXIV
                         }
                         return;
                     }
+
+                    // Do not process if there is no payload
+                    if (header.length == sizeof(Server_BundleHeader))
+                    {
+                        //Trace.WriteLine("FXIVBundleDecoder: skipping empty packet.");
+                        offset += sizeof(Server_BundleHeader);
+                        if (offset == _allocated)
+                            _bundleBuffer = null;
+                        continue;
+                    }
+
                     byte[] message = DecompressFFXIVMessage(ref header, _bundleBuffer, offset, out int messageBufferSize);
                     if (message == null || messageBufferSize <= 0)
                     {
+                        Trace.WriteLine($"FFXIVBundleDecode() - Resetting stream. Message Null:{message == null}, Buffer Size:{messageBufferSize}");
                         offset = ResetStream(offset);
                         continue;
                     }
@@ -218,11 +230,15 @@ namespace Machina.FFXIV
                     return null;
             }
 
+            //Trace.WriteLine($"FFXIVBundleDecoder: decompressed {ffxivMessageSize} bytes: {ConversionUtility.ByteArrayToHexString(_decompressionBuffer, 0, ffxivMessageSize)}.");
+
             return _decompressionBuffer;
         }
 
         private unsafe int ResetStream(int offset)
         {
+            Trace.WriteLine($"FFXIVBundleDecoder: Resetting FFXIV Stream, new offset: {offset}", "DEBUG-MACHINA");
+
             offset = GetNextMagicNumberPos(_bundleBuffer, offset);
             if (offset == -1)
             {

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using Machina.Infrastructure;
 
@@ -174,6 +175,8 @@ namespace Machina.FFXIV
             Tuple<long, byte[]> message;
             if (!_receivedDecoders.ContainsKey(connection.ID))
                 _receivedDecoders.Add(connection.ID, new FFXIVBundleDecoder());
+
+            //Trace.WriteLine($"ProcessReceivedMessage()->StoreData() for {connection}: {ConversionUtility.ByteArrayToHexString(data, 0, data.Length)}");
 
             _receivedDecoders[connection.ID].StoreData(data);
             while ((message = _receivedDecoders[connection.ID].GetNextFFXIVMessage()) != null)

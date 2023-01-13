@@ -25,6 +25,8 @@ namespace Machina.FFXIV.Tests
     [TestClass]
     public class FFXIVBundleDecoderTests
     {
+      
+
         [TestCleanup]
         public void TestCleanup()
         {
@@ -66,6 +68,21 @@ namespace Machina.FFXIV.Tests
             Assert.AreEqual(2, sut.Messages.Count);
             Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
         }
+
+        [TestMethod]
+        public void FFXIVBundle_StoreData_OneBundle_ThreeMessagesOneBlank()
+        {
+            Machina.FFXIV.Oodle.OodleFactory.SetImplementation(FFXIV.Oodle.OodleImplementation.FfxivTcp, @"Y:\game\ffxiv_dx11.exe");
+
+            byte[] data = ConversionUtility.HexStringToByteArray("5252A041FF5D46E27F2A644D7B99C4752B3F26A4850100004B000000000002000102000060000000099F98A598A25233255F1308A7F46D93E333F685E92EEEADC4B1E8B6194B295A48560F5252A041FF5D46E27F2A644D7B99C475553F26A485010000280000000000000001000000000000005252A041FF5D46E27F2A644D7B99C475563F26A485010000650000000000040001020000E00000000810CDC98A9D6E488DF7A9D4BCA0AD6B38598271702F4422E8CD758F9ACD759FED12028504E615A918F360AE4603DC7E1A9DD190B0B3938BF014E212E1");
+
+            FFXIVBundleDecoder sut = new();
+            sut.StoreData(data);
+
+            Assert.AreEqual(2, sut.Messages.Count);
+            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+        }
+
         [TestMethod]
         public void FFXIVBundle_StoreData_TwoBundles()
         {
