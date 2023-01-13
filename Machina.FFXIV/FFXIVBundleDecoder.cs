@@ -234,8 +234,6 @@ namespace Machina.FFXIV
 
         private unsafe int ResetStream(int offset)
         {
-            Trace.WriteLine($"FFXIVBundleDecoder: Resetting FFXIV Stream, new offset: {offset}", "DEBUG-MACHINA");
-
             offset = GetNextMagicNumberPos(_bundleBuffer, offset);
             if (offset == -1)
             {
