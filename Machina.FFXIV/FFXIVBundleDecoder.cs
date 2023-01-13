@@ -97,7 +97,6 @@ namespace Machina.FFXIV
                     // Do not process if there is no payload
                     if (header.length == sizeof(Server_BundleHeader))
                     {
-                        //Trace.WriteLine("FXIVBundleDecoder: skipping empty packet.");
                         offset += sizeof(Server_BundleHeader);
                         if (offset == _allocated)
                             _bundleBuffer = null;
@@ -229,8 +228,6 @@ namespace Machina.FFXIV
                     _encodingError = true;
                     return null;
             }
-
-            //Trace.WriteLine($"FFXIVBundleDecoder: decompressed {ffxivMessageSize} bytes: {ConversionUtility.ByteArrayToHexString(_decompressionBuffer, 0, ffxivMessageSize)}.");
 
             return _decompressionBuffer;
         }

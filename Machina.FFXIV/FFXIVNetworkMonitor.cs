@@ -75,7 +75,7 @@ namespace Machina.FFXIV
         { get; set; } = new TCPNetworkMonitorConfig.RPCapConf();
 
         public Oodle.OodleImplementation OodleImplementation
-        { get; set; } = Oodle.OodleImplementation.FfxivTcp;
+        { get; set; } = Oodle.OodleImplementation.FfxivUdp;
 
         public string OodlePath
         { get; set; } = @"C:\Program Files (x86)\FINAL FANTASY XIV - A Realm Reborn\game\ffxiv_dx11.exe";
@@ -175,8 +175,6 @@ namespace Machina.FFXIV
             Tuple<long, byte[]> message;
             if (!_receivedDecoders.ContainsKey(connection.ID))
                 _receivedDecoders.Add(connection.ID, new FFXIVBundleDecoder());
-
-            //Trace.WriteLine($"ProcessReceivedMessage()->StoreData() for {connection}: {ConversionUtility.ByteArrayToHexString(data, 0, data.Length)}");
 
             _receivedDecoders[connection.ID].StoreData(data);
             while ((message = _receivedDecoders[connection.ID].GetNextFFXIVMessage()) != null)
