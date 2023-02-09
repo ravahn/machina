@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
+using Machina.FFXIV.Memory;
+
 namespace Machina.FFXIV.Oodle
 {
     public static class OodleFactory
@@ -43,7 +45,13 @@ namespace Machina.FFXIV.Oodle
                         _oodleNative?.UnInitialize();
                     else
                         return;
-                    _oodleNative = new OodleNative_Ffxiv();
+
+                    // Control signatures for Korean FFXIV Oodle implementation
+                    if (implementation == OodleImplementation.KoreanFfxivUdp)
+                        _oodleNative = new OodleNative_Ffxiv(new KoreanSigScan());
+                    else
+                        _oodleNative = new OodleNative_Ffxiv(new SigScan());
+
                 }
                 _oodleNative.Initialize(path);
             }

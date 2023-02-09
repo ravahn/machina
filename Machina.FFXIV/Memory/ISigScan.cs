@@ -13,14 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-namespace Machina.FFXIV.Oodle
+using System;
+using System.Collections.Generic;
+
+namespace Machina.FFXIV.Memory
 {
-    public enum OodleImplementation
+    public interface ISigScan
     {
-        FfxivUdp = 1,
-        LibraryUdp = 2,
-        FfxivTcp = 3,
-        LibraryTcp = 4,
-        KoreanFfxivUdp = 5
+        Dictionary<SignatureType, int> Read(IntPtr library);
     }
 }

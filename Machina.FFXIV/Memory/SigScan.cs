@@ -37,9 +37,9 @@ namespace Machina.FFXIV.Memory
         OodleNetwork1TCP_Encode = 12,
     }
 
-    public class SigScan
+    public class SigScan : ISigScan
     {
-        private readonly Dictionary<SignatureType, int[]> _signatures = new Dictionary<SignatureType, int[]>()
+        protected virtual Dictionary<SignatureType, int[]> Signatures => new Dictionary<SignatureType, int[]>()
         {
             { SignatureType.OodleNetwork1_Shared_Size, SignatureStringToByteArray("48 83 7b ** 00 75 ** b9 11 00 00 00 e8") },
             { SignatureType.OodleNetwork1_Shared_SetWindow, SignatureStringToByteArray("4c 8b 43 ** 41 b9 00 00 10 00 ba ** 00 00 00 48 89 43 ** 48 8b c8 e8") },
@@ -54,7 +54,6 @@ namespace Machina.FFXIV.Memory
             { SignatureType.OodleNetwork1TCP_Decode, SignatureStringToByteArray("4c 8b 11 48 89 6c ** ** 4d 85 d2 74 ** 49 8b ca e8 ") },
             { SignatureType.OodleNetwork1TCP_Encode, SignatureStringToByteArray("48 8b ** 48 8d ** ** ** c6 44 ** ** ** 49 8b ** 48 89 44 ** ** e8" ) },
         };
-
 
         public unsafe Dictionary<SignatureType, int> Read(IntPtr library)
         {
@@ -73,11 +72,18 @@ namespace Machina.FFXIV.Memory
 
             IntPtr currentAddress = startAddress;
 
-            int maxBytePatternLength = _signatures.Values.Max(x => x.Length);
+            int maxBytePatternLength = Signatures.Values.Max(x => x.Length);
 
             for (int i = signatureTypes.Count - 1; i >= 0; i--)
             {
-                int offset = GetFirstSignatureOccurrence(_signatures[signatureTypes[i]],
+                // workaround for missing Korean TCP signatures
+                if (Signatures[signatureTypes[i]].Length == 0)
+                {
+                    signatureTypes.RemoveAt(i);
+                    continue;
+                }
+
+                int offset = GetFirstSignatureOccurrence(Signatures[signatureTypes[i]],
                     currentAddress, (int)info.SizeOfImage);
 
                 if (offset > 0)
@@ -142,8 +148,11 @@ namespace Machina.FFXIV.Memory
 
             return offset;
         }
-        private static int[] SignatureStringToByteArray(string pattern)
+        protected static int[] SignatureStringToByteArray(string pattern)
         {
+            if (pattern == null)
+                return Array.Empty<int>();
+
             pattern = pattern.Replace(" ", "").Replace("??", "**");
 
             // convert the pattern into a parseable array

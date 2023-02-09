@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
+using Machina.FFXIV.Memory;
 using Machina.FFXIV.Oodle;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -28,7 +29,7 @@ namespace Machina.FFXIV.Tests.Oodle
         public void TestInitialize()
         {
             const string path = @"C:\Program Files (x86)\FINAL FANTASY XIV - A Realm Reborn\game\ffxiv_dx11.exe";
-            _sut = new OodleNative_Ffxiv();
+            _sut = new OodleNative_Ffxiv(new SigScan());
             _sut.Initialize(path);
         }
 

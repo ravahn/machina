@@ -53,6 +53,13 @@ namespace Machina.FFXIV.Oodle
         private OodleMalloc_Func _OodleMalloc;
         private OodleFree_Action _OodleFree;
 
+        private readonly ISigScan _sigscan;
+
+        public OodleNative_Ffxiv(ISigScan sigscan)
+        {
+            _sigscan = sigscan;
+        }
+
         private static unsafe IntPtr AllocAlignedMemory(IntPtr cb, int alignment)
         {
             // copied from https://github.com/dotnet/runtime/issues/33244#issuecomment-595848832
@@ -110,7 +117,7 @@ namespace Machina.FFXIV.Oodle
                     else
                         Trace.WriteLine($"{nameof(OodleNative_Ffxiv)}: Copied and loaded ffxiv_dx11 executable into ACT memory from path {path}.", "DEBUG-MACHINA");
 
-                    _offsets = new SigScan().Read(_libraryHandle);
+                    _offsets = _sigscan.Read(_libraryHandle);
                     if (_offsets.Count != Enum.GetValues(typeof(SignatureType)).Length)
                     {
                         Trace.WriteLine($"{nameof(OodleNative_Ffxiv)}: ERROR: Cannot find one or more signatures in ffxiv_dx11 executable.  Unable to decompress packet data.", "DEBUG-MACHINA");
