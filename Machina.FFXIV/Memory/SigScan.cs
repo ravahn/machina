@@ -72,12 +72,12 @@ namespace Machina.FFXIV.Memory
 
             IntPtr currentAddress = startAddress;
 
-            int maxBytePatternLength = Signatures.Values.Max(x => x.Length);
+            int maxBytePatternLength = Signatures.Values.Max(x => x?.Length ?? 0);
 
             for (int i = signatureTypes.Count - 1; i >= 0; i--)
             {
                 // workaround for missing Korean TCP signatures
-                if (Signatures[signatureTypes[i]].Length == 0)
+                if (Signatures[signatureTypes[i]] == null)
                 {
                     signatureTypes.RemoveAt(i);
                     continue;
