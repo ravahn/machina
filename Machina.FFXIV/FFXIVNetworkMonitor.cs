@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Machina.FFXIV.Deucalion;
+using Machina.FFXIV.Headers;
 using Machina.Infrastructure;
 
 namespace Machina.FFXIV
@@ -130,6 +131,9 @@ namespace Machina.FFXIV
 
             if (UseDeucalion)
             {
+                string library = DeucalionInjector.ExtractLibrary();
+                DeucalionInjector.InjectLibrary((int)ProcessID, library);
+
                 _deucalionClient = new DeucalionClient();
                 _deucalionClient.MessageReceived = (byte[] message) => ProcessDeucalionMessage(message);
                 _deucalionClient.Connect((int)ProcessID);
@@ -214,7 +218,33 @@ namespace Machina.FFXIV
             // todo: Hopefully we get epoch from packets in the future
             long epoch = (long)DateTime.UtcNow.Subtract(new DateTime(1970, 01, 01, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
-            OnMessageReceived(connection, epoch, data);
+            OnMessageReceived(connection, epoch, ConvertDeucalionToWireFormat(data));
+        }
+
+        private unsafe byte[] ConvertDeucalionToWireFormat(byte[] message)
+        {
+            // convert to public network wire structure
+            byte[] convertedMessage = new byte[message.Length + sizeof(Server_MessageHeader) - sizeof(DeucalionClient.DeucalionSegment)];
+
+            fixed (byte* ptr = convertedMessage)
+            {
+                Server_MessageHeader* headerPtr = (Server_MessageHeader*)ptr;
+                fixed (byte* ptr2 = message)
+                {
+                    DeucalionClient.DeucalionSegment* segmentPtr = (DeucalionClient.DeucalionSegment*)ptr2;
+
+                    headerPtr->MessageLength = (uint)convertedMessage.Length;
+                    headerPtr->LoginUserID = segmentPtr->source_actor;
+                    headerPtr->ActorID = segmentPtr->target_actor;
+                    headerPtr->Unknown2 = segmentPtr->reserved;
+                    headerPtr->MessageType = segmentPtr->type;
+                    headerPtr->Seconds = segmentPtr->timestamp;
+                }
+            }
+
+            Array.Copy(message, sizeof(DeucalionClient.DeucalionSegment), convertedMessage, sizeof(Server_MessageHeader), message.Length - sizeof(DeucalionClient.DeucalionSegment));
+
+            return convertedMessage;
         }
 
         protected virtual void Dispose(bool disposing)

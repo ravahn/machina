@@ -104,45 +104,53 @@ namespace Machina.FFXIV.Deucalion
 
         public unsafe void Connect(int processId)
         {
-            _clientStream = new NamedPipeClientStream(".", $"deucalion-{processId}");
-
-            _clientStream.Connect(3000);
-            if (!_clientStream.IsConnected)
+            try
             {
-                Trace.WriteLine($"DeucalionClient: Unable to connect to named pipe deucalion-{processId}.", "DEBUG-MACHINA");
-                return;
-            }
+                _clientStream = new NamedPipeClientStream(".", $"deucalion-{processId}");
 
-            byte[] buffer = new byte[short.MaxValue];
-
-            // Expect a result after initial connection
-            DeucalionMessage result = ReadPipe(buffer).FirstOrDefault();
-            if (result.header.Opcode != FFXIVOpcodes.Debug || result.debug != "SERVER HELLO")
-            {
-                Trace.WriteLine($"DeucalionClient: Named pipe connected, but received unexpected response: ({result.header.Opcode} {result.debug}).", "DEBUG-MACHINA");
-                return;
-            }
-
-            // Sent named pipe the signature payload
-            string signature = "49 8B 40 10 4C 8B 50 38";
-            WritePipe(new DeucalionMessage()
-            {
-                header = new DeucalionHeader()
+                _clientStream.Connect(3000);
+                if (!_clientStream.IsConnected)
                 {
-                    channel = FFXIVChannel.Zone, 
-                    Opcode = FFXIVOpcodes.Recv 
-                },
-                data = Encoding.ASCII.GetBytes(signature)
-            });
+                    Trace.WriteLine($"DeucalionClient: Unable to connect to named pipe deucalion-{processId}.", "DEBUG-MACHINA");
+                    return;
+                }
 
-            // Expect back either OK or an already-initialized error
-            result = ReadPipe(buffer).FirstOrDefault();
-            if (result.header.Opcode != FFXIVOpcodes.Debug || result.debug != "OK")
-            {
-                // log but do not exit
-                Trace.WriteLine($"DeucalionClient: Received initial response but cannot verify hook was successful.  response: ({result.debug}).", "DEBUG-MACHINA");
+                byte[] buffer = new byte[short.MaxValue];
+
+                // Expect a result after initial connection
+                DeucalionMessage result = ReadPipe(buffer).FirstOrDefault();
+                if (result.header.Opcode != FFXIVOpcodes.Debug || result.debug != "SERVER HELLO")
+                {
+                    Trace.WriteLine($"DeucalionClient: Named pipe connected, but received unexpected response: ({result.header.Opcode} {result.debug}).", "DEBUG-MACHINA");
+                    return;
+                }
+
+                // Sent named pipe the signature payload
+                string signature = "49 8B 40 10 4C 8B 50 38";
+                WritePipe(new DeucalionMessage()
+                {
+                    header = new DeucalionHeader()
+                    {
+                        channel = FFXIVChannel.Zone,
+                        Opcode = FFXIVOpcodes.Recv
+                    },
+                    data = Encoding.ASCII.GetBytes(signature)
+                });
+
+                // Expect back either OK or an already-initialized error
+                result = ReadPipe(buffer).FirstOrDefault();
+                if (result.header.Opcode != FFXIVOpcodes.Debug || result.debug != "OK")
+                {
+                    // log but do not exit
+                    Trace.WriteLine($"DeucalionClient: Received initial response but cannot verify hook was successful.  response: ({result.debug}).", "DEBUG-MACHINA");
+                }
             }
-
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"DeucalionClient: Exception while setting up connection with Deucalion named pipe.  Data will not be logged.  {ex}", "DEBUG-MACHINA");
+                return;
+            }
+ 
             _tokenSource = new CancellationTokenSource();
 
             _monitorTask = Task.Run(() => ProcessReadLoop(_tokenSource.Token));
