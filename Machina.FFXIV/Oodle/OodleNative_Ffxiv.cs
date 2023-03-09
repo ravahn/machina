@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using Machina.FFXIV.Memory;
 
 namespace Machina.FFXIV.Oodle
@@ -105,7 +106,11 @@ namespace Machina.FFXIV.Oodle
                         return;
 
                     // Copy file to temp directory
-                    _libraryTempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".exe");
+                    _libraryTempPath = Path.Combine(Path.GetTempPath(), "Machina.FFXIV", Guid.NewGuid().ToString() + ".exe");
+
+                    if (!Directory.Exists(_libraryTempPath.Substring(0, _libraryTempPath.LastIndexOf("\\") + 1)))
+                        Directory.CreateDirectory(_libraryTempPath.Substring(0, _libraryTempPath.LastIndexOf("\\") + 1));
+
                     System.IO.File.Copy(path, _libraryTempPath, true);
 
                     _libraryHandle = NativeMethods.LoadLibraryW(_libraryTempPath);
