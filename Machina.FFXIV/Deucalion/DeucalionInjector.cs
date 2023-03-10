@@ -266,10 +266,10 @@ namespace Machina.FFXIV.Deucalion
             finally
             {
                 if (pSecurityDescriptor != IntPtr.Zero)
-                    LocalFree(pSecurityDescriptor);
+                    _ = LocalFree(pSecurityDescriptor);
 
                 if (procHandle != IntPtr.Zero)
-                    CloseHandle(procHandle);
+                    _ = CloseHandle(procHandle);
             }
 
             return true;

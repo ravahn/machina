@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Machina.FFXIV.Headers;
 
 namespace Machina.FFXIV.Deucalion
 {
@@ -94,6 +95,8 @@ namespace Machina.FFXIV.Deucalion
         private DateTime _lastLoopError;
         private bool disposedValue;
 
+        private byte[] _streamBuffer = new byte[short.MaxValue * 2];
+        private int _streamBufferIndex = 0;
 
         public delegate void MessageReceivedHandler(byte[] message);
         public MessageReceivedHandler MessageReceived;
@@ -164,13 +167,19 @@ namespace Machina.FFXIV.Deucalion
         {
             try
             {
-                byte[] buffer = new byte[short.MaxValue];
+                byte[] buffer = new byte[1024];// short.MaxValue];
 
                 while (!token.IsCancellationRequested)
                 {
                     try
                     {
                         DeucalionMessage[] messages = ReadPipe(buffer);
+                        if (messages == Array.Empty<DeucalionMessage>())
+                        {
+                            Task.Delay(10, token).Wait(token);
+                            continue;
+                        }
+
                         foreach (DeucalionMessage message in messages)
                             if (message.header.Opcode == FFXIVOpcodes.Recv)
                                 OnMessageReceived(message.data);
@@ -186,7 +195,6 @@ namespace Machina.FFXIV.Deucalion
                         _lastLoopError = DateTime.UtcNow;
                     }
 
-                    Task.Delay(30, token).Wait(token);
                 }
             }
             catch (OperationCanceledException)
@@ -208,21 +216,36 @@ namespace Machina.FFXIV.Deucalion
             if (read == 0)
                 return response.ToArray();
 
+            // for debugging:
+            Trace.WriteLine($"DeucalionClient: Received {Infrastructure.ConversionUtility.ByteArrayToHexString(buffer, 0, read)}");
+
+            // sanity check
+            if (_streamBufferIndex + read > _streamBuffer.Length)
+            {
+                // buffer is full, but length suggests more data needed.  Reset stream.
+                Trace.WriteLine($"DeucalionClient: Stream Buffer is full.  Discarding data and resetting stream.", "DEBUG-MACHINA");
+                _streamBufferIndex = 0;
+                return response.ToArray();
+            }
+
+            // copy data to stream buffer
+            Array.Copy(buffer, 0, _streamBuffer, _streamBufferIndex, read);
+            _streamBufferIndex += read;
+
+            // process all data
             int index = 0;
 
-            fixed (byte* ptr = buffer)
+            fixed (byte* ptr = _streamBuffer)
             {
-                // for debugging: Trace.WriteLine($"DeucalionClient: Received {Infrastructure.ConversionUtility.ByteArrayToHexString(buffer, 0, read)}");
 
                 // loop through the buffer processing messages
-                while (index < read)
+                while (index < _streamBufferIndex)
                 {
                     DeucalionHeader* messagePtr = (DeucalionHeader*)(ptr + index);
 
-                    // sanity check
-                    if (messagePtr->Length > read - index)
+                    // sanity check that we have a complete payload
+                    if (messagePtr->Length > _streamBufferIndex - index)
                     {
-                        Trace.WriteLine($"DeucalionClient: Message length {messagePtr->Length} exceeds remaining buffer size {read - index}.  Discarding data.", "DEBUG-MACHINA");
                         break;
                     }
 
@@ -232,12 +255,12 @@ namespace Machina.FFXIV.Deucalion
                         header = *messagePtr, 
                         data = messagePtr->Length > sizeof(DeucalionHeader) ? new byte[messagePtr->Length - sizeof(DeucalionHeader)] : Array.Empty<byte>(),
                         debug = (messagePtr->Opcode == FFXIVOpcodes.Debug || messagePtr->Opcode == FFXIVOpcodes.Ping) && messagePtr->Length > sizeof(DeucalionHeader) ?
-                                Encoding.UTF8.GetString(buffer, sizeof(DeucalionHeader) + index, messagePtr->Length - sizeof(DeucalionHeader)) : 
+                                Encoding.UTF8.GetString(_streamBuffer, sizeof(DeucalionHeader) + index, messagePtr->Length - sizeof(DeucalionHeader)) : 
                                 string.Empty
                     };
                     if (newMessage.data != Array.Empty<byte>())
                     {
-                        Array.Copy(buffer, index + sizeof(DeucalionHeader), newMessage.data, 0, newMessage.data.Length);
+                        Array.Copy(_streamBuffer, index + sizeof(DeucalionHeader), newMessage.data, 0, newMessage.data.Length);
                     }
 
                     // write out current message as string
@@ -269,6 +292,15 @@ namespace Machina.FFXIV.Deucalion
                 }
             }
 
+            // reset streambuffer
+            if (index == _streamBufferIndex)
+                _streamBufferIndex = 0;
+            else
+            {
+                Array.Copy(_streamBuffer, index, _streamBuffer, 0, _streamBufferIndex - index);
+                _streamBufferIndex -= index;
+            }
+
             return response.ToArray();
         }
 
@@ -297,6 +329,33 @@ namespace Machina.FFXIV.Deucalion
                 _clientStream.Close();
             _clientStream?.Dispose();
             _clientStream = null;
+        }
+
+
+        public unsafe byte[] ConvertDeucalionFormatToPacketFormat(byte[] message)
+        {
+            // convert to public network wire structure
+            byte[] convertedMessage = new byte[message.Length + sizeof(Server_MessageHeader) - sizeof(DeucalionClient.DeucalionSegment)];
+
+            fixed (byte* ptr = convertedMessage)
+            {
+                Server_MessageHeader* headerPtr = (Server_MessageHeader*)ptr;
+                fixed (byte* ptr2 = message)
+                {
+                    DeucalionClient.DeucalionSegment* segmentPtr = (DeucalionClient.DeucalionSegment*)ptr2;
+
+                    headerPtr->MessageLength = (uint)convertedMessage.Length;
+                    headerPtr->LoginUserID = segmentPtr->target_actor;
+                    headerPtr->ActorID = segmentPtr->source_actor;
+                    headerPtr->Unknown2 = segmentPtr->reserved;
+                    headerPtr->MessageType = segmentPtr->type;
+                    headerPtr->Seconds = segmentPtr->timestamp;
+                }
+            }
+
+            Array.Copy(message, sizeof(DeucalionClient.DeucalionSegment), convertedMessage, sizeof(Server_MessageHeader), message.Length - sizeof(DeucalionClient.DeucalionSegment));
+
+            return convertedMessage;
         }
 
         #region IDisposable
