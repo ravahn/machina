@@ -214,10 +214,9 @@ namespace Machina.FFXIV
             // TCP Connection is irrelevent for this, but needed by interface, so make new one.
             TCPConnection connection = new TCPConnection();
 
-            // todo: Hopefully we get epoch from packets in the future
-            long epoch = (long)DateTime.UtcNow.Subtract(new DateTime(1970, 01, 01, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+            (long epoch, byte[] packet) = DeucalionClient.ConvertDeucalionFormatToPacketFormat(data);
 
-            OnMessageReceived(connection, epoch, _deucalionClient.ConvertDeucalionFormatToPacketFormat(data));
+            OnMessageReceived(connection, epoch, packet);
         }
 
 

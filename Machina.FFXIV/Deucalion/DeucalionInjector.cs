@@ -116,14 +116,26 @@ namespace Machina.FFXIV.Deucalion
 
         public static string ExtractLibrary()
         {
-            string fileName = Path.Combine(Path.GetTempPath(), "Machina.FFXIV", "deucalion-release.dll");
+            string fileName = Path.Combine(Path.GetTempPath(), "Machina.FFXIV", "deucalion-0.8.0.dll");
+            if (File.Exists(fileName))
+            {
+                try
+                {
+                    File.Delete(fileName);
+                }
+                catch (Exception ex)
+                {
+                    // do nothing - file may be locked by ffxiv process.
+                }
+            }
+
             if (!File.Exists(fileName))
             {
 
                 if (!Directory.Exists(fileName.Substring(0, fileName.LastIndexOf("\\") + 1)))
                     Directory.CreateDirectory(fileName.Substring(0, fileName.LastIndexOf("\\") + 1));
 
-                string resourceName = $"Machina.FFXIV.Deucalion.Distrib.deucalion-release.dll";
+                string resourceName = $"Machina.FFXIV.Deucalion.Distrib.deucalion-0.8.0.dll";
                 using (Stream s = typeof(DeucalionInjector).Module.Assembly.GetManifestResourceStream(resourceName))
                 {
                     using (BinaryReader sr = new BinaryReader(s))
@@ -134,7 +146,7 @@ namespace Machina.FFXIV.Deucalion
                 }
             }
 
-            string release_checksum = "1B-9B-7A-E7-5F-C1-A7-05-40-AD-60-C7-62-77-01-36";
+            string release_checksum = "15-76-26-8C-BD-7A-B3-9B-7A-81-C6-8B-DC-16-AC-E1";//pre-0.7.0: "1B-9B-7A-E7-5F-C1-A7-05-40-AD-60-C7-62-77-01-36";
 
             // validate checksum
             byte[] checksum = CalculateChecksum(fileName);

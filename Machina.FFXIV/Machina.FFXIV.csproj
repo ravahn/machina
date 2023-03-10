@@ -32,13 +32,13 @@
     </PropertyGroup>
  
     <ItemGroup>
+        <None Remove="Deucalion\Distrib\deucalion-0.8.0.dll" />
         <None Remove="Deucalion\Distrib\deucalion-debug.dll" />
-        <None Remove="Deucalion\Distrib\deucalion-release.dll" />
         <None Remove="Ravahn.Machina.Keyfile.snk" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Deucalion\Distrib\deucalion-release.dll" />
+        <EmbeddedResource Include="Deucalion\Distrib\deucalion-0.8.0.dll" />
         <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Korean.txt" />
