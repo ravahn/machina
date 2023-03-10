@@ -144,13 +144,17 @@ namespace Machina.FFXIV.Deucalion
                     // log but do not exit
                     Trace.WriteLine($"DeucalionClient: Received initial response but cannot verify hook was successful.  response: ({result.debug}).", "DEBUG-MACHINA");
                 }
+                else
+                {
+                    Trace.WriteLine($"DeucalionClient: Successfully initialized connection to injected Deucalion dll.", "DEBUG-MACHINA");
+                }
             }
             catch (Exception ex)
             {
                 Trace.WriteLine($"DeucalionClient: Exception while setting up connection with Deucalion named pipe.  Data will not be logged.  {ex}", "DEBUG-MACHINA");
                 return;
             }
- 
+
             _tokenSource = new CancellationTokenSource();
 
             _monitorTask = Task.Run(() => ProcessReadLoop(_tokenSource.Token));
