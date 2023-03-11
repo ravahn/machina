@@ -213,6 +213,7 @@ namespace Machina.FFXIV
         {
             // TCP Connection is irrelevent for this, but needed by interface, so make new one.
             TCPConnection connection = new TCPConnection();
+            connection.ProcessId = ProcessID;
 
             (long epoch, byte[] packet) = DeucalionClient.ConvertDeucalionFormatToPacketFormat(data);
 
