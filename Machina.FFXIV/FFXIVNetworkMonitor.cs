@@ -130,11 +130,15 @@ namespace Machina.FFXIV
 
             if (UseDeucalion)
             {
+                if (ProcessID == 0)
+                    throw new ArgumentException("ProcessID must be specified for Deucalion.");
+                
                 string library = DeucalionInjector.ExtractLibrary();
                 DeucalionInjector.InjectLibrary((int)ProcessID, library);
 
                 _deucalionClient = new DeucalionClient();
-                _deucalionClient.MessageReceived = (byte[] message) => ProcessDeucalionMessage(message);
+                _deucalionClient.MessageSent = (message) => ProcessDeucalionMessage(message, true);
+                _deucalionClient.MessageReceived = (message) => ProcessDeucalionMessage(message, false);
                 _deucalionClient.Connect((int)ProcessID);
             }
             else
@@ -209,15 +213,22 @@ namespace Machina.FFXIV
 
         }
 
-        public void ProcessDeucalionMessage(byte[] data)
+        public void ProcessDeucalionMessage(byte[] data, bool isSend)
         {
             // TCP Connection is irrelevent for this, but needed by interface, so make new one.
             TCPConnection connection = new TCPConnection();
             connection.ProcessId = ProcessID;
 
             (long epoch, byte[] packet) = DeucalionClient.ConvertDeucalionFormatToPacketFormat(data);
-
-            OnMessageReceived(connection, epoch, packet);
+          
+            if (isSend)
+            {
+                OnMessageSent(connection, epoch, packet);
+            }
+            else
+            {
+                OnMessageReceived(connection, epoch, packet);
+            }
         }
 
 

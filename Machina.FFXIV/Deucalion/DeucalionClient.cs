@@ -109,9 +109,18 @@ namespace Machina.FFXIV.Deucalion
 
         public delegate void MessageReceivedHandler(byte[] message);
         public MessageReceivedHandler MessageReceived;
+        
+        public delegate void MessageSentHandler(byte[] message);
+        public MessageSentHandler MessageSent;
+
         public void OnMessageReceived(byte[] message)
         {
             MessageReceived?.Invoke(message);
+        }
+        
+        public void OnMessageSent(byte[] message)
+        {
+            MessageSent?.Invoke(message);
         }
 
         public unsafe void Connect(int processId)
@@ -137,18 +146,18 @@ namespace Machina.FFXIV.Deucalion
                     return;
                 }
 
-                // Set opcode filter to just recv for zone packets.  Assume it was processed successfully.
+                // Set opcode filter to get recv/send for zone packets.  Assume it was processed successfully.
                 WritePipe(new DeucalionMessage()
                 {
                     header = new DeucalionHeader()
                     {
-                        channel = (FFXIVChannel)(1 << 1),
+                        channel = (FFXIVChannel)(1 << 1 |  1 << 4),
                         Opcode = FFXIVOpcodes.Option
                     },
                     data = Array.Empty<byte>()
                 });
 
-                if (result.debug.Contains("RECV REQUIRES SIG"))
+                if (result.debug.Contains("REQUIRES SIG"))
                 {
                     Trace.WriteLine("DeucalionClient: Named Pipe connected, but requires updated signature.  Cannot find network data.");
                     return;
@@ -195,8 +204,17 @@ namespace Machina.FFXIV.Deucalion
                         }
 
                         foreach (DeucalionMessage message in messages)
-                            if (message.header.Opcode == FFXIVOpcodes.Recv)
-                                OnMessageReceived(message.data);
+                        {
+                            switch (message.header.Opcode)
+                            {
+                                case FFXIVOpcodes.Recv:
+                                    OnMessageReceived(message.data);
+                                    break;
+                                case FFXIVOpcodes.Send:
+                                    OnMessageSent(message.data);
+                                    break;
+                            }
+                        }
                     }
                     catch (OperationCanceledException)
                     {
@@ -289,6 +307,10 @@ namespace Machina.FFXIV.Deucalion
                             response.Add(newMessage);
                             break;
                         case FFXIVOpcodes.Recv:
+                            if (messagePtr->channel == FFXIVChannel.Zone)
+                                response.Add(newMessage);
+                            break;
+                        case FFXIVOpcodes.Send:
                             if (messagePtr->channel == FFXIVChannel.Zone)
                                 response.Add(newMessage);
                             break;
