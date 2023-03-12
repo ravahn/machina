@@ -41,13 +41,16 @@ namespace Machina.FFXIV.Deucalion.Tests
             var sut = new DeucalionClient();
 
             byte[] receivedData = null;
+            byte[] sentData = null;
+            
             sut.MessageReceived = (byte[] data) => { receivedData = data; };
+            sut.MessageSent = (byte[] data) => { sentData = data; };
 
             sut.Connect(processId);
 
             for (int i = 0; i < 100; i++)
             {
-                if (receivedData != null)
+                if (receivedData != null && sentData != null)
                     break;
 
                 System.Threading.Thread.Sleep(10);
@@ -57,7 +60,7 @@ namespace Machina.FFXIV.Deucalion.Tests
 
             sut.Dispose();
             Assert.IsNotNull(receivedData);
-
+            Assert.IsNotNull(sentData);
         }
     }
 }
