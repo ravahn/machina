@@ -47,7 +47,7 @@ namespace Machina.FFXIV.Oodle
         {
             fixed (byte* pPayload = payload)
             {
-                if (!_oodleNative.OodleNetwork1UDP_Decode(_state, _shared, new IntPtr(pPayload + offset), 
+                if (!_oodleNative.OodleNetwork1UDP_Decode(_state, _shared, new IntPtr(pPayload + offset),
                     compressedLength, plaintext, decompressedLength))
                     return false;
             }
