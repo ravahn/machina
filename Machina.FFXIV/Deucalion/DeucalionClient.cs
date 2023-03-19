@@ -252,6 +252,16 @@ namespace Machina.FFXIV.Deucalion
                 {
                     try
                     {
+                        // send ping
+                        WritePipe(new DeucalionMessage()
+                        {
+                            header = new DeucalionHeader()
+                            {
+                                channel = DeucalionChannel.Zone,
+                                Opcode = DeucalionOpcode.Ping
+                            }
+                        }, token);
+
                         DeucalionMessage[] messages = ReadPipe(buffer, token);
                         if (messages == Array.Empty<DeucalionMessage>())
                         {
@@ -360,10 +370,10 @@ namespace Machina.FFXIV.Deucalion
                     switch (messagePtr->Opcode)
                     {
                         case DeucalionOpcode.Ping:
-                            Trace.WriteLine($"DeucalionClient: Ping message: {newMessage.debug}", "DEBUG-MACHINA");
+                            //Debug.WriteLine($"DeucalionClient: Received Ping on Channel {newMessage.header.channel}, message: {newMessage.debug}");
                             break;
                         case DeucalionOpcode.Debug:
-                            Trace.WriteLine($"DeucalionClient: Debug message: {newMessage.debug}", "DEBUG-MACHINA");
+                            Trace.WriteLine($"DeucalionClient: Debug Channel {newMessage.header.channel} Opcode {newMessage.header.Opcode} message: {newMessage.debug}", "DEBUG-MACHINA");
                             response.Add(newMessage);
                             break;
                         case DeucalionOpcode.Recv:
@@ -403,16 +413,20 @@ namespace Machina.FFXIV.Deucalion
 
         private unsafe void WritePipe(DeucalionMessage message, CancellationToken token)
         {
-            byte[] buffer = new byte[sizeof(DeucalionHeader) + message.data.Length];
+            byte[] buffer = new byte[sizeof(DeucalionHeader) + (message.data?.Length ?? 0)];
+
             fixed (byte* ptr = buffer)
             {
-                ((DeucalionHeader*)ptr)->Length = sizeof(DeucalionHeader) + message.data.Length;
+                ((DeucalionHeader*)ptr)->Length = buffer.Length;
                 ((DeucalionHeader*)ptr)->Opcode = message.header.Opcode;
                 ((DeucalionHeader*)ptr)->channel = message.header.channel;
             }
-            Array.Copy(message.data, 0, buffer, sizeof(DeucalionHeader), message.data.Length);
+            if (message.data != null)
+                Array.Copy(message.data, 0, buffer, sizeof(DeucalionHeader), message.data.Length);
 
             _clientStream.WriteAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            //Debug.WriteLine($"DeucalionClient: Sent Opcode {message.header.Opcode} to channel {message.header.channel}, total length {buffer.Length}");
         }
 
         public void Disconnect()

@@ -49,7 +49,7 @@ namespace Machina.FFXIV.Tests.Deucalion
                 if (receivedData != null && sentData != null)
                     break;
 
-                System.Threading.Thread.Sleep(10);
+                System.Threading.Thread.Sleep(100);
             }
 
             sut.Disconnect();

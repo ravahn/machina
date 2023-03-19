@@ -122,7 +122,7 @@ namespace Machina.FFXIV.Deucalion
 
         #endregion
 
-        private static readonly string _resourceFileName = "deucalion-0.9.0.dll";
+        private static readonly string _resourceFileName = "deucalion-0.9.2.dll";
         public static string ExtractLibrary()
         {
             string fileName = Path.Combine(Path.GetTempPath(), "Machina.FFXIV", _resourceFileName);
@@ -155,7 +155,7 @@ namespace Machina.FFXIV.Deucalion
                 }
             }
 
-            string release_checksum = "94-91-E0-91-A0-A2-37-BE-FB-AE-DD-38-37-FF-85-15-51-A8-65-08-4D-6B-75-63-83-41-8D-E5-B4-42-26-D0";
+            string release_checksum = "1E-8E-B0-BA-1B-45-DF-A0-DD-9E-FE-36-8A-A4-35-D0-CC-7F-15-60-1A-9D-29-3E-42-24-99-23-AF-5E-C8-87";
 
             // validate checksum
             byte[] checksum = CalculateChecksum(fileName);
@@ -188,56 +188,76 @@ namespace Machina.FFXIV.Deucalion
             // Note: if this method does not work, do not stop processing.  If user runs with elevated permissions, injection will still work.
             _ = UpdateProcessDACL(processId);
 
-            // Get process handle for specified process id
-            IntPtr procHandle = OpenProcess((uint)(ProcessAccess.PROCESS_CREATE_THREAD | ProcessAccess.PROCESS_QUERY_INFORMATION | ProcessAccess.PROCESS_VM_OPERATION | ProcessAccess.PROCESS_VM_WRITE | ProcessAccess.PROCESS_VM_READ),
-                false,
-                processId);
-            if (procHandle == IntPtr.Zero)
+            IntPtr procHandle = IntPtr.Zero;
+            IntPtr threadHandle = IntPtr.Zero;
+            try
             {
-                Trace.WriteLine($"DeucalionInjector: Unable to call OpenProcess with id {processId}.", "DEBUG-MACHINA");
+                // Get process handle for specified process id
+                procHandle = OpenProcess((uint)(ProcessAccess.PROCESS_CREATE_THREAD | ProcessAccess.PROCESS_QUERY_INFORMATION | ProcessAccess.PROCESS_VM_OPERATION | ProcessAccess.PROCESS_VM_WRITE | ProcessAccess.PROCESS_VM_READ),
+                    false,
+                    processId);
+                if (procHandle == IntPtr.Zero)
+                {
+                    Trace.WriteLine($"DeucalionInjector: Unable to call OpenProcess with id {processId}.", "DEBUG-MACHINA");
+                    return false;
+                }
+
+                // get local address for kernel32.dll LoadLibraryA method.  This assumes remote process has same address.
+                IntPtr loadLibraryAddr = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryW");
+                if (loadLibraryAddr == IntPtr.Zero)
+                    return false;
+
+                byte[] filenameBytes = Encoding.Unicode.GetBytes(deucalionPath);
+
+                // Allocate memory in remote process to load the DLL name
+                IntPtr allocMemAddress = VirtualAllocEx(
+                    procHandle,
+                    IntPtr.Zero,
+                    (uint)(filenameBytes.Length + 2),
+                    (uint)(MemoryProtection.MEM_COMMIT | MemoryProtection.MEM_RESERVE), (uint)MemoryProtection.PAGE_READWRITE);
+                if (allocMemAddress == IntPtr.Zero)
+                {
+                    Trace.WriteLine($"DeucalionInjector: Unable to allocate memory in process id {processId}.", "DEBUG-MACHINA");
+                    return false;
+                }
+
+                // Write file name to remote process
+                bool result = WriteProcessMemory(procHandle,
+                    allocMemAddress,
+                    filenameBytes,
+                    (uint)(filenameBytes.Length + 2),
+                    out UIntPtr bytesWritten);
+                if (result == false || bytesWritten == UIntPtr.Zero)
+                {
+                    Trace.WriteLine($"DeucalionInjector: Unable to write filename to memory in process id {processId}.", "DEBUG-MACHINA");
+                    return false;
+                }
+
+                // Create and start remote thread in process to call LoadLibraryA with the dll name as the argument
+                threadHandle = CreateRemoteThread(procHandle, IntPtr.Zero, 0, loadLibraryAddr, allocMemAddress, 0, IntPtr.Zero);
+                if (threadHandle == IntPtr.Zero)
+                {
+                    Trace.WriteLine($"DeucalionInjector: Unable to start remote thread in process id {processId}.", "DEBUG-MACHINA");
+                    return false;
+                }
+
+                Trace.WriteLine($"DeucalionInjector: Successfully injected Deucalion dll into process id {processId}.", "DEBUG-MACHINA");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"DeucalionInjector: Unexpected error in Injectlibrary for {processId}: {ex}", "DEBUG-MACHINA");
                 return false;
             }
-
-            // get local address for kernel32.dll LoadLibraryA method.  This assumes remote process has same address.
-            IntPtr loadLibraryAddr = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
-            if (loadLibraryAddr == IntPtr.Zero)
-                return false;
-
-            // Allocate memory in remote process to load the DLL name
-            IntPtr allocMemAddress = VirtualAllocEx(
-                procHandle,
-                IntPtr.Zero,
-                (uint)((deucalionPath.Length + 1) * Marshal.SizeOf(typeof(char))),
-                (uint)(MemoryProtection.MEM_COMMIT | MemoryProtection.MEM_RESERVE), (uint)MemoryProtection.PAGE_READWRITE);
-            if (allocMemAddress == IntPtr.Zero)
+            finally
             {
-                Trace.WriteLine($"DeucalionInjector: Unable to allocate memory in process id {processId}.", "DEBUG-MACHINA");
-                return false;
+                if (procHandle != IntPtr.Zero)
+                    _ = CloseHandle(procHandle);
+
+                if (threadHandle != IntPtr.Zero)
+                    _ = CloseHandle(threadHandle);
             }
-
-            // Write file name to remote process
-            bool result = WriteProcessMemory(procHandle,
-                allocMemAddress,
-                Encoding.Default.GetBytes(deucalionPath),
-                (uint)((deucalionPath.Length + 1) * Marshal.SizeOf(typeof(char))),
-                out UIntPtr bytesWritten);
-            if (result == false || bytesWritten == UIntPtr.Zero)
-            {
-                Trace.WriteLine($"DeucalionInjector: Unable to write filename to memory in process id {processId}.", "DEBUG-MACHINA");
-                return false;
-            }
-
-            // Create and start remote thread in process to call LoadLibraryA with the dll name as the argument
-            IntPtr threadResult = CreateRemoteThread(procHandle, IntPtr.Zero, 0, loadLibraryAddr, allocMemAddress, 0, IntPtr.Zero);
-            if (threadResult == IntPtr.Zero)
-            {
-                Trace.WriteLine($"DeucalionInjector: Unable to start remote thread in process id {processId}.", "DEBUG-MACHINA");
-                return false;
-            }
-
-            Trace.WriteLine($"DeucalionInjector: Successfully injected Deucalion dll into process id {processId}.", "DEBUG-MACHINA");
-
-            return true;
         }
 
         private static unsafe bool UpdateProcessDACL(int processId)
