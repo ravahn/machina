@@ -247,21 +247,25 @@ namespace Machina.FFXIV.Deucalion
             {
                 byte[] buffer = new byte[short.MaxValue];
                 _streamBufferIndex = 0;
+                DateTime lastClientPing = DateTime.Now;
 
                 while (!token.IsCancellationRequested)
                 {
                     try
                     {
                         // send ping
-                        WritePipe(new DeucalionMessage()
+                        if (DateTime.Now.Subtract(lastClientPing).TotalMilliseconds > 1000)
                         {
-                            header = new DeucalionHeader()
+                            lastClientPing = DateTime.Now;
+                            WritePipe(new DeucalionMessage()
                             {
-                                channel = DeucalionChannel.Zone,
-                                Opcode = DeucalionOpcode.Ping
-                            }
-                        }, token);
-
+                                header = new DeucalionHeader()
+                                {
+                                    channel = DeucalionChannel.Zone,
+                                    Opcode = DeucalionOpcode.Ping
+                                }
+                            }, token);
+                        }
                         DeucalionMessage[] messages = ReadPipe(buffer, token);
                         if (messages == Array.Empty<DeucalionMessage>())
                         {
@@ -424,7 +428,13 @@ namespace Machina.FFXIV.Deucalion
             if (message.data != null)
                 Array.Copy(message.data, 0, buffer, sizeof(DeucalionHeader), message.data.Length);
 
-            _clientStream.WriteAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false).GetAwaiter().GetResult();
+            Task writerTask = _clientStream.WriteAsync(buffer, 0, buffer.Length, token);
+
+            writerTask.Wait(token);
+            if (!writerTask.IsCompleted || writerTask.Exception != null)
+            {
+                Trace.WriteLine($"DeucalionClient: WriterTask did not complete.  Exception: {writerTask.Exception}", "DEBUG-MACHINA");
+            }
 
             //Debug.WriteLine($"DeucalionClient: Sent Opcode {message.header.Opcode} to channel {message.header.channel}, total length {buffer.Length}");
         }
