@@ -231,6 +231,17 @@ namespace Machina.FFXIV.Deucalion
                     //});
                     //// No need to parse result, it will be logged via debug output.
                 }
+
+                // Set client nickname.  Also assume it was processed successfully.
+                WritePipe(new DeucalionMessage()
+                {
+                    header = new DeucalionHeader()
+                    {
+                        channel = (DeucalionChannel)9000,
+                        Opcode = DeucalionOpcode.Debug,
+                    },
+                    data = Encoding.UTF8.GetBytes("FFXIV_ACT_Plugin")
+                }, _tokenSource.Token);
             }
             catch (Exception ex)
             {

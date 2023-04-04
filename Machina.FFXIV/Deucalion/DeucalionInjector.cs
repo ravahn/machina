@@ -122,7 +122,7 @@ namespace Machina.FFXIV.Deucalion
 
         #endregion
 
-        private static readonly string _resourceFileName = "deucalion-0.9.2.dll";
+        private static readonly string _resourceFileName = "deucalion-0.9.3.dll";
         public static string ExtractLibrary()
         {
             string fileName = Path.Combine(Path.GetTempPath(), "Machina.FFXIV", _resourceFileName);
@@ -155,7 +155,7 @@ namespace Machina.FFXIV.Deucalion
                 }
             }
 
-            string release_checksum = "1E-8E-B0-BA-1B-45-DF-A0-DD-9E-FE-36-8A-A4-35-D0-CC-7F-15-60-1A-9D-29-3E-42-24-99-23-AF-5E-C8-87";
+            string release_checksum = "16-99-AB-21-7A-1C-BB-8D-E8-7A-37-08-3F-A1-EA-A8-17-60-BE-A4-03-B5-B5-A8-CC-BD-E2-2A-C0-0C-C8-BC";
 
             // validate checksum
             byte[] checksum = CalculateChecksum(fileName);

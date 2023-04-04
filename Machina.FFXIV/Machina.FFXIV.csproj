@@ -6,9 +6,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <Version>2.3.7.1</Version>
-        <AssemblyVersion>2.3.7.1</AssemblyVersion>
-        <FileVersion>2.3.7.1</FileVersion>
+        <Version>2.3.7.2</Version>
+        <AssemblyVersion>2.3.7.2</AssemblyVersion>
+        <FileVersion>2.3.7.2</FileVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -32,15 +32,13 @@
     </PropertyGroup>
  
     <ItemGroup>
-        <None Remove="Deucalion\Distrib\deucalion-0.9.2.dll" />
+        <None Remove="Deucalion\Distrib\deucalion-0.9.3.dll" />
         <None Remove="Deucalion\Distrib\deucalion-debug.dll" />
         <None Remove="Ravahn.Machina.Keyfile.snk" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Deucalion\Distrib\deucalion-0.9.2.dll">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </EmbeddedResource>
+        <EmbeddedResource Include="Deucalion\Distrib\deucalion-0.9.3.dll" />
         <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Korean.txt" />
