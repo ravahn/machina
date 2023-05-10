@@ -187,6 +187,19 @@ namespace Machina.FFXIV.Deucalion
 
             // Note: if this method does not work, do not stop processing.  If user runs with elevated permissions, injection will still work.
             _ = UpdateProcessDACL(processId);
+            
+            // Ensure the dll not be re-injected. (It will prevent auto unload since its ref always beyond 0 if that happened)
+            using (Process process = Process.GetProcessById(processId))
+            {
+                foreach (ProcessModule module in process.Modules)
+                {
+                    if (module.ModuleName == _resourceFileName)
+                    {
+                        Trace.WriteLine($"DeucalionInjector: Deucalion has already inject into process {processId}.", "DEBUG-MACHINA");
+                        return true;
+                    }
+                }
+            }
 
             IntPtr procHandle = IntPtr.Zero;
             IntPtr threadHandle = IntPtr.Zero;
