@@ -195,7 +195,7 @@ namespace Machina.FFXIV.Deucalion
                 {
                     if (module.ModuleName == _resourceFileName)
                     {
-                        Trace.WriteLine($"DeucalionInjector: Deucalion has already inject into process {processId}.", "DEBUG-MACHINA");
+                        Trace.WriteLine($"DeucalionInjector: Deucalion has already injected into process {processId}.", "DEBUG-MACHINA");
                         return true;
                     }
                 }
