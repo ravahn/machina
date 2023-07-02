@@ -172,8 +172,8 @@ namespace Machina.FFXIV.Oodle
                         _OodleNetwork1TCP_Encode = (OodleNetwork1TCP_Encode_Func)Marshal.GetDelegateForFunctionPointer(
                             IntPtr.Add(_libraryHandle, _offsets[SignatureType.OodleNetwork1TCP_Encode]), typeof(OodleNetwork1TCP_Encode_Func));
 
-                    if (_OodleNetwork1UDP_State_Size == null || _OodleNetwork1_Shared_Size == null || _OodleNetwork1_Shared_SetWindow == null ||
-                        _OodleNetwork1UDP_Train == null || _OodleNetwork1UDP_Decode == null || _OodleNetwork1UDP_Encode == null)
+                    if (_OodleNetwork1TCP_State_Size == null || _OodleNetwork1_Shared_Size == null || _OodleNetwork1_Shared_SetWindow == null ||
+                        _OodleNetwork1TCP_Decode == null || _OodleNetwork1TCP_Encode == null || _OodleNetwork1TCP_Train == null)
                     {
                         Trace.WriteLine($"{nameof(OodleNative_Ffxiv)}: ERROR: Cannot find one or more signatures in ffxiv_dx11 executable.  Unable to decompress packet data.", "DEBUG-MACHINA");
 
