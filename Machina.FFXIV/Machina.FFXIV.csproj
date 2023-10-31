@@ -6,9 +6,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <Version>2.3.8.5</Version>
-        <AssemblyVersion>2.3.8.5</AssemblyVersion>
-        <FileVersion>2.3.8.5</FileVersion>
+        <Version>2.3.8.7</Version>
+        <AssemblyVersion>2.3.8.7</AssemblyVersion>
+        <FileVersion>2.3.8.7</FileVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
