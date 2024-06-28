@@ -122,7 +122,7 @@ namespace Machina.FFXIV.Deucalion
 
         #endregion
 
-        private static readonly string _resourceFileName = "deucalion-0.9.3.dll";
+        private static readonly string _resourceFileName = "deucalion-1.0.0-beta.0.dll";//"deucalion-0.9.3.dll";
         public static string ExtractLibrary()
         {
             string fileName = Path.Combine(Path.GetTempPath(), "Machina.FFXIV", _resourceFileName);
@@ -155,11 +155,11 @@ namespace Machina.FFXIV.Deucalion
                 }
             }
 
-            string release_checksum = "16-99-AB-21-7A-1C-BB-8D-E8-7A-37-08-3F-A1-EA-A8-17-60-BE-A4-03-B5-B5-A8-CC-BD-E2-2A-C0-0C-C8-BC";
+            string release_checksum = "9f-51-69-99-79-f0-5a-7a-1c-3c-e2-ff-b1-0a-e2-1b-71-dc-4d-79-52-d8-51-6c-b1-08-9c-83-5b-ed-47-86";//"16-99-AB-21-7A-1C-BB-8D-E8-7A-37-08-3F-A1-EA-A8-17-60-BE-A4-03-B5-B5-A8-CC-BD-E2-2A-C0-0C-C8-BC";
 
             // validate checksum
             byte[] checksum = CalculateChecksum(fileName);
-            if (BitConverter.ToString(checksum) != release_checksum)
+            if (!string.Equals(BitConverter.ToString(checksum), release_checksum, StringComparison.OrdinalIgnoreCase))
             {
                 Trace.WriteLine($"DeucalionInjector: File checksum is invalid, cannot inject dll at {fileName}", "DEBUG-MACHINA");
                 return string.Empty;
