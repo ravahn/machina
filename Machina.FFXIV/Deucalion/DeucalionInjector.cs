@@ -122,7 +122,7 @@ namespace Machina.FFXIV.Deucalion
 
         #endregion
 
-        private static readonly string _resourceFileName = "deucalion-1.0.0-beta.0.dll";//"deucalion-0.9.3.dll";
+        private static readonly string _resourceFileName = "deucalion-1.0.0.dll";//"deucalion-0.9.3.dll";
         public static string ExtractLibrary()
         {
             string fileName = Path.Combine(Path.GetTempPath(), "Machina.FFXIV", _resourceFileName);
@@ -155,7 +155,9 @@ namespace Machina.FFXIV.Deucalion
                 }
             }
 
-            string release_checksum = "9f-51-69-99-79-f0-5a-7a-1c-3c-e2-ff-b1-0a-e2-1b-71-dc-4d-79-52-d8-51-6c-b1-08-9c-83-5b-ed-47-86";//"16-99-AB-21-7A-1C-BB-8D-E8-7A-37-08-3F-A1-EA-A8-17-60-BE-A4-03-B5-B5-A8-CC-BD-E2-2A-C0-0C-C8-BC";
+            string release_checksum = "7c-58-2e-e4-7c-74-1e-a8-49-54-4f-72-4c-1f-af-0e-46-09-e0-39-74-c7-97-94-ac-37-42-dd-10-2d-f4-07"; // 1.0.0
+            //beta 0: "9f-51-69-99-79-f0-5a-7a-1c-3c-e2-ff-b1-0a-e2-1b-71-dc-4d-79-52-d8-51-6c-b1-08-9c-83-5b-ed-47-86";
+            //0.9.0: "16-99-AB-21-7A-1C-BB-8D-E8-7A-37-08-3F-A1-EA-A8-17-60-BE-A4-03-B5-B5-A8-CC-BD-E2-2A-C0-0C-C8-BC";
 
             // validate checksum
             byte[] checksum = CalculateChecksum(fileName);
