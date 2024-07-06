@@ -59,5 +59,41 @@ namespace Machina.FFXIV.Tests.Deucalion
             Assert.IsNotNull(receivedData);
             Assert.IsNotNull(sentData);
         }
+
+        [TestMethod()]
+        [TestCategory("Integration")]
+        public void DeucalionClient_RepeatedInjectionTest()
+        {
+            // note: this requires starting FFXIV so it can be injected.
+            int processId = Process.GetProcessesByName("ffxiv_dx11").FirstOrDefault()?.Id ?? 0;
+
+            string library = DeucalionInjector.ExtractLibrary();
+
+            for (int i = 0; i < 100; i++)
+            {
+                bool injectionResult = DeucalionInjector.InjectLibrary(processId, library);
+                Assert.IsTrue(injectionResult);
+
+                DeucalionClient sut = new();
+
+                byte[] receivedData = null;
+                byte[] sentData = null;
+
+                sut.MessageReceived = (data) => { receivedData = data; };
+                sut.MessageSent = (data) => { sentData = data; };
+
+                sut.Connect(processId);
+
+                System.Threading.Thread.Sleep(500);
+
+                sut.Disconnect();
+
+                sut.Dispose();
+
+                System.Threading.Thread.Sleep(1000);
+            }
+
+            Assert.IsTrue(true);
+        }
     }
 }

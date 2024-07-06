@@ -135,7 +135,11 @@ namespace Machina.FFXIV
 
                 string library = DeucalionInjector.ExtractLibrary();
 
+                // Always wait 1 second before injecting Deucalion, in case it is shutting down.
+                System.Threading.Thread.Sleep(1000);
+
                 // Note: if InjectLibrary fails, continue attempting to read from the game.  it is possible the library was already injected.
+                DeucalionInjector.LastInjectionError = string.Empty;
                 _ = DeucalionInjector.InjectLibrary((int)ProcessID, library);
 
                 _deucalionClient = new DeucalionClient();
