@@ -122,9 +122,28 @@ namespace Machina.FFXIV.Deucalion
 
         #endregion
 
-        private static readonly string _resourceFileName = "deucalion-1.1.0.dll";
 
         public static string LastInjectionError { get; internal set; }
+
+        public static GameRegion GameRegion { get; set; } = GameRegion.Global;
+
+        private static string _resourceFileName
+        {
+            get
+            {
+                return GameRegion == GameRegion.Korean ? "deucalion-0.9.5.dll" : "deucalion-1.1.0.dll";
+            }
+        }
+
+        private static string _checksum
+        {
+            get
+            {
+                return GameRegion == GameRegion.Korean ? "e6-f4-46-d1-5a-a3-11-37-06-31-ab-d4-e2-d7-e5-ce-46-fc-7f-e4-1a-77-dd-82-1c-bb-20-17-ea-2b-0e-13" // 0.9.5
+                //"16 -99-AB-21-7A-1C-BB-8D-E8-7A-37-08-3F-A1-EA-A8-17-60-BE-A4-03-B5-B5-A8-CC-BD-E2-2A-C0-0C-C8-BC" // 0.9.3
+                : "19-94-1f-2b-ff-b9-d5-1f-92-cd-60-10-5d-25-cd-19-0c-65-78-0f-6c-a0-70-8b-d8-48-3a-4a-fd-df-ea-93";  // 1.1.0
+            }
+        }
 
         public static string ExtractLibrary()
         {
@@ -157,14 +176,11 @@ namespace Machina.FFXIV.Deucalion
                     }
                 }
             }
-
-            //string release_checksum = "7c-58-2e-e4-7c-74-1e-a8-49-54-4f-72-4c-1f-af-0e-46-09-e0-39-74-c7-97-94-ac-37-42-dd-10-2d-f4-07"; // 1.0.0
-            string release_checksum = "19-94-1f-2b-ff-b9-d5-1f-92-cd-60-10-5d-25-cd-19-0c-65-78-0f-6c-a0-70-8b-d8-48-3a-4a-fd-df-ea-93"; // 1.1.0
             
             //
             // validate checksum
             byte[] checksum = CalculateChecksum(fileName);
-            if (!string.Equals(BitConverter.ToString(checksum), release_checksum, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(BitConverter.ToString(checksum), _checksum, StringComparison.OrdinalIgnoreCase))
             {
                 LastInjectionError = $"DeucalionInjector: File checksum is invalid, cannot extract dll to {fileName}";
                 Trace.WriteLine(LastInjectionError, "DEBUG-MACHINA");
