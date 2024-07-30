@@ -6,9 +6,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <Version>2.4.0.2</Version>
-        <AssemblyVersion>2.4.0.2</AssemblyVersion>
-        <FileVersion>2.4.0.2</FileVersion>
+        <Version>2.4.0.3</Version>
+        <AssemblyVersion>2.4.0.3</AssemblyVersion>
+        <FileVersion>2.4.0.3</FileVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -39,7 +39,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Deucalion\Distrib\deucalion-0.9.5.dll" />
         <EmbeddedResource Include="Deucalion\Distrib\deucalion-1.1.0.dll" />
         <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
