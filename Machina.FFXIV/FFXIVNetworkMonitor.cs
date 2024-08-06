@@ -74,14 +74,21 @@ namespace Machina.FFXIV
         public TCPNetworkMonitorConfig.RPCapConf RPCap
         { get; set; } = new TCPNetworkMonitorConfig.RPCapConf();
 
+        /// <summary>
+        /// the type of Oodle implementation to use - for most cases it should be FfxivTcp
+        /// </summary>
         public Oodle.OodleImplementation OodleImplementation
         { get; set; } = Oodle.OodleImplementation.FfxivTcp;
 
-        public bool UseDeucalion
-        { get; set; }
-
         public string OodlePath
         { get; set; } = @"C:\Program Files (x86)\FINAL FANTASY XIV - A Realm Reborn\game\ffxiv_dx11.exe";
+
+        /// <summary>
+        /// Inject and use deucalion dll to receive game network data.  Deucalion is distributed here:
+        ///   https://github.com/ff14wed/deucalion
+        /// </summary>
+        public bool UseDeucalion
+        { get; set; }
 
         #region Message Delegates section
         public delegate void MessageReceived2(TCPConnection connection, long epoch, byte[] message);
@@ -133,19 +140,21 @@ namespace Machina.FFXIV
                 if (ProcessID == 0)
                     throw new ArgumentException("ProcessID must be specified for Deucalion.");
 
-                string library = DeucalionInjector.ExtractLibrary();
-
                 // Always wait 1 second before injecting Deucalion, in case it is shutting down.
                 System.Threading.Thread.Sleep(1000);
 
-                // Note: if InjectLibrary fails, continue attempting to read from the game.  it is possible the library was already injected.
                 DeucalionInjector.LastInjectionError = string.Empty;
-                _ = DeucalionInjector.InjectLibrary((int)ProcessID, library);
+                bool isValid = DeucalionInjector.ValidateLibraryChecksum();
+                if (isValid)
+                {
+                    // Note: if InjectLibrary fails, continue attempting to read from the game.  it is possible the library was already injected.
+                    _ = DeucalionInjector.InjectLibrary((int)ProcessID);
 
-                _deucalionClient = new DeucalionClient();
-                _deucalionClient.MessageSent = (message) => ProcessDeucalionMessage(message, true);
-                _deucalionClient.MessageReceived = (message) => ProcessDeucalionMessage(message, false);
-                _deucalionClient.Connect((int)ProcessID);
+                    _deucalionClient = new DeucalionClient();
+                    _deucalionClient.MessageSent = (message) => ProcessDeucalionMessage(message, true);
+                    _deucalionClient.MessageReceived = (message) => ProcessDeucalionMessage(message, false);
+                    _deucalionClient.Connect((int)ProcessID);
+                }
             }
             else
             {

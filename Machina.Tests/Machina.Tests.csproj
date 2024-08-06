@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
 
     <Configurations>Debug;Release;NuGet</Configurations>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

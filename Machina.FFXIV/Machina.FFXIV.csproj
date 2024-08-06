@@ -6,12 +6,13 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <Version>2.4.0.3</Version>
-        <AssemblyVersion>2.4.0.3</AssemblyVersion>
-        <FileVersion>2.4.0.3</FileVersion>
+        <Version>2.4.0.4</Version>
+        <AssemblyVersion>2.4.0.4</AssemblyVersion>
+        <FileVersion>2.4.0.4</FileVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NuGet|AnyCPU' ">
@@ -30,16 +31,17 @@
         <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='NuGet|netstandard2.0|AnyCPU'">
+      <Optimize>True</Optimize>
+    </PropertyGroup>
  
     <ItemGroup>
         <None Remove="Deucalion\Distrib\deucalion-0.9.5.dll" />
-        <None Remove="Deucalion\Distrib\deucalion-1.0.0.dll" />
-        <None Remove="Deucalion\Distrib\deucalion-1.1.0.dll" />
         <None Remove="Ravahn.Machina.Keyfile.snk" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Deucalion\Distrib\deucalion-1.1.0.dll" />
         <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Korean.txt" />
@@ -61,7 +63,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Page Include="Deucalion\Distrib\deucalion-1.1.0.dll" />
+      <Content Include="Deucalion\Distrib\deucalion-1.1.0.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <TargetPath>deucalion-1.1.0.dll</TargetPath>
+        <Pack>True</Pack>
+        <PackagePath>lib\$(TargetFrameworks)</PackagePath>
+        <PackageCopyToOutput>true</PackageCopyToOutput>
+      </Content>
     </ItemGroup>
 
 </Project>

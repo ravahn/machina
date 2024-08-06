@@ -12,6 +12,7 @@
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>TRUE</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NuGet|AnyCPU' ">

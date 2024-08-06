@@ -91,7 +91,6 @@ namespace Machina.FFXIV.Deucalion
             MEM_RESERVE = 0x00002000,
         }
 
-
         private enum SE_OBJECT_TYPE
         {
             SE_UNKNOWN_OBJECT_TYPE,
@@ -122,18 +121,32 @@ namespace Machina.FFXIV.Deucalion
 
         #endregion
 
-
+        /// <summary>
+        /// Returns the last error, if any, encountered during injection.
+        /// </summary>
         public static string LastInjectionError { get; internal set; }
 
+        /// <summary>
+        /// Specifies the Game region - Korean or Global.  Required to distinguish between expected Deucalion dll versions.
+        /// </summary>
         public static GameRegion GameRegion { get; set; } = GameRegion.Global;
 
-        private static string _resourceFileName
+        /// <summary>
+        /// returns the expected Deucalion file name based on the Game Region
+        /// </summary>
+        public static string DeucalionFileName
         {
             get
             {
                 return GameRegion == GameRegion.Korean ? "deucalion-0.9.5.dll" : "deucalion-1.1.0.dll";
             }
         }
+
+        /// <summary>
+        /// Stores the folder where Deucalion should be loaded from
+        ///   Defaults to the current working directory
+        /// </summary>
+        public static string DeucalionPath { get; set; } = Environment.CurrentDirectory;
 
         private static string _checksum
         {
@@ -145,48 +158,27 @@ namespace Machina.FFXIV.Deucalion
             }
         }
 
-        public static string ExtractLibrary()
+        public static bool ValidateLibraryChecksum()
         {
-            string fileName = Path.Combine(Path.GetTempPath(), "Machina.FFXIV", _resourceFileName);
-            if (File.Exists(fileName))
+            string deucalionFile = Path.Combine(DeucalionPath, DeucalionFileName);
+            if (!File.Exists(deucalionFile))
             {
-                try
-                {
-                    File.Delete(fileName);
-                }
-                catch (Exception)
-                {
-                    // do nothing - file may be locked by ffxiv process.
-                }
+                LastInjectionError = $"DeucalionInjector: Cannot find file [{deucalionFile}].  Deucalion cannot be used.";
+                Trace.WriteLine(LastInjectionError, "DEBUG-MACHINA");
+                return false;
             }
 
-            if (!File.Exists(fileName))
-            {
 
-                if (!Directory.Exists(fileName.Substring(0, fileName.LastIndexOf("\\", StringComparison.Ordinal) + 1)))
-                    _ = Directory.CreateDirectory(fileName.Substring(0, fileName.LastIndexOf("\\", StringComparison.Ordinal) + 1));
-
-                string resourceName = $"Machina.FFXIV.Deucalion.Distrib.{_resourceFileName}";
-                using (Stream s = typeof(DeucalionInjector).Module.Assembly.GetManifestResourceStream(resourceName))
-                {
-                    using (BinaryReader sr = new BinaryReader(s))
-                    {
-                        byte[] fileData = sr.ReadBytes((int)s.Length);
-                        File.WriteAllBytes(fileName, fileData);
-                    }
-                }
-            }
-            
-            //
             // validate checksum
-            byte[] checksum = CalculateChecksum(fileName);
+            byte[] checksum = CalculateChecksum(deucalionFile);
             if (!string.Equals(BitConverter.ToString(checksum), _checksum, StringComparison.OrdinalIgnoreCase))
             {
-                LastInjectionError = $"DeucalionInjector: File checksum is invalid, cannot extract dll to {fileName}";
+                LastInjectionError = $"DeucalionInjector: File checksum is invalid, cannot use dll {deucalionFile}";
                 Trace.WriteLine(LastInjectionError, "DEBUG-MACHINA");
-                return string.Empty;
+                return false;
             }
-            return fileName;
+
+            return true;
         }
 
         public static byte[] CalculateChecksum(string filename)
@@ -199,11 +191,12 @@ namespace Machina.FFXIV.Deucalion
                 }
             }
         }
-        public static bool InjectLibrary(int processId, string deucalionPath)
+        public static bool InjectLibrary(int processId)
         {
-            if (!File.Exists(deucalionPath))
+            string deucalionFile = Path.Combine(DeucalionPath, DeucalionFileName);
+            if (!File.Exists(deucalionFile))
             {
-                LastInjectionError = $"DeucalionInjector: Cannot find the Deucalion library at {deucalionPath}.";
+                LastInjectionError = $"DeucalionInjector: Cannot find the Deucalion library at {deucalionFile}.";
                 Trace.WriteLine(LastInjectionError, "DEBUG-MACHINA");
                 return false;
             }
@@ -231,7 +224,7 @@ namespace Machina.FFXIV.Deucalion
                 if (loadLibraryAddr == IntPtr.Zero)
                     return false;
 
-                byte[] filenameBytes = Encoding.Unicode.GetBytes(deucalionPath);
+                byte[] filenameBytes = Encoding.Unicode.GetBytes(deucalionFile);
 
                 // Allocate memory in remote process to load the DLL name
                 IntPtr allocMemAddress = VirtualAllocEx(
