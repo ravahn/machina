@@ -350,6 +350,7 @@ namespace Machina.FFXIV.Deucalion
 
             // process all data
             int index = 0;
+            int headerLength = sizeof(DeucalionHeader);
 
             fixed (byte* ptr = _streamBuffer)
             {
@@ -358,6 +359,12 @@ namespace Machina.FFXIV.Deucalion
                 while (index < _streamBufferIndex)
                 {
                     DeucalionHeader* messagePtr = (DeucalionHeader*)(ptr + index);
+
+                    // sanity check that we have a complete header
+                    if (_streamBufferIndex - index < headerLength)
+                    {
+                        break;
+                    }
 
                     // sanity check that we have a complete payload
                     if (messagePtr->Length > _streamBufferIndex - index)
