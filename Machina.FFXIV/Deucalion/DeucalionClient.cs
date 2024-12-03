@@ -411,6 +411,8 @@ namespace Machina.FFXIV.Deucalion
                             Disconnect();
                             break;
                         case DeucalionOpcode.Option:
+                        case DeucalionOpcode.RecvOther:
+                        case DeucalionOpcode.SendOther:
                         default:
                             Trace.WriteLine($"DeucalionClient: Unexpected opcode {((DeucalionHeader*)ptr)->Opcode} from injected code.", "DEBUG-MACHINA");
                             break;
@@ -463,7 +465,7 @@ namespace Machina.FFXIV.Deucalion
 
             if (_clientStream != null && _clientStream.IsConnected)
             {
-             //_clientStream.Flush();
+                //_clientStream.Flush();
                 _clientStream.Close();
             }
             _clientStream?.Dispose();
