@@ -6,9 +6,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <Version>2.4.1.4</Version>
-        <AssemblyVersion>2.4.1.4</AssemblyVersion>
-        <FileVersion>2.4.1.4</FileVersion>
+        <Version>2.4.1.5</Version>
+        <AssemblyVersion>2.4.1.5</AssemblyVersion>
+        <FileVersion>2.4.1.5</FileVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -27,7 +27,7 @@
         <RepositoryUrl>https://github.com/ravahn/machina</RepositoryUrl>
         <NeutralLanguage>en</NeutralLanguage>
         <Description>Extension to Machina network library to support decoding of Final Fantasy XIV network data</Description>
-        <Copyright>Copyright © 2024 Ravahn</Copyright>
+        <Copyright>Copyright © 2025 Ravahn</Copyright>
         <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
