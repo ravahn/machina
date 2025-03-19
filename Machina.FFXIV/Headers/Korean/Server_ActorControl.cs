@@ -19,8 +19,8 @@ namespace Machina.FFXIV.Headers.Korean
 {
     public enum Server_ActorControlCategory : ushort
     {
-        HoT = 0x603,
-        DoT = 0x604,
+        HoT = 0x604, // Changed in 7.10
+        DoT = 0x605, // Changed in 7.10
         CancelAbility = 0x0f,
         Death = 0x06,
         TargetIcon = 0x22,
