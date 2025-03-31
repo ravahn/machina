@@ -19,6 +19,7 @@ using System.IO.Pipes;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Machina.FFXIV.Headers;
@@ -200,6 +201,16 @@ namespace Machina.FFXIV.Deucalion
                 if (result.header.Opcode != DeucalionOpcode.Debug || !result.debug.StartsWith("SERVER HELLO", StringComparison.OrdinalIgnoreCase))
                 {
                     Trace.WriteLine($"DeucalionClient: Named pipe connected, but received unexpected response: ({result.header.Opcode} {result.debug}).", "DEBUG-MACHINA");
+                    Disconnect();
+                    return;
+                }
+                if (!Version.TryParse(new Regex("VERSION: (?<version>\\d*\\.\\d*\\.\\d*)\\. ").Match(result.debug)?.Groups["version"]?.Value,
+                        out Version ver)
+                    || ver < DeucalionInjector.DeucalionVersion)
+                {
+                    DeucalionInjector.LastInjectionError = $"Incorrect Deucalion version detected.  Received: {ver}, Expected: {DeucalionInjector.DeucalionVersion}.";
+                    Trace.WriteLine($"DeucalionClient: ERROR: Incorrect Deucalion version detected.  Received: {ver}, Expected: {DeucalionInjector.DeucalionVersion}.  Unable to retrieve network data.", "DEBUG-MACHINA");
+                    Disconnect();
                     return;
                 }
 
@@ -288,8 +299,11 @@ namespace Machina.FFXIV.Deucalion
                         {
                             if (message.header.Opcode == DeucalionOpcode.Recv)
                                 OnMessageReceived(message.data);
-                            if (message.header.Opcode == DeucalionOpcode.Send)
+                            else if (message.header.Opcode == DeucalionOpcode.Send)
                                 OnMessageSent(message.data);
+                            //else
+                            //Trace.WriteLine($"DeucalionClient: Unknown opcode. {message.header.channel} Opcode {message.header.Opcode} message: {BitConverter.ToString(message.data)}", "DEBUG-MACHINA");
+                            //Trace.WriteLine($"DeucalionClient: Channel {message.header.channel} Opcode {message.header.Opcode} message: {BitConverter.ToString(message.data)}", "DEBUG-MACHINA");
                         }
                     }
                     catch (OperationCanceledException)
@@ -401,10 +415,14 @@ namespace Machina.FFXIV.Deucalion
                         case DeucalionOpcode.Recv:
                             if (messagePtr->channel == DeucalionChannel.Zone)
                                 response.Add(newMessage);
+                            else
+                                Trace.WriteLine($"DeucalionClient: Recv opcode unexpected channel {newMessage.header.channel} Opcode {newMessage.header.Opcode} message: {newMessage.debug}", "DEBUG-MACHINA");
                             break;
                         case DeucalionOpcode.Send:
                             if (messagePtr->channel == DeucalionChannel.Zone)
                                 response.Add(newMessage);
+                            else
+                                Trace.WriteLine($"DeucalionClient: Send opcode unexpected channel {newMessage.header.channel} Opcode {newMessage.header.Opcode} message: {newMessage.debug}", "DEBUG-MACHINA");
                             break;
                         case DeucalionOpcode.Exit:
                             Trace.WriteLine("DeucalionClient: Received exit opcode from injected code.", "DEBUG-MACHINA");

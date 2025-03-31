@@ -6,9 +6,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-v        <Version>2.4.1.8</Version>
-        <AssemblyVersion>2.4.1.8</AssemblyVersion>
-        <FileVersion>2.4.1.8</FileVersion>
+        <Version>2.4.2.2</Version>
+        <AssemblyVersion>2.4.2.2</AssemblyVersion>
+        <FileVersion>2.4.2.2</FileVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -38,7 +38,8 @@ v        <Version>2.4.1.8</Version>
  
     <ItemGroup>
         <None Remove="Deucalion\Distrib\deucalion-1.1.0.dll" />
-        <None Remove="Ravahn.Machina.Keyfile.snk" />
+        <None Remove="Deucalion\Distrib\deucalion-1.2.0.dll" />
+      <None Remove="Ravahn.Machina.Keyfile.snk" />
     </ItemGroup>
 
     <ItemGroup>
@@ -71,5 +72,13 @@ v        <Version>2.4.1.8</Version>
         <PackageCopyToOutput>true</PackageCopyToOutput>
       </Content>
     </ItemGroup>
-
+  <ItemGroup>
+    <Content Include="Deucalion\Distrib\deucalion-1.2.0.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>deucalion-1.2.0.dll</TargetPath>
+      <Pack>True</Pack>
+      <PackagePath>lib\$(TargetFrameworks)</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
+  </ItemGroup>
 </Project>
