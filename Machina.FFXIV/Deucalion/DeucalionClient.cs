@@ -208,8 +208,8 @@ namespace Machina.FFXIV.Deucalion
                         out Version ver)
                     || ver < DeucalionInjector.DeucalionVersion)
                 {
-                    DeucalionInjector.LastInjectionError = $"Incorrect Deucalion version detected.  Received: {ver}, Expected: {DeucalionInjector.DeucalionVersion}.";
-                    Trace.WriteLine($"DeucalionClient: ERROR: Incorrect Deucalion version detected.  Received: {ver}, Expected: {DeucalionInjector.DeucalionVersion}.  Unable to retrieve network data.", "DEBUG-MACHINA");
+                    DeucalionInjector.LastInjectionError = $"Incorrect Deucalion version detected.  Received: {result.debug}, Parsed: {ver}, Expected: {DeucalionInjector.DeucalionVersion}.";
+                    Trace.WriteLine($"DeucalionClient: ERROR: Incorrect Deucalion version detected.  Received: {result.debug}, Parsed: {ver}, Expected: {DeucalionInjector.DeucalionVersion}.  Unable to retrieve network data.", "DEBUG-MACHINA");
                     Disconnect();
                     return;
                 }
