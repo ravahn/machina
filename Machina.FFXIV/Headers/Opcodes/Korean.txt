@@ -2,6 +2,8 @@
 StatusEffectList2|69
 StatusEffectList3|1b2
 BossStatusEffectList|1a9
+StatusEffectListForay3|0000
+StatusEffectListOccultCrescent|0000
 Ability1|cc
 Ability8|185
 Ability16|394
