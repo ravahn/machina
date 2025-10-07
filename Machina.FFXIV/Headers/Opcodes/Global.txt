@@ -3,7 +3,6 @@ StatusEffectList2|230
 StatusEffectList3|307
 BossStatusEffectList|17e
 StatusEffectListForay3|348
-StatusEffectListOccultCrescent|0000
 Ability1|338
 Ability8|1e8
 Ability16|d6
