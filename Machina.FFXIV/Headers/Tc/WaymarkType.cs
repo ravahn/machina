@@ -13,13 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-namespace Machina.FFXIV
+using System;
+
+namespace Machina.FFXIV.Headers.Tc
 {
-    public enum GameRegion
+    [Flags]
+    public enum WaymarkType : byte
     {
-        Global = 1,
-        Chinese = 2,
-        Korean = 3,
-        Tc = 4
+        A = 0x1,
+        B = 0x2,
+        C = 0x4,
+        D = 0x8,
+        One = 0x10,
+        Two = 0x20,
+        Three = 0x40,
+        Four = 0x80,
     };
 }

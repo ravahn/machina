@@ -13,13 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-namespace Machina.FFXIV
+using System.Runtime.InteropServices;
+
+
+namespace Machina.FFXIV.Headers.Tc
 {
-    public enum GameRegion
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct Server_ActorCast
     {
-        Global = 1,
-        Chinese = 2,
-        Korean = 3,
-        Tc = 4
-    };
+        public Server_MessageHeader MessageHeader; // 8 DWORDS
+        public ushort ActionID;
+        public byte SkillType;
+        public byte Unknown;
+        public uint Unknown1; // also action ID
+        public float CastTime;
+        public uint TargetID;
+        public float Rotation; // in radians
+        public uint Unknown2;
+        public ushort PosX;
+        public ushort PosY;
+        public ushort PosZ;
+        public ushort Unknown3;
+    }
 }

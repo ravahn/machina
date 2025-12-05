@@ -13,13 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-namespace Machina.FFXIV
+using System.Runtime.InteropServices;
+
+namespace Machina.FFXIV.Headers.Tc
 {
-    public enum GameRegion
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct Server_StatusEffectList2
     {
-        Global = 1,
-        Chinese = 2,
-        Korean = 3,
-        Tc = 4
-    };
+        public Server_MessageHeader MessageHeader; // 8 DWORDS
+        public uint Unknown3;
+        public byte JobID;
+        public byte Level1;
+        public byte Level2;
+        public byte Level3;
+        public uint CurrentHP;
+        public uint MaxHP;
+        public ushort CurrentMP;
+        public ushort MaxMP;
+        public byte DamageShield;
+        public ushort Unknown1; // used to be TP
+        public byte Unknown2;
+        public fixed byte Effects[30 * 3 * 4];
+        // 4 bytes padding at end?
+    }
 }

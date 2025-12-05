@@ -13,13 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-namespace Machina.FFXIV
+using System.Runtime.InteropServices;
+
+namespace Machina.FFXIV.Headers.Tc
 {
-    public enum GameRegion
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct Server_Waymark
     {
-        Global = 1,
-        Chinese = 2,
-        Korean = 3,
-        Tc = 4
-    };
+        public enum WaymarkStatus : byte
+        {
+            Off = 0,
+            On = 1
+        };
+        public Server_MessageHeader MessageHeader; // 8 DWORDS
+        public WaymarkType Waymark;
+        public WaymarkStatus Status;
+        public ushort unknown;
+        public int PosX;
+        public int PosY;// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
+        public int PosZ;
+    }
 }

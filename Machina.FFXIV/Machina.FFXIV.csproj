@@ -6,9 +6,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <Version>2.4.4.4</Version>
-        <AssemblyVersion>2.4.4.4</AssemblyVersion>
-        <FileVersion>2.4.4.4</FileVersion>
+        <Version>2.4.4.6</Version>
+        <AssemblyVersion>2.4.4.6</AssemblyVersion>
+        <FileVersion>2.4.4.6</FileVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -37,14 +37,15 @@
     </PropertyGroup>
  
     <ItemGroup>
-        <None Remove="Deucalion\Distrib\deucalion-1.2.1.dll" />
         <None Remove="Deucalion\Distrib\deucalion-1.4.0.dll" />
-      <None Remove="Ravahn.Machina.Keyfile.snk" />
+        <None Remove="Deucalion\Distrib\deucalion-1.2.1.dll" />
+        <None Remove="Ravahn.Machina.Keyfile.snk" />
     </ItemGroup>
 
     <ItemGroup>
         <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
+        <EmbeddedResource Include="Headers\Opcodes\Tc.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Korean.txt" />
     </ItemGroup>
 
@@ -63,13 +64,6 @@
         </None>
     </ItemGroup>
   <ItemGroup>
-    <Content Include="Deucalion\Distrib\deucalion-1.2.1.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <TargetPath>deucalion-1.2.1.dll</TargetPath>
-        <Pack>True</Pack>
-        <PackagePath>lib\$(TargetFrameworks)</PackagePath>
-        <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
     <Content Include="Deucalion\Distrib\deucalion-1.4.0.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <TargetPath>deucalion-1.4.0.dll</TargetPath>
@@ -77,5 +71,12 @@
         <PackagePath>lib\$(TargetFrameworks)</PackagePath>
         <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
+      <Content Include="Deucalion\Distrib\deucalion-1.2.1.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <TargetPath>deucalion-1.2.1.dll</TargetPath>
+          <Pack>True</Pack>
+          <PackagePath>lib\$(TargetFrameworks)</PackagePath>
+          <PackageCopyToOutput>true</PackageCopyToOutput>
+      </Content>
   </ItemGroup>
 </Project>
