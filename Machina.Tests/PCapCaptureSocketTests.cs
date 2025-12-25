@@ -41,7 +41,7 @@ namespace Machina.Tests
         public void RawPCap_GetDataTwiceTest()
         {
             string ip = InterfaceHelper.GetNetworkInterfaceIPs().FirstOrDefault();
-            Assert.IsTrue(!string.IsNullOrEmpty(ip), "Unable to locate a network interface to test WinPCap capture.");
+            Assert.IsFalse(string.IsNullOrEmpty(ip), "Unable to locate a network interface to test WinPCap capture.");
 
             uint ipLong = ConversionUtility.IPStringToUint(ip);
 

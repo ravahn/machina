@@ -42,7 +42,7 @@ namespace Machina.Tests
         public void RawSocket_GetDataTwiceTest()
         {
             string ip = InterfaceHelper.GetNetworkInterfaceIPs().FirstOrDefault();
-            Assert.IsTrue(!string.IsNullOrEmpty(ip), "Unable to locate a network interface to test RawSocket.");
+            Assert.IsFalse(string.IsNullOrEmpty(ip), "Unable to locate a network interface to test RawSocket.");
 
             RawCaptureSocket sut = new();
             uint ipLong = ConversionUtility.IPStringToUint(ip);

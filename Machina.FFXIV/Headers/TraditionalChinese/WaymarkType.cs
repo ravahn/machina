@@ -13,21 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see<http://www.gnu.org/licenses/>.
 
-using System.Runtime.InteropServices;
+using System;
 
-
-namespace Machina.FFXIV.Headers.Tc
+namespace Machina.FFXIV.Headers.TraditionalChinese
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Server_EffectResultBasic
+    [Flags]
+    public enum WaymarkType : byte
     {
-        public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public uint Unknown1;
-        public uint RelatedActionSequence;
-        public uint ActorID;
-        public uint CurrentHP;
-        public uint Unknown2;
-        public ushort Unknown3;
-        public ushort Unknown4;
-    }
+        A = 0x1,
+        B = 0x2,
+        C = 0x4,
+        D = 0x8,
+        One = 0x10,
+        Two = 0x20,
+        Three = 0x40,
+        Four = 0x80,
+    };
 }

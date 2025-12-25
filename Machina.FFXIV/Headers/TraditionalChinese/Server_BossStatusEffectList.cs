@@ -15,24 +15,25 @@
 
 using System.Runtime.InteropServices;
 
-
-namespace Machina.FFXIV.Headers.Tc
+namespace Machina.FFXIV.Headers.TraditionalChinese
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_ActorCast
+    public unsafe struct Server_BossStatusEffectList
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public ushort ActionID;
-        public byte SkillType;
-        public byte Unknown;
-        public uint Unknown1; // also action ID
-        public float CastTime;
-        public uint TargetID;
-        public float Rotation; // in radians
-        public uint Unknown2;
-        public ushort PosX;
-        public ushort PosY;
-        public ushort PosZ;
-        public ushort Unknown3;
+        public fixed byte Effects2[30 * 3 * 4];
+        public byte JobID;
+        public byte Level1;
+        public byte Level2;
+        public byte Level3;
+        public uint CurrentHP;
+        public uint MaxHP;
+        public ushort CurrentMP;
+        public ushort MaxMP;
+        public byte DamageShield;
+        public ushort Unknown1;
+        public byte Unknown2;
+        public fixed byte Effects1[30 * 3 * 4];
+        public uint Unknown3;
     }
 }

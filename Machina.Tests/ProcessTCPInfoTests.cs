@@ -28,7 +28,7 @@ namespace Machina.Tests
 
             IList<uint> result = ProcessTCPInfo.GetProcessIDByWindow(null, "Program Manager");
 
-            Assert.AreEqual(1, result.Count);
+            Assert.HasCount(1, result);
         }
 
 
@@ -37,7 +37,7 @@ namespace Machina.Tests
         {
             IList<uint> result = ProcessTCPInfo.GetProcessIDByWindow("Progman", null);
 
-            Assert.AreEqual(1, result.Count);
+            Assert.HasCount(1, result);
         }
 
         [TestMethod()]
@@ -50,7 +50,7 @@ namespace Machina.Tests
             sut.ProcessWindowName = "Program Manager";
             sut.UpdateTCPIPConnections(connections);
 
-            Assert.IsTrue(connections.Count >= 0);
+            Assert.IsGreaterThanOrEqualTo(0, connections.Count);
         }
     }
 }

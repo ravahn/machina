@@ -63,7 +63,7 @@ namespace Machina.FFXIV.Tests.Oodle
         {
             int result = _sut.OodleNetwork1UDP_State_Size();
 
-            Assert.IsTrue(result > 0);
+            Assert.IsGreaterThan(0, result);
         }
 
 
@@ -72,7 +72,7 @@ namespace Machina.FFXIV.Tests.Oodle
         {
             int result = _sut.OodleNetwork1TCP_State_Size();
 
-            Assert.IsTrue(result > 0);
+            Assert.IsGreaterThan(0, result);
         }
 
         [TestMethod()]
@@ -81,7 +81,7 @@ namespace Machina.FFXIV.Tests.Oodle
             const int htbits = 0x13;
             int result = _sut.OodleNetwork1_Shared_Size(htbits);
 
-            Assert.IsTrue(result > 0);
+            Assert.IsGreaterThan(0, result);
         }
 
         [TestMethod()]
@@ -95,7 +95,7 @@ namespace Machina.FFXIV.Tests.Oodle
 
             _sut.OodleNetwork1_Shared_SetWindow(shared, htbits, window, window.Length);
 
-            Assert.IsTrue(shared[0] != 0);
+            Assert.AreNotEqual(0, shared[0]);
         }
 
         [TestMethod()]
@@ -112,7 +112,7 @@ namespace Machina.FFXIV.Tests.Oodle
             _sut.OodleNetwork1_Shared_SetWindow(shared, htbits, window, window.Length);
             _sut.OodleNetwork1UDP_Train(state, shared, IntPtr.Zero, IntPtr.Zero, 0);
 
-            Assert.IsTrue(state[4] != 0);
+            Assert.AreNotEqual(0, state[4]);
         }
 
         [TestMethod()]
@@ -129,7 +129,7 @@ namespace Machina.FFXIV.Tests.Oodle
             _sut.OodleNetwork1_Shared_SetWindow(shared, htbits, window, window.Length);
             _sut.OodleNetwork1TCP_Train(state, shared, IntPtr.Zero, IntPtr.Zero, 0);
 
-            Assert.IsTrue(state[4] != 0);
+            Assert.AreNotEqual(0, state[4]);
         }
 
         [TestMethod()]

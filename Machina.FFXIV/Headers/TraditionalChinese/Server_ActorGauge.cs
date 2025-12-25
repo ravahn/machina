@@ -15,17 +15,15 @@
 
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers.Tc
+namespace Machina.FFXIV.Headers.TraditionalChinese
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_SystemLogMessage
+    public struct Server_ActorGauge
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public uint unknown1;
-        public uint logmessageid;
-        public uint param1;
+        public uint param1; // first byte is classjobid
         public uint param2;
         public uint param3;
-        public uint padding1;
+        public uint param4;
     }
 }

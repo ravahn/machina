@@ -6,9 +6,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <Version>2.4.4.9</Version>
-        <AssemblyVersion>2.4.4.9</AssemblyVersion>
-        <FileVersion>2.4.4.9</FileVersion>
+        <Version>2.4.5.0</Version>
+        <AssemblyVersion>2.4.5.0</AssemblyVersion>
+        <FileVersion>2.4.5.0</FileVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -45,7 +45,7 @@
     <ItemGroup>
         <EmbeddedResource Include="Headers\Opcodes\Chinese.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Global.txt" />
-        <EmbeddedResource Include="Headers\Opcodes\Tc.txt" />
+        <EmbeddedResource Include="Headers\Opcodes\TraditionalChinese.txt" />
         <EmbeddedResource Include="Headers\Opcodes\Korean.txt" />
     </ItemGroup>
 

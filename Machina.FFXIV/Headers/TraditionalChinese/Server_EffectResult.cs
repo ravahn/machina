@@ -15,15 +15,37 @@
 
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers.Tc
+
+namespace Machina.FFXIV.Headers.TraditionalChinese
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Server_ActorGauge
+    public struct Server_EffectResultEntry
+    {
+        public byte EffectIndex;
+        public byte unknown1;
+        public ushort EffectID;
+        public ushort unknown2;
+        public ushort unknown3;
+        public float duration;
+        public uint SourceActorID;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct Server_EffectResult
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public uint param1; // first byte is classjobid
-        public uint param2;
-        public uint param3;
-        public uint param4;
+        public uint Unknown1;
+        public uint RelatedActionSequence;
+        public uint ActorID;
+        public uint CurrentHP;
+        public uint MaxHP;
+        public ushort CurrentMP;
+        public ushort Unknown3;
+        //public UInt16 MaxMP;
+        //public UInt16 Unknown4;
+        public byte DamageShield;
+        public byte EffectCount;
+        public ushort Unknown6;
+        public fixed byte Effects[4 * 4 * 4];
     }
 }

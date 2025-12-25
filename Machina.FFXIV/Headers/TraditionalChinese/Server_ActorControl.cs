@@ -15,7 +15,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers.Tc
+namespace Machina.FFXIV.Headers.TraditionalChinese
 {
     public enum Server_ActorControlCategory : ushort
     {

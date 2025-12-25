@@ -15,22 +15,25 @@
 
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers.Tc
+namespace Machina.FFXIV.Headers.TraditionalChinese
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Server_Waymark
+    public unsafe struct Server_StatusEffectList2
     {
-        public enum WaymarkStatus : byte
-        {
-            Off = 0,
-            On = 1
-        };
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public WaymarkType Waymark;
-        public WaymarkStatus Status;
-        public ushort unknown;
-        public int PosX;
-        public int PosY;// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
-        public int PosZ;
+        public uint Unknown3;
+        public byte JobID;
+        public byte Level1;
+        public byte Level2;
+        public byte Level3;
+        public uint CurrentHP;
+        public uint MaxHP;
+        public ushort CurrentMP;
+        public ushort MaxMP;
+        public byte DamageShield;
+        public ushort Unknown1; // used to be TP
+        public byte Unknown2;
+        public fixed byte Effects[30 * 3 * 4];
+        // 4 bytes padding at end?
     }
 }

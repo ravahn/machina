@@ -56,8 +56,8 @@ namespace Machina.Tests
 
             monitor.Stop();
 
-            Assert.IsTrue(dataReceivedCount >= 1);
-            Assert.IsTrue(dataSentCount >= 1);
+            Assert.IsGreaterThanOrEqualTo(1, dataReceivedCount);
+            Assert.IsGreaterThanOrEqualTo(1, dataSentCount);
         }
 
         private void DataReceived()

@@ -15,12 +15,14 @@
 
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers.Tc
+namespace Machina.FFXIV.Headers.TraditionalChinese
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Server_StatusEffectList3
+    public struct Server_UpdateHpMpTp
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public fixed byte Effects[30 * 3 * 4];
+        public uint CurrentHp;
+        public ushort CurrentMp;
+        public ushort Unknown1;
     }
 }

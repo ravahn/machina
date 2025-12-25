@@ -120,7 +120,7 @@ namespace Machina.Tests
         {
             System.Collections.Generic.IList<string> result = InterfaceHelper.GetNetworkInterfaceIPs();
 
-            Assert.IsTrue(result.Contains("127.0.0.1"));
+            Assert.Contains("127.0.0.1", result);
         }
     }
 }

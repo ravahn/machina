@@ -15,18 +15,33 @@
 
 using System.Runtime.InteropServices;
 
-namespace Machina.FFXIV.Headers.Tc
+namespace Machina.FFXIV.Headers.TraditionalChinese
 {
-    // Thanks to Discord user Wintermute for decoding this
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Server_PresetWaymark
+    public struct Server_StatusEffectListEntry
+    {
+        public ushort EffectID;
+        public ushort OtherInfo;
+        public float Duration;
+        public uint ActorID;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct Server_StatusEffectList
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
-        public WaymarkType WaymarkType;
-        public byte Unknown1;
-        public short Unknown2;
-        public fixed int PosX[8];// Xints[0] has X of waymark A, Xints[1] X of B, etc.
-        public fixed int PosY[8];// To calculate 'float' coords from these you cast them to float and then divide by 1000.0
-        public fixed int PosZ[8];
+        public byte JobID;
+        public byte Level1;
+        public byte Level2;
+        public byte Level3;
+        public uint CurrentHP;
+        public uint MaxHP;
+        public ushort CurrentMP;
+        public ushort MaxMP;
+        public byte DamageShield;
+        public ushort Unknown1; // used to be TP
+        public byte Unknown2;
+        public fixed byte Effects[30 * 3 * 4];
+        // 4 bytes padding at end?
     }
 }

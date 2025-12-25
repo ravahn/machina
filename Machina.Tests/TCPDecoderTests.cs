@@ -49,8 +49,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(packet);
 
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -69,14 +69,14 @@ namespace Machina.Tests
             TCPDecoder sut = new(source_port, dest_port);
 
             sut.FilterAndStoreData(packet);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
             byte[] ret = sut.GetNextTCPDatagram();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 1, ret[i]);
-            Assert.AreEqual(0, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
 
@@ -96,12 +96,12 @@ namespace Machina.Tests
             TCPDecoder sut = new(source_port, dest_port);
 
             sut.FilterAndStoreData(packet);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
             byte[] ret = sut.GetNextTCPDatagram();
             Assert.IsNotNull(ret);
-            Assert.AreEqual(0, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
         [TestMethod]
         public void TCPDecoder_GetNextTCPPacket_TwoPackets_TwoPSH()
@@ -127,22 +127,22 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(packet);
             sut.FilterAndStoreData(packet2);
-            Assert.AreEqual(2, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextTCPDatagram();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 1, ret[i]);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             ret = sut.GetNextTCPDatagram();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 11, ret[i]);
-            Assert.AreEqual(0, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
         [TestMethod]
         public void TCPDecoder_GetNextTCPPacket_TwoPackets_OnePSH()
@@ -168,15 +168,15 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(packet);
             sut.FilterAndStoreData(packet2);
-            Assert.AreEqual(2, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextTCPDatagram();
-            Assert.AreEqual(20, ret.Length);
+            Assert.HasCount(20, ret);
             for (int i = 0; i < 20; i++)
                 Assert.AreEqual(i + 1, ret[i]);
-            Assert.AreEqual(0, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
         [TestMethod]
         public void TCPDecoder_GetNextTCPPacket_TwoPacketsOutOfOrder()
@@ -209,29 +209,29 @@ namespace Machina.Tests
             TCPDecoder sut = new(source_port, dest_port);
 
             sut.FilterAndStoreData(packet0);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
             byte[] ret = sut.GetNextTCPDatagram();
             Assert.AreEqual(10, ret?.Length);
-            Assert.AreEqual(0, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             sut.FilterAndStoreData(packet1);
             ret = sut.GetNextTCPDatagram();
             Assert.IsNull(ret);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             sut.FilterAndStoreData(packet2);
-            Assert.AreEqual(2, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             ret = sut.GetNextTCPDatagram();
             Assert.AreEqual(20, ret?.Length);
             for (int i = 0; i < 20; i++)
                 Assert.AreEqual(i + 1, ret[i]);
-            Assert.AreEqual(0, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -257,21 +257,21 @@ namespace Machina.Tests
             TCPDecoder sut = new(source_port, dest_port);
 
             sut.FilterAndStoreData(packet1);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
             byte[] ret = sut.GetNextTCPDatagram();
             Assert.AreEqual(10, ret?.Length);
-            Assert.AreEqual(0, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             sut.FilterAndStoreData(packet2);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             ret = sut.GetNextTCPDatagram();
             Assert.IsNull(ret);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
         [TestMethod]
         public void TCPDecoder_GetNextTCPPacket_SynAndPacket()
@@ -298,24 +298,24 @@ namespace Machina.Tests
             TCPDecoder sut = new(source_port, dest_port);
 
             sut.FilterAndStoreData(packet1);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextTCPDatagram();
             Assert.IsNull(ret);
-            Assert.AreEqual(0, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             sut.FilterAndStoreData(packet2);
-            Assert.AreEqual(1, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             ret = sut.GetNextTCPDatagram();
             Assert.AreEqual(10, ret?.Length);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 1, ret[i]);
-            Assert.AreEqual(0, sut.Packets.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Packets);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         private unsafe byte[] ConstructTCPPacket(

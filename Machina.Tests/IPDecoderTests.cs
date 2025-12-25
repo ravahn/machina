@@ -51,8 +51,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data, data.Length);
 
-            Assert.AreEqual(1, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -68,8 +68,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data, data.Length);
 
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -90,8 +90,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data, data.Length);
 
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(1, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.HasCount(1, TestInfrastructure.Listener.Messages);
             Assert.IsTrue(TestInfrastructure.Listener.Messages[0].Contains("protocol version is neither", StringComparison.Ordinal));
         }
 
@@ -116,8 +116,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data, data.Length);
 
-            Assert.AreEqual(1, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         /// <summary>
@@ -140,8 +140,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data, data.Length);
 
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -165,8 +165,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data, data.Length);
 
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(1, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.HasCount(1, TestInfrastructure.Listener.Messages);
             Assert.IsTrue(TestInfrastructure.Listener.Messages[0].Contains("buffer too small", StringComparison.Ordinal));
         }
 
@@ -192,8 +192,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data, data.Length);
 
-            Assert.AreEqual(1, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
             //Assert.IsTrue(TestInfrastructure.Listener.Messages[0].Contains("extra bytes"));
         }
         [TestMethod]
@@ -225,8 +225,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data1, data1.Length);
 
-            Assert.AreEqual(2, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -273,8 +273,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data3, data3.Length);
 
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -298,8 +298,8 @@ namespace Machina.Tests
 
             sut.FilterAndStoreData(data1, data1.Length);
 
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -318,15 +318,15 @@ namespace Machina.Tests
             IPDecoder sut = new(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
-            Assert.IsTrue(sut.Fragments.Count == 1);
-            Assert.IsTrue(TestInfrastructure.Listener.Messages.Count == 0);
+            Assert.HasCount(1, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextIPPayload();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 1, ret[i]);
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -346,15 +346,15 @@ namespace Machina.Tests
             IPDecoder sut = new(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data, data.Length);
-            Assert.AreEqual(1, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextIPPayload();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 1, ret[i]);
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
         /// <summary>
         /// Tests when two IP fragments are there but out of order, should return both - in any order.
@@ -385,20 +385,20 @@ namespace Machina.Tests
             IPDecoder sut = new(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
-            Assert.AreEqual(2, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextIPPayload();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 11, ret[i]);
             ret = sut.GetNextIPPayload();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 1, ret[i]);
 
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -427,16 +427,16 @@ namespace Machina.Tests
             IPDecoder sut = new(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
-            Assert.AreEqual(2, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextIPPayload();
             Assert.AreEqual(24, ret?.Length);
             for (int i = 0; i < 24; i++)
                 Assert.AreEqual(i + 1, ret[i]);
 
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         [TestMethod]
@@ -462,23 +462,23 @@ namespace Machina.Tests
             IPDecoder sut = new(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
-            Assert.AreEqual(1, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextIPPayload();
-            Assert.AreEqual(null, ret);
+            Assert.IsNull(ret);
 
             sut.FilterAndStoreData(data2, data2.Length);
-            Assert.AreEqual(2, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             ret = sut.GetNextIPPayload();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 11, ret[i]);
 
-            Assert.AreEqual(0, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         /// <summary>
@@ -507,23 +507,23 @@ namespace Machina.Tests
             IPDecoder sut = new(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
-            Assert.AreEqual(1, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextIPPayload();
-            Assert.AreEqual(null, ret);
+            Assert.IsNull(ret);
 
             sut.FilterAndStoreData(data2, data2.Length);
-            Assert.AreEqual(2, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             ret = sut.GetNextIPPayload();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 11, ret[i]);
 
-            Assert.AreEqual(1, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
         /// <summary>
         /// Tests the use of an ip4 packet with header options
@@ -566,27 +566,27 @@ namespace Machina.Tests
             IPDecoder sut = new(sourceIP, destinationIP, IPProtocol.TCP);
 
             sut.FilterAndStoreData(data1, data1.Length);
-            Assert.AreEqual(1, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(1, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             byte[] ret = sut.GetNextIPPayload();
-            Assert.AreEqual(null, ret);
+            Assert.IsNull(ret);
 
             sut.FilterAndStoreData(data2, data2.Length);
-            Assert.AreEqual(2, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             sut.FilterAndStoreData(data3, data3.Length);
-            Assert.AreEqual(3, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(3, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
             ret = sut.GetNextIPPayload();
-            Assert.AreEqual(10, ret.Length);
+            Assert.HasCount(10, ret);
             for (int i = 0; i < 10; i++)
                 Assert.AreEqual(i + 11, ret[i]);
 
-            Assert.AreEqual(2, sut.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.HasCount(2, sut.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
 
         }
 
@@ -607,13 +607,13 @@ namespace Machina.Tests
             decoder.FilterAndStoreData(packet1, packet1.Length);
             decoder.FilterAndStoreData(packet2, packet2.Length);
 
-            Assert.AreEqual(2, decoder.Fragments.Count);
+            Assert.HasCount(2, decoder.Fragments);
 
             byte[] result = decoder.GetNextIPPayload();
-            Assert.AreEqual(1488, result.Length); // todo: is this correct?
+            Assert.HasCount(1488, result); // todo: is this correct?
 
-            Assert.AreEqual(0, decoder.Fragments.Count);
-            Assert.AreEqual(0, TestInfrastructure.Listener.Messages.Count);
+            Assert.IsEmpty(decoder.Fragments);
+            Assert.IsEmpty(TestInfrastructure.Listener.Messages);
         }
 
         private unsafe byte[] ConstructIP4Packet(
