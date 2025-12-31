@@ -56,5 +56,19 @@ namespace Machina.FFXIV.Tests.Headers.Opcodes
 
             Assert.IsTrue(result);
         }
+
+        [TestMethod()]
+        public void Server_MessageType_ChangeRegion()
+        {
+            ushort sut = Server_MessageType.Ability1;
+
+            OpcodeManager.Instance.SetRegion(GameRegion.Korean);
+
+            ushort changedOpcode = Server_MessageType.Ability1;
+
+            OpcodeManager.Instance.SetRegion(GameRegion.Global);
+
+            Assert.AreNotEqual(changedOpcode, sut);
+        }
     }
 }
