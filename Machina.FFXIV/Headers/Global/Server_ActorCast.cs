@@ -18,21 +18,33 @@ using System.Runtime.InteropServices;
 
 namespace Machina.FFXIV.Headers
 {
+    public enum Server_SkillType : byte
+    {
+        None = 0,
+        Spell = 1, // Ability sheet
+        Item = 2, // Item sheet
+        KeyItem = 3, // EventItem sheet
+        Mount = 13, // Mount sheet
+        Accessory = 20 // Ornament sheet
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Server_ActorCast
     {
         public Server_MessageHeader MessageHeader; // 8 DWORDS
         public ushort ActionID;
-        public byte SkillType;
-        public byte Unknown;
-        public uint Unknown1; // also action ID
+        public Server_SkillType SkillType;
+        public byte VfxAnimationDelay; // Delay in 100ms increments for VFX of action
+        public uint SheetID; // Sheet row ID, sheet depends on SkillType
         public float CastTime;
         public uint TargetID;
-        public float Rotation; // in radians
-        public uint Unknown2;
-        public ushort PosX;
+        public ushort Rotation; // Rotation of MessageHeader.ActorID
+        public byte Interruptible; // If 1, cast bar shows as flashing/interruptible with Interject
+        public byte Unknown1; // Probably padding?
+        public uint UnknownID; // Some sort of actor ID, always E0000000 in normal content
+        public ushort PosX; // X/Y/Z of target. If TargetID is an actor, this is the actor's position. If TargetID is E0000000, this is the cast target in world coordinates
         public ushort PosY;
         public ushort PosZ;
-        public ushort Unknown3;
+        public ushort Unknown2; // Padding, always 0000, never referenced in client
     }
 }
