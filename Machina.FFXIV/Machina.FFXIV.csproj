@@ -6,9 +6,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <Version>2.4.5.2</Version>
-        <AssemblyVersion>2.4.5.2</AssemblyVersion>
-        <FileVersion>2.4.5.2</FileVersion>
+        <Version>2.4.5.5</Version>
+        <AssemblyVersion>2.4.5.5</AssemblyVersion>
+        <FileVersion>2.4.5.5</FileVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -27,7 +27,7 @@
         <RepositoryUrl>https://github.com/ravahn/machina</RepositoryUrl>
         <NeutralLanguage>en</NeutralLanguage>
         <Description>Extension to Machina network library to support decoding of Final Fantasy XIV network data</Description>
-        <Copyright>Copyright © 2025 Ravahn</Copyright>
+        <Copyright>Copyright © 2026 Ravahn</Copyright>
         <PackageProjectUrl>https://github.com/ravahn/machina</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
@@ -37,8 +37,8 @@
     </PropertyGroup>
  
     <ItemGroup>
-        <None Remove="Deucalion\Distrib\deucalion-1.4.0.dll" />
         <None Remove="Deucalion\Distrib\deucalion-1.2.1.dll" />
+        <None Remove="Deucalion\Distrib\deucalion-1.5.0.dll" />
         <None Remove="Ravahn.Machina.Keyfile.snk" />
     </ItemGroup>
 
@@ -64,13 +64,13 @@
         </None>
     </ItemGroup>
   <ItemGroup>
-    <Content Include="Deucalion\Distrib\deucalion-1.4.0.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <TargetPath>deucalion-1.4.0.dll</TargetPath>
-        <Pack>True</Pack>
-        <PackagePath>lib\$(TargetFrameworks)</PackagePath>
-        <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
+      <Content Include="Deucalion\Distrib\deucalion-1.5.0.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <TargetPath>deucalion-1.5.0.dll</TargetPath>
+          <Pack>True</Pack>
+          <PackagePath>lib\$(TargetFrameworks)</PackagePath>
+          <PackageCopyToOutput>true</PackageCopyToOutput>
+      </Content>
       <Content Include="Deucalion\Distrib\deucalion-1.2.1.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <TargetPath>deucalion-1.2.1.dll</TargetPath>
