@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Machina.FFXIV.Dalamud;
 using Machina.FFXIV.Deucalion;
 using Machina.Infrastructure;
 
@@ -116,6 +117,7 @@ namespace Machina.FFXIV
 
         private TCPNetworkMonitor _monitor;
         private DeucalionClient _deucalionClient;
+        private DalamudClient _dalamudClient;
         private bool _disposedValue;
 
         private readonly Dictionary<string, FFXIVBundleDecoder> _sentDecoders = new Dictionary<string, FFXIVBundleDecoder>();
@@ -137,6 +139,7 @@ namespace Machina.FFXIV
 
             if (UseDeucalion)
             {
+                /*
                 if (ProcessID == 0)
                     throw new ArgumentException("ProcessID must be specified for Deucalion.");
 
@@ -150,11 +153,16 @@ namespace Machina.FFXIV
                     // Note: if InjectLibrary fails, continue attempting to read from the game.  it is possible the library was already injected.
                     _ = DeucalionInjector.InjectLibrary((int)ProcessID);
 
-                    _deucalionClient = new DeucalionClient();
-                    _deucalionClient.MessageSent = (message) => ProcessDeucalionMessage(message, true);
-                    _deucalionClient.MessageReceived = (message) => ProcessDeucalionMessage(message, false);
-                    _deucalionClient.Connect((int)ProcessID);
-                }
+                _deucalionClient = new DeucalionClient();
+                _deucalionClient.MessageSent = (message) => ProcessDeucalionMessage(message, true);
+                _deucalionClient.MessageReceived = (message) => ProcessDeucalionMessage(message, false);
+                _deucalionClient.Connect((int)ProcessID);
+                */
+
+                // We are replacing Deucalion with Dalamud here, while leaving the Machina.FFXIV API intact
+                _dalamudClient = new DalamudClient();
+                _dalamudClient.MessageReceived = (long epoch, byte[] message) => ProcessDalamudMessage(epoch, message);
+                _dalamudClient.Connect();
             }
             else
             {
@@ -197,6 +205,13 @@ namespace Machina.FFXIV
                 _deucalionClient.Disconnect();
                 _deucalionClient.Dispose();
                 _deucalionClient = null;
+            }
+
+            if (_dalamudClient != null)
+            {
+                _dalamudClient.Disconnect();
+                _dalamudClient.Dispose();
+                _dalamudClient = null;
             }
 
             _sentDecoders.Clear();
@@ -246,6 +261,14 @@ namespace Machina.FFXIV
             {
                 OnMessageReceived(connection, epoch, packet);
             }
+        }
+
+        public void ProcessDalamudMessage(long epoch, byte[] data)
+        {
+            // TCP Connection is irrelevent for this, but needed by interface, so make new one.
+            var connection = new TCPConnection();
+            connection.ProcessId = ProcessID;
+            OnMessageReceived(connection, epoch, data);
         }
 
 
