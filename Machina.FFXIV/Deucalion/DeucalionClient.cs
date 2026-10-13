@@ -214,6 +214,31 @@ namespace Machina.FFXIV.Deucalion
                     return;
                 }
 
+                //if (result.debug.Contains("REQUIRES SIG"))
+                if (result.debug.Contains("RECV OFF"))
+                {
+                    // 10/13/2026 - For Deucalion 1.5.0 send named pipe the RECV signature payload.  Note: this is only necessary because the signature changed.
+                    Trace.WriteLine("DeucalionClient: Named Pipe connected, but requires updated RECV signature.", "DEBUG-MACHINA");
+                    string signature = "E8 $ { ' } 4C 8B 47 10 44 8B 4F 1C";
+                    WritePipe(new DeucalionMessage()
+                    {
+                        header = new DeucalionHeader()
+                        {
+                            channel = DeucalionChannel.Zone,
+                            Opcode = DeucalionOpcode.Recv
+                        },
+                        data = Encoding.ASCII.GetBytes(signature)
+                    }, _tokenSource.Token);
+
+                    result = ReadPipe(buffer, _tokenSource.Token).FirstOrDefault();
+                    if (!result.debug.Contains("RECV OK"))
+                    {
+                        DeucalionInjector.LastInjectionError = $"updated RECV signature did not work.  Received: {result.debug}";
+                        Trace.WriteLine("DeucalionClient: Named Pipe connected, but updated RECV signature did not work.", "DEBUG-MACHINA");
+                        return;
+                    }
+
+                }
                 // Set opcode filter to get recv/send for zone packets.  Assume it was processed successfully.
                 WritePipe(new DeucalionMessage()
                 {
@@ -224,24 +249,6 @@ namespace Machina.FFXIV.Deucalion
                     },
                     data = Array.Empty<byte>()
                 }, _tokenSource.Token);
-
-                if (result.debug.Contains("REQUIRES SIG"))
-                {
-                    Trace.WriteLine("DeucalionClient: Named Pipe connected, but requires updated signature.  Cannot find network data.");
-                    return;
-                    ////Send named pipe the signature payload.  Note: this is unnecessary until the signature breaks.
-                    //string signature = "E8 $ { ' } 4C 8B 43 10 41 8B 40 18";
-                    //WritePipe(new DeucalionMessage()
-                    //{
-                    //    header = new DeucalionHeader()
-                    //    {
-                    //        channel = FFXIVChannel.Zone,
-                    //        Opcode = FFXIVOpcodes.Recv
-                    //    },
-                    //    data = Encoding.ASCII.GetBytes(signature)
-                    //});
-                    //// No need to parse result, it will be logged via debug output.
-                }
 
                 // Set client nickname.  Also assume it was processed successfully.
                 WritePipe(new DeucalionMessage()
