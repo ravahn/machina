@@ -217,9 +217,9 @@ namespace Machina.FFXIV.Deucalion
                 //if (result.debug.Contains("REQUIRES SIG"))
                 if (result.debug.Contains("RECV OFF"))
                 {
-                    // 10/13/2026 - For Deucalion 1.5.0 send named pipe the RECV signature payload.  Note: this is only necessary because the signature changed.
+                    // 10/20/2026 - For Deucalion 1.5.1 send named pipe the RECV signature payload.  Note: this is only necessary because the signature changed and TC client needs old one
                     Trace.WriteLine("DeucalionClient: Named Pipe connected, but requires updated RECV signature.", "DEBUG-MACHINA");
-                    string signature = "E8 $ { ' } 4C 8B 47 10 44 8B 4F 1C";
+                    string signature = "E8 $ { ' } 4C 8B 4F 10 8B 47 1C 45";
                     WritePipe(new DeucalionMessage()
                     {
                         header = new DeucalionHeader()
